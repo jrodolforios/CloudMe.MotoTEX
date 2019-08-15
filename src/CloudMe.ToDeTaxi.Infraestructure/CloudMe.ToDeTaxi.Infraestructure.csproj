@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="prmToolkit.NotificationPattern" Version="1.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.Abstracts\CloudMe.ToDeTaxi.Infraestructure.Abstracts.csproj" />
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.EF\CloudMe.ToDeTaxi.Infraestructure.EF.csproj" />
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.Entries\CloudMe.ToDeTaxi.Infraestructure.Entries.csproj" />
+  </ItemGroup>
+
+</Project>
