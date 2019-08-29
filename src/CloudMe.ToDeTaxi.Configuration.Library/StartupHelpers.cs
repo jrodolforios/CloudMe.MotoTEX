@@ -9,6 +9,7 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Configuration.Library.Constants;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
+using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
 using CloudMe.ToDeTaxi.Infraestructure.Repositories;
 using System;
 using System.Reflection;
@@ -26,28 +27,59 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 
             services.AddSingleton<OperationalStoreOptions>();
             services.AddSingleton<ConfigurationStoreOptions>();
-            services.AddDbContext<TContext>(options => options.UseMySql(connectionString, b => b.MigrationsAssembly(migrationsAssembly)));
+            //services.AddDbContext<TContext>(options => options.UseMySql(connectionString, b => b.MigrationsAssembly(migrationsAssembly)));
+            services.AddDbContext<TContext>(options => options.UseNpgsql(connectionString, b => b.MigrationsAssembly(migrationsAssembly)));
             return services;
         }
 
         public static IServiceCollection AddToDeTaxiServices(this IServiceCollection services)
         {
-            services.AddTransient<IUserService, UserService>();
-            services.AddTransient<ICallService, CallService>();
+            services.AddTransient<ICorridaService, CorridaService>();
+            services.AddTransient<IFaixaDescontoService, FaixaDescontoService>();
+            services.AddTransient<IFaixaDescontoTaxistaService, FaixaDescontoTaxistaService>();
+            services.AddTransient<IFavoritoService, FavoritoService>();
+            services.AddTransient<IFormaPagamentoService, FormaPagamentoService>();
+            services.AddTransient<IFormaPagamentoTaxistaService, FormaPagamentoTaxistaService>();
+            services.AddTransient<IGrupoUsuarioService, GrupoUsuarioService>();
+            services.AddTransient<ILocalizacaoService, LocalizacaoService>();
+            services.AddTransient<IPassageiroService, PassageiroService>();
+            services.AddTransient<IRotaService, RotaService>();
+            services.AddTransient<ISolicitacaoCorridaService, SolicitacaoCorridaService>();
+            services.AddTransient<ITarifaService, TarifaService>();
+            services.AddTransient<ITaxistaService, TaxistaService>();
+            services.AddTransient<IUsuarioGrupoUsuarioService, UsuarioGrupoUsuarioService>();
+            services.AddTransient<IUsuarioService, UsuarioService>();
+            services.AddTransient<IVeiculoService, VeiculoService>();
+            services.AddTransient<IVeiculoTaxistaService, VeiculoTaxistaService>();
 
-            
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped(p => p.GetService<IHttpContextAccessor>()?.HttpContext);
-
 
             return services;
         }
         public static IServiceCollection AddToDeTaxiRepositories(this IServiceCollection services)
         {
-            services.AddTransient<ICallRepository, CallRepository>();
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
-            return services;
+            services.AddTransient<ICorridaRepository, CorridaRepository>();
+            services.AddTransient<IFaixaDescontoRepository, FaixaDescontoRepository>();
+            services.AddTransient<IFaixaDescontoTaxistaRepository, FaixaDescontoTaxistaRepository>();
+            services.AddTransient<IFavoritoRepository, FavoritoRepository>();
+            services.AddTransient<IFormaPagamentoRepository, FormaPagamentoRepository>();
+            services.AddTransient<IFormaPagamentoTaxistaRepository, FormaPagamentoTaxistaRepository>();
+            services.AddTransient<IGrupoUsuarioRepository, GrupoUsuarioRepository>();
+            services.AddTransient<ILocalizacaoRepository, LocalizacaoRepository>();
+            services.AddTransient<IPassageiroRepository, PassageiroRepository>();
+            services.AddTransient<IRotaRepository, RotaRepository>();
+            services.AddTransient<ISolicitacaoCorridaRepository, SolicitacaoCorridaRepository>();
+            services.AddTransient<ITarifaRepository, TarifaRepository>();
+            services.AddTransient<ITaxistaRepository, TaxistaRepository>();
+            services.AddTransient<IUsuarioGrupoUsuarioRepository, UsuarioGrupoUsuarioRepository>();
+            services.AddTransient<IUsuarioRepository, UsuarioRepository>();
+            services.AddTransient<IVeiculoRepository, VeiculoRepository>();
+            services.AddTransient<IVeiculoTaxistaRepository, VeiculoTaxistaRepository>();
 
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+            return services;
         }
     }
 }

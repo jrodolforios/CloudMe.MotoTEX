@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
+namespace CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories
 {
     public interface IBaseRepository<TEntry>: INotifiable where TEntry : class
     {

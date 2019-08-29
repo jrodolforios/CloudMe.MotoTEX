@@ -17,9 +17,9 @@ namespace CloudMe.Auth.Admin.Controllers
 {
     [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
     [TypeFilter(typeof(ControllerExceptionFilterAttribute))]
-    public class IdentityController : BaseIdentityController<CloudMeToDeTaxiContext, CloudMeUserDto, Guid, RoleDto<Guid>, Guid, Guid, Guid, CloudMe.ToDeTaxi.Infraestructure.Entries.User,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
+    public class IdentityController : BaseIdentityController<CloudMeToDeTaxiContext, CloudMeUserDto, Guid, RoleDto<Guid>, Guid, Guid, Guid, CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
     {
-        public IdentityController(IIdentityService<CloudMeToDeTaxiContext, CloudMeUserDto, Guid, RoleDto<Guid>, Guid, Guid, Guid, CloudMe.ToDeTaxi.Infraestructure.Entries.User,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>> identityService, ILogger<ConfigurationController> logger, IStringLocalizer<IdentityController> localizer)
+        public IdentityController(IIdentityService<CloudMeToDeTaxiContext, CloudMeUserDto, Guid, RoleDto<Guid>, Guid, Guid, Guid, CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>> identityService, ILogger<ConfigurationController> logger, IStringLocalizer<IdentityController> localizer)
             : base(identityService, logger, localizer)
         {
         }

@@ -53,13 +53,13 @@ namespace CloudMe.Auth.Admin
             var rootConfiguration = services.BuildServiceProvider().GetService<IRootConfiguration>();
 
             services.AddDbContexts<CloudMeToDeTaxiContext>(HostingEnvironment, Configuration);
-            services.AddAuthenticationServices<CloudMeToDeTaxiContext, CloudMe.ToDeTaxi.Infraestructure.Entries.User,IdentityRole<Guid>>(HostingEnvironment, rootConfiguration.AdminConfiguration);
+            services.AddAuthenticationServices<CloudMeToDeTaxiContext, CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>>(HostingEnvironment, rootConfiguration.AdminConfiguration);
             services.AddMvcExceptionFilters();
 
             services.AddAdminServices<CloudMeToDeTaxiContext>();
 
             services.AddAdminAspNetIdentityServices<CloudMeToDeTaxiContext, CloudMeUserDto, Guid, RoleDto<Guid>, Guid, Guid, Guid,
-                                CloudMe.ToDeTaxi.Infraestructure.Entries.User,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,
+                                CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,
                                  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>();
 
             services.AddMvcLocalization();

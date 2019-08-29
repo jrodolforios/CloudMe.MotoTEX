@@ -40,7 +40,7 @@ namespace CloudMe.Auth.Admin.Helpers
             using (var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<CloudMeToDeTaxiContext>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<CloudMe.ToDeTaxi.Infraestructure.Entries.User>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario>>();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
                 var rootConfiguration = scope.ServiceProvider.GetRequiredService<IRootConfiguration>();
 
@@ -52,7 +52,7 @@ namespace CloudMe.Auth.Admin.Helpers
         /// <summary>
         /// Generate default admin user / role
         /// </summary>
-        private static async Task EnsureSeedIdentityData(UserManager<CloudMe.ToDeTaxi.Infraestructure.Entries.User> userManager,
+        private static async Task EnsureSeedIdentityData(UserManager<CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario> userManager,
             RoleManager<IdentityRole<Guid>> roleManager)
         {
             var companyId = new Guid(Users.AdminCompanyId);
@@ -68,7 +68,7 @@ namespace CloudMe.Auth.Admin.Helpers
             // Create admin user
             if (await userManager.FindByNameAsync(Users.AdminUserName) != null) return;
 
-            var user = new CloudMe.ToDeTaxi.Infraestructure.Entries.User
+            var user = new CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario
             {
                 UserName = Users.AdminUserName,
                 Email = Users.AdminEmail,

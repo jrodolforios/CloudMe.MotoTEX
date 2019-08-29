@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Model\CloudMe.ToDeTaxi.Domain.Model.csproj" />
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.Abstracts\CloudMe.ToDeTaxi.Infraestructure.Abstracts.csproj" />
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure\CloudMe.ToDeTaxi.Infraestructure.csproj" />
   </ItemGroup>
 
 </Project>

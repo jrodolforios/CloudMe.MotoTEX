@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using CloudMe.ToDeTaxi.Configuration.Library.Helpers;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
@@ -51,7 +52,6 @@ namespace CloudMe.ToDeTaxi.Api
                     In = "header",
                     Type = "apiKey"
                 });
-
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -101,6 +101,8 @@ namespace CloudMe.ToDeTaxi.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            UpdateDatabase(app);
+
             var supportedCultures = new[] { new CultureInfo("pt-BR") };
             app.UseRequestLocalization(new RequestLocalizationOptions
             {
@@ -124,9 +126,9 @@ namespace CloudMe.ToDeTaxi.Api
 
             app.UseHttpsRedirection();
             //app.ApiAllowOrigin();
+            app.UseSwagger();
             app.UseMvc();
 
-            app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "CloudMe ToDeTaxi - V1");
@@ -134,6 +136,19 @@ namespace CloudMe.ToDeTaxi.Api
             app.UseCors("AllowOrigin");
 
             app.UseMvc();
+        }
+
+        private static void UpdateDatabase(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                      .CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<CloudMeToDeTaxiContext>())
+                {
+                    context.Database.Migrate();
+                }
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts {
 
-    public class CloudMeAdminDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>,
+    public class CloudMeAdminDbContext : IdentityDbContext<Usuario, IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>,
         IAdminConfigurationDbContext, IAdminLogDbContext, IAdminPersistedGrantDbContext, IAdminPersistedGrantIdentityDbContext
     {
         private readonly ConfigurationStoreOptions _storeOptions;
@@ -105,7 +105,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts {
             builder.Entity<IdentityRoleClaim<Guid>>().ToTable(TableConsts.IdentityRoleClaims);
             builder.Entity<IdentityUserRole<Guid>>().ToTable(TableConsts.IdentityUserRoles);
 
-            builder.Entity<User>().ToTable(TableConsts.IdentityUsers);
+            builder.Entity<Usuario>().ToTable(TableConsts.IdentityUsers);
             builder.Entity<IdentityUserLogin<Guid>>().ToTable(TableConsts.IdentityUserLogins);
             builder.Entity<IdentityUserClaim<Guid>>().ToTable(TableConsts.IdentityUserClaims);
             builder.Entity<IdentityUserToken<Guid>>().ToTable(TableConsts.IdentityUserTokens);

@@ -10,6 +10,24 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
 {
     public class CloudMeToDeTaxiContext : CloudMeAdminDbContext
     {
+        public DbSet<Corrida> Corridas { get; set; }
+        public DbSet<FaixaDesconto> FaixasDesconto { get; set; }
+        public DbSet<FaixaDescontoTaxista> FaixasDescontoTaxistas { get; set; }
+        public DbSet<Favorito> Favoritos { get; set; }
+        public DbSet<FormaPagamento> FormasPagamento { get; set; }
+        public DbSet<FormaPagamentoTaxista> FormasPagamentoTaxistas { get; set; }
+        public DbSet<GrupoUsuario> GruposUsuario { get; set; }
+        public DbSet<Localizacao> Localizacoes { get; set; }
+        public DbSet<Passageiro> Passageiros { get; set; }
+        public DbSet<Rota> Rotas { get; set; }
+        public DbSet<SolicitacaoCorrida> SolicitacoesCorrida { get; set; }
+        public DbSet<Tarifa> Tarifas { get; set; }
+        public DbSet<Taxista> Taxistas { get; set; }
+        public DbSet<UsuarioGrupoUsuario> UsuariosGruposUsuarios { get; set; }
+        public DbSet<Veiculo> Veiculos { get; set; }
+        public DbSet<VeiculoTaxista> VeiculosTaxistas { get; set; }
+
+
         public CloudMeToDeTaxiContext(
             DbContextOptions<CloudMeToDeTaxiContext> options,
             ConfigurationStoreOptions storeOptions,
@@ -22,7 +40,23 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
         {
             //builder.HasDefaultSchema("public");
 
-            builder.ApplyConfiguration(new MapCall());
+            //builder.ApplyConfiguration(new MapCall());
+            builder.ApplyConfiguration(new MapCorrida());
+            builder.ApplyConfiguration(new MapFaixaDesconto());
+            builder.ApplyConfiguration(new MapFaixaDescontoTaxista());
+            builder.ApplyConfiguration(new MapFavorito());
+            builder.ApplyConfiguration(new MapFormaPagamento());
+            builder.ApplyConfiguration(new MapFormaPagamentoTaxista());
+            builder.ApplyConfiguration(new MapGrupoUsuario());
+            builder.ApplyConfiguration(new MapLocalizacao());
+            builder.ApplyConfiguration(new MapPassageiro());
+            builder.ApplyConfiguration(new MapRota());
+            builder.ApplyConfiguration(new MapSolicitacaoCorrida());
+            builder.ApplyConfiguration(new MapTarifa());
+            builder.ApplyConfiguration(new MapTaxista());
+            builder.ApplyConfiguration(new MapUsuarioGrupoUsuario());
+            builder.ApplyConfiguration(new MapVeiculo());
+            builder.ApplyConfiguration(new MapVeiculoTaxista());
             base.OnModelCreating(builder);
         }
 

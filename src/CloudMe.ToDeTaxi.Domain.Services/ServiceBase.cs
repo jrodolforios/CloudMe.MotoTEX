@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using prmToolkit.NotificationPattern;
-using CloudMe.ToDeTaxi.Infraestructure.Repositories;
+using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
 using CloudMe.ToDeTaxi.Domain.Model;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
