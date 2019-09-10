@@ -11,6 +11,6 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Passageiro
         public string CPF { get; set; }
         public Guid IdEndereco { get; set; }
         public Guid? IdLocalizacaoAtual { get; set; }
-        public byte[] Foto { get; set; }
+        public Guid? IdFoto { get; set; }
     }
 }

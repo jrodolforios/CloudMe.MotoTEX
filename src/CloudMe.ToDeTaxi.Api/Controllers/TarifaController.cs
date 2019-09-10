@@ -60,12 +60,13 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="tarifaSummary">Tarifa's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Post([FromBody] TarifaSummary tarifaSummary)
         {
             try
             {
-                return await base.ResponseAsync(await this._tarifaService.CreateAsync(tarifaSummary) != null, _tarifaService);
+                return await base.ResponseAsync((await this._tarifaService.CreateAsync(tarifaSummary)).Id, _tarifaService);
             }
             catch (Exception ex)
             {
@@ -79,12 +80,12 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="tarifaSummary">Modified Tarifa list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Put([FromBody] TarifaSummary tarifaSummary)
         {
             try
             {
-                return await base.ResponseAsync(await this._tarifaService.UpdateAsync(tarifaSummary) != null, _tarifaService);
+                return await base.ResponseAsync((await this._tarifaService.UpdateAsync(tarifaSummary)).Id, _tarifaService);
             }
             catch (Exception ex)
             {

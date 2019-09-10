@@ -31,8 +31,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 IdUsuario = summary.IdUsuario,
                 IdEndereco = summary.IdEndereco,
                 IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
-                CPF = summary.CPF,
-                Foto = summary.Foto.ToArray()
+                IdFoto = summary.IdFoto,
+                CPF = summary.CPF
             };
             return Task.FromResult(Passageiro);
         }
@@ -45,8 +45,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 IdUsuario = entry.IdUsuario,
                 IdEndereco = entry.IdEndereco,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
-                CPF = entry.CPF,
-                Foto = entry.Foto.ToArray()
+                IdFoto = entry.IdFoto,
+                CPF = entry.CPF
             };
 
             return Task.FromResult(Passageiro);
@@ -67,8 +67,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             entry.IdUsuario = summary.IdUsuario;
             entry.IdEndereco = summary.IdEndereco;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
+            entry.IdFoto = summary.IdFoto;
             entry.CPF = summary.CPF;
-            entry.Foto = summary.Foto.ToArray();
         }
 
         protected override void ValidateSummary(PassageiroSummary summary)
@@ -91,11 +91,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             if (summary.IdEndereco.Equals(Guid.Empty))
             {
                 this.AddNotification(new Notification("IdEndereco", "Passageiro: endereço inexistente ou não informado"));
-            }
-
-            if (summary.Foto == null || summary.Foto.Length == 0)
-            {
-                this.AddNotification(new Notification("Foto", "Passageiro: foto é obrigatória"));
             }
         }
     }

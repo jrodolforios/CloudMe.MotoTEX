@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
-     [Authorize, EnableCors("AllowOrigin")] 
+    //[Authorize, EnableCors("AllowOrigin")] 
     public class BaseController : Controller
     {
 

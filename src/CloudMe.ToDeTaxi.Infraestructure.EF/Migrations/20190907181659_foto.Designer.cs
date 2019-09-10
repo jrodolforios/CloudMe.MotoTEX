@@ -3,15 +3,17 @@ using System;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 {
     [DbContext(typeof(CloudMeToDeTaxiContext))]
-    partial class CloudMeToDeTaxiContextModelSnapshot : ModelSnapshot
+    [Migration("20190907181659_foto")]
+    partial class foto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,11 +175,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                         .IsRequired();
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("Nome");
-
-                    b.Property<string>("NomeArquivo")
-                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -457,14 +454,11 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<int>("Capacidade");
 
-                    b.Property<int?>("Cor");
+                    b.Property<int>("Cor");
 
                     b.Property<Guid?>("IdFoto");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("Marca")
-                        .IsRequired();
 
                     b.Property<string>("Modelo")
                         .IsRequired();

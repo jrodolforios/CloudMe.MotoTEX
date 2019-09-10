@@ -14,10 +14,10 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 
             builder.HasKey(x => x.Id);
             builder.Property(x => x.CPF).HasMaxLength(20).IsRequired();
-            builder.Property(x => x.Foto).IsRequired();
 
             builder.HasOne(x => x.Usuario).WithOne().HasForeignKey<Passageiro>(x => x.IdUsuario).IsRequired();
             builder.HasOne(x => x.Endereco).WithOne().HasForeignKey<Passageiro>(x => x.IdEndereco).IsRequired();
+            builder.HasOne(x => x.Foto).WithOne().HasForeignKey<Passageiro>(x => x.IdFoto);
             builder.HasOne(x => x.LocalizacaoAtual).WithOne().HasForeignKey<Passageiro>(x => x.IdLocalizacaoAtual);
         }
     }

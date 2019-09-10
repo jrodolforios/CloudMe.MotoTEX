@@ -29,10 +29,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = summary.Id,
                 Placa = summary.Placa,
+                Marca = summary.Marca,
                 Modelo = summary.Modelo,
                 Capacidade = summary.Capacidade,
                 Cor = summary.Cor,
-                Foto = summary.Foto.ToArray()
+                IdFoto = summary.IdFoto
             };
             return Task.FromResult(Veiculo);
         }
@@ -43,10 +44,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = entry.Id,
                 Placa = entry.Placa,
+                Marca = entry.Marca,
                 Modelo = entry.Modelo,
                 Capacidade = entry.Capacidade,
                 Cor = entry.Cor,
-                Foto = entry.Foto.ToArray()
+                IdFoto = entry.IdFoto
             };
 
             return Task.FromResult(Veiculo);
@@ -65,10 +67,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         protected override void UpdateEntry(Veiculo entry, VeiculoSummary summary)
         {
             entry.Placa = summary.Placa;
+            entry.Marca = summary.Marca;
             entry.Modelo = summary.Modelo;
             entry.Capacidade = summary.Capacidade;
             entry.Cor = summary.Cor;
-            entry.Foto = summary.Foto.ToArray();
+            entry.IdFoto = summary.IdFoto;
         }
 
         protected override void ValidateSummary(VeiculoSummary summary)
@@ -83,6 +86,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 this.AddNotification(new Notification("Placa", "Veiculo: placa não informada"));
             }
 
+            if (string.IsNullOrEmpty(summary.Marca))
+            {
+                this.AddNotification(new Notification("Marca", "marca: placa não informada"));
+            }
+
             if (string.IsNullOrEmpty(summary.Modelo))
             {
                 this.AddNotification(new Notification("Modelo", "Veiculo: modelo não informado"));
@@ -91,11 +99,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             if (summary.Capacidade < 2)
             {
                 this.AddNotification(new Notification("Modelo", "Veiculo: capacidade inconsistente"));
-            }
-
-            if (summary.Foto == null || summary.Foto.Length == 0)
-            {
-                this.AddNotification(new Notification("Foto", "Veiculo: foto é obrigatória"));
             }
         }
     }

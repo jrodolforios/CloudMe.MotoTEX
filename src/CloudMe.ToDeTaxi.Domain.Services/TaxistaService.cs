@@ -31,7 +31,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 IdUsuario = summary.IdUsuario,
                 IdEndereco = summary.IdEndereco,
                 IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
-                Foto = summary.Foto.ToArray()
+                IdFoto = summary.IdFoto
             };
             return Task.FromResult(Taxista);
         }
@@ -44,7 +44,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 IdUsuario = entry.IdUsuario,
                 IdEndereco = entry.IdEndereco,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
-                Foto = entry.Foto.ToArray()
+                IdFoto = entry.IdFoto
             };
 
             return Task.FromResult(Taxista);
@@ -65,7 +65,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             entry.IdUsuario = summary.IdUsuario;
             entry.IdEndereco = summary.IdEndereco;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
-            entry.Foto = summary.Foto.ToArray();
+            entry.IdFoto = summary.IdFoto;
         }
 
         protected override void ValidateSummary(TaxistaSummary summary)
@@ -83,11 +83,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             if (summary.IdEndereco.Equals(Guid.Empty))
             {
                 this.AddNotification(new Notification("IdEndereco", "Taxista: endereço inexistente ou não informado"));
-            }
-
-            if (summary.Foto == null || summary.Foto.Length == 0)
-            {
-                this.AddNotification(new Notification("Foto", "Taxista: foto é obrigatória"));
             }
         }
     }

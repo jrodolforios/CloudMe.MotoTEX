@@ -10,11 +10,33 @@ using Newtonsoft.Json;
 using CloudMe.ToDeTaxi.Configuration.Library.Helpers;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Linq;
+
+public class FileUploadOperation : IOperationFilter
+{
+    public void Apply(Operation operation, OperationFilterContext context)
+    {
+        if (operation.Parameters.FirstOrDefault(x => x.Name.ToLower() == "arquivo") != null)
+        {
+            operation.Parameters.Clear();
+            operation.Parameters.Add(new NonBodyParameter
+            {
+                Name = "arquivo",
+                In = "formData",
+                Description = "Upload File",
+                Required = true,
+                Type = "file"
+            });
+            operation.Consumes.Add("multipart/form-data");
+        }
+    }
+}
 
 namespace CloudMe.ToDeTaxi.Api
 {
@@ -62,6 +84,11 @@ namespace CloudMe.ToDeTaxi.Api
                     { "Bearer", new string[] { } }
                 });
 
+                //x.OperationFilter<FileUploadOperation>(); //Register File Upload Operation Filter
+            });
+
+            services.ConfigureSwaggerGen(options => {
+                options.OperationFilter<FileUploadOperation>(); //Register File Upload Operation Filter
             });
 
             services.AddAuthorization();

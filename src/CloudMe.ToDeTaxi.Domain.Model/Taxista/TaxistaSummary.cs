@@ -10,6 +10,6 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Taxista
         public Guid IdUsuario { get; set; }
         public Guid IdEndereco { get; set; }
         public Guid? IdLocalizacaoAtual { get; set; }
-        public byte[] Foto { get; set; }
+        public Guid? IdFoto { get; set; }
     }
 }

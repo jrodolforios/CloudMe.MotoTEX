@@ -8,9 +8,10 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Veiculo
     {
         public Guid Id { get; set; }
         public string Placa { get; set; }
+        public string Marca { get; set; }
         public string Modelo { get; set; }
         public int Capacidade { get; set; }
-        public int Cor { get; set; }
-        public byte[] Foto { get; set; }
+        public int? Cor { get; set; }
+        public Guid? IdFoto { get; set; }
     }
 }

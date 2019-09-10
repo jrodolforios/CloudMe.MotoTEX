@@ -61,11 +61,12 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="veiculoSummary">Veiculo's summary</param>
         [HttpPost]
         //[ValidateAntiForgeryToken]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Post([FromBody] VeiculoSummary veiculoSummary)
         {
             try
             {
-                return await base.ResponseAsync(await this._veiculoService.CreateAsync(veiculoSummary) != null, _veiculoService);
+                return await base.ResponseAsync((await this._veiculoService.CreateAsync(veiculoSummary)).Id, _veiculoService);
             }
             catch (Exception ex)
             {
@@ -79,12 +80,12 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="veiculoSummary">Modified Veiculo list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Put([FromBody] VeiculoSummary veiculoSummary)
         {
             try
             {
-                return await base.ResponseAsync(await this._veiculoService.UpdateAsync(veiculoSummary) != null, _veiculoService);
+                return await base.ResponseAsync((await this._veiculoService.UpdateAsync(veiculoSummary)).Id, _veiculoService);
             }
             catch (Exception ex)
             {
