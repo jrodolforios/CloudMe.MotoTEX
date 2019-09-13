@@ -25,7 +25,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return await GetRepository().CountAsync();
         }
 
-        public async Task<TEntry> Get(TEntryKey key, string[] paths = null)
+        public virtual async Task<TEntry> Get(TEntryKey key, string[] paths = null)
         {
             return await GetRepository().FindByIdAsync(key, paths);
         }
@@ -35,7 +35,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return await GetRepository().FindAllAsync(paths);
         }
 
-        public IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null, SearchOptions options = null)
+        public virtual IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null, SearchOptions options = null)
         {
             var rawItens = GetRepository().Search(where, paths);
             if(options != null)

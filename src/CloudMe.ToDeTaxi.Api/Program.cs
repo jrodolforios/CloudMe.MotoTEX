@@ -19,6 +19,11 @@ namespace CloudMe.ToDeTaxi.Api
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging(builder =>
+                {
+                    builder.SetMinimumLevel(LogLevel.Warning);
+                    builder.AddFilter("IdentityServer4", LogLevel.Debug);
+                })
                 .UseStartup<Startup>();
     }
 }

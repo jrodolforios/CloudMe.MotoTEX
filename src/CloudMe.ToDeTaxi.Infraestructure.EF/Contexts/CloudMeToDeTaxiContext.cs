@@ -55,6 +55,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
             builder.ApplyConfiguration(new MapSolicitacaoCorrida());
             builder.ApplyConfiguration(new MapTarifa());
             builder.ApplyConfiguration(new MapTaxista());
+            builder.ApplyConfiguration(new MapPontoTaxi());
             builder.ApplyConfiguration(new MapUsuarioGrupoUsuario());
             builder.ApplyConfiguration(new MapVeiculo());
             builder.ApplyConfiguration(new MapVeiculoTaxista());

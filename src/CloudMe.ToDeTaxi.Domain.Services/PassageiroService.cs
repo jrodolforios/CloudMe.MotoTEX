@@ -4,15 +4,19 @@ using CloudMe.ToDeTaxi.Domain.Model.Passageiro;
 using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CloudMe.ToDeTaxi.Domain.Model.Usuario;
+using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
+using System.Linq;
+using System.Linq.Expressions;
+using CloudMe.ToDeTaxi.Domain.Model;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class PassageiroService : ServiceBase<Passageiro, PassageiroSummary, Guid>, IPassageiroService
     {
+        private string[] defaultPaths = {"Endereco", "Usuario"};
         private readonly IPassageiroRepository _PassageiroRepository;
 
         public PassageiroService(IPassageiroRepository PassageiroRepository)
@@ -29,10 +33,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = summary.Id,
                 IdUsuario = summary.IdUsuario,
-                IdEndereco = summary.IdEndereco,
+                CPF = summary.CPF,
+                IdEndereco = summary.Endereco.Id,
                 IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
                 IdFoto = summary.IdFoto,
-                CPF = summary.CPF
             };
             return Task.FromResult(Passageiro);
         }
@@ -43,10 +47,17 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = entry.Id,
                 IdUsuario = entry.IdUsuario,
-                IdEndereco = entry.IdEndereco,
-                IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
+                CPF = entry.CPF,
                 IdFoto = entry.IdFoto,
-                CPF = entry.CPF
+                IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
+                Endereco = new LocalizacaoSummary()
+                {
+                    Id = entry.Endereco.Id,
+                    Endereco = entry.Endereco.Endereco,
+                    Longitude = entry.Endereco.Longitude,
+                    Latitude = entry.Endereco.Latitude,
+                    NomePublico = entry.Endereco.NomePublico
+                },
             };
 
             return Task.FromResult(Passageiro);
@@ -65,10 +76,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         protected override void UpdateEntry(Passageiro entry, PassageiroSummary summary)
         {
             entry.IdUsuario = summary.IdUsuario;
-            entry.IdEndereco = summary.IdEndereco;
+            entry.CPF = summary.CPF;
+            entry.IdEndereco = summary.Endereco.Id;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
             entry.IdFoto = summary.IdFoto;
-            entry.CPF = summary.CPF;
         }
 
         protected override void ValidateSummary(PassageiroSummary summary)
@@ -87,11 +98,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 this.AddNotification(new Notification("IdUsuario", "Passageiro: usuário inexistente ou não informado"));
             }
+        }
 
-            if (summary.IdEndereco.Equals(Guid.Empty))
-            {
-                this.AddNotification(new Notification("IdEndereco", "Passageiro: endereço inexistente ou não informado"));
-            }
+        public override async Task<Passageiro> Get(Guid key, string[] paths = null)
+        {
+            return await base.Get(key, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
+        }
+
+        public override async Task<IEnumerable<Passageiro>> GetAll(string[] paths = null)
+        {
+            return await base.GetAll(paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
+        }
+
+        public override IEnumerable<Passageiro> Search(Expression<Func<Passageiro, bool>> where, string[] paths = null, SearchOptions options = null)
+        {
+            return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
         }
     }
 }
