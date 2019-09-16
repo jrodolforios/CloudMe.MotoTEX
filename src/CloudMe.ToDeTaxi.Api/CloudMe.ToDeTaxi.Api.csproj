@@ -9,23 +9,21 @@
     <PackageReference Include="Microsoft.AspNetCore.App"/>
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0"/>
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="4.0.1"/>
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="4.0.1"/>
-    <PackageReference Include="IdentityServer4" Version="2.4.0"/>
-    <PackageReference Include="IdentityServer4.EntityFramework.Storage" Version="2.4.0"/>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4"/>
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="2.4.0"/>
-    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.4.0"/>
-    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.4.0"/>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1"/>
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1"/>
     <PackageReference Include="Serilog.Sinks.File" Version="4.0.0"/>
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.0.0-rc2"/>
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.0.0-rc2"/>
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.0.0-rc2"/>
+    <PackageReference Include="IdentityServer4" Version="2.5.3"/>
+    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.7.0"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Services\CloudMe.ToDeTaxi.Domain.Services.csproj"/>
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.Abstracts\CloudMe.ToDeTaxi.Infraestructure.Abstracts.csproj"/>
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.EF\CloudMe.ToDeTaxi.Infraestructure.EF.csproj"/>
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure\CloudMe.ToDeTaxi.Infraestructure.csproj"/>
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Configuration.Library\CloudMe.ToDeTaxi.Configuration.Library.csproj"/>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\"/>

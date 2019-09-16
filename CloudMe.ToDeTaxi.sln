@@ -29,6 +29,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Views", "Views", "{36370E81
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMe.ToDeTaxi.Api", "src\CloudMe.ToDeTaxi.Api\CloudMe.ToDeTaxi.Api.csproj", "{E9DEB9D5-A240-4438-99BE-DDFEEE436C8B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMe.ToDeTaxi.Configuration.Library", "src\CloudMe.ToDeTaxi.Configuration.Library\CloudMe.ToDeTaxi.Configuration.Library.csproj", "{913FD67C-00E4-41EF-B0D4-95708BA6CD0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMe.ToDeTaxi.IdentityServer", "src\CloudMe.ToDeTaxi.IdentityServer\CloudMe.ToDeTaxi.IdentityServer.csproj", "{29DFAAB8-3EAC-43B7-B72E-8719DA328673}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +75,14 @@ Global
 		{E9DEB9D5-A240-4438-99BE-DDFEEE436C8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9DEB9D5-A240-4438-99BE-DDFEEE436C8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9DEB9D5-A240-4438-99BE-DDFEEE436C8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{913FD67C-00E4-41EF-B0D4-95708BA6CD0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{913FD67C-00E4-41EF-B0D4-95708BA6CD0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{913FD67C-00E4-41EF-B0D4-95708BA6CD0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{913FD67C-00E4-41EF-B0D4-95708BA6CD0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29DFAAB8-3EAC-43B7-B72E-8719DA328673}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29DFAAB8-3EAC-43B7-B72E-8719DA328673}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29DFAAB8-3EAC-43B7-B72E-8719DA328673}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29DFAAB8-3EAC-43B7-B72E-8719DA328673}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +100,8 @@ Global
 		{81617C29-7968-4F07-9AF3-1ADD3C0CF528} = {E91D01A9-9E9E-44DB-8077-1A3434EBE105}
 		{36370E81-4B5E-452E-94EC-1535BDF09095} = {B06C8389-7023-4BA3-BB47-BD9C7E3890B7}
 		{E9DEB9D5-A240-4438-99BE-DDFEEE436C8B} = {36370E81-4B5E-452E-94EC-1535BDF09095}
+		{913FD67C-00E4-41EF-B0D4-95708BA6CD0D} = {36370E81-4B5E-452E-94EC-1535BDF09095}
+		{29DFAAB8-3EAC-43B7-B72E-8719DA328673} = {36370E81-4B5E-452E-94EC-1535BDF09095}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5374856F-8FF6-4408-B743-CA36BFC462E1}
