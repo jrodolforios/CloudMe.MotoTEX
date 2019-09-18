@@ -2,6 +2,7 @@
 {
     public class ConfigurationConsts
     {
-        public const string ToDeTaxiConnectionStringKey = "PostgreSQL";
+        public const string AdminConnectionStringKey = "AdminConnection";
+        public const string ResourcesPath = "Resources";
     }
 }

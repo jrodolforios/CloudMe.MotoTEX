@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Linq;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,14 +13,30 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using CloudMe.ToDeTaxi.Configuration.Library.Helpers;
+using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.Swagger;
+
+public class AuthorizeCheckOperationFilter : IOperationFilter
+{
+    public void Apply(Operation operation, OperationFilterContext context)
+    {
+        var hasAuthorize = context.ControllerActionDescriptor.GetControllerAndActionAttributes(true).OfType<AuthorizeAttribute>().Any();
+
+        if (hasAuthorize)
+        {
+            operation.Responses.Add("401", new Response { Description = "Unauthorized" });
+            operation.Responses.Add("403", new Response { Description = "Forbidden" });
+
+            operation.Security = new List<IDictionary<string, IEnumerable<string>>>
+            {
+                new Dictionary<string, IEnumerable<string>> {{"oauth2", new[] {"demo_api"}}}
+            };
+        }
+    }
+}
 
 namespace CloudMe.ToDeTaxi.Api
 {
@@ -42,41 +64,33 @@ namespace CloudMe.ToDeTaxi.Api
         public void ConfigureServices(IServiceCollection services)
         {
             var authorityBaseUrl = Configuration["Identity:Authority"];
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie()
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(c =>
                 {
                     c.Authority = authorityBaseUrl;
                     c.RequireHttpsMetadata = false;
                     c.ApiName = "todetaxiapi";
                 });
-                
+
             services.AddSwaggerGen(x =>
             {
-                x.SwaggerDoc("v1", new OpenApiInfo { Title = "CloudMe ToDeTaxi API", Version = "v1" });
-
-                x.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                x.SwaggerDoc("v1", new Info { Title = "CloudMe ToDeTaxi API", Version = "v1" });
+                
+                x.AddSecurityDefinition("oauth2", new OAuth2Scheme
                 {
-                    Type = SecuritySchemeType.OAuth2,
-                    Flows = new OpenApiOAuthFlows
+                    Flow = "implicit",
+                    AuthorizationUrl = "http://localhost:5000/connect/authorize",
+                    Scopes = new Dictionary<string, string>
                     {
-                        Implicit = new OpenApiOAuthFlow
-                        {
-                            TokenUrl = new Uri("/connect/token", UriKind.Relative),
-                            AuthorizationUrl = new Uri("/connect/authorize", UriKind.Relative),
-                            Scopes = new Dictionary<string, string>
-                            {
-                                { "todetaxiapi", "TOdeTaxiAPI - Seguro" }
-                            },
-                        }
+                        { "todetaxiapi", "TOdeTaxiAPI" } 
                     }
                 });
+
+                x.OperationFilter<AuthorizeCheckOperationFilter>();
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 x.IncludeXmlComments(xmlPath);
-
-                //x.OperationFilter<FileUploadOperationFilter>(); //Register File Upload Operation Filter
             });
 
             services.AddDbContexts<CloudMeToDeTaxiContext>(Configuration);
@@ -87,7 +101,7 @@ namespace CloudMe.ToDeTaxi.Api
             {
                 c.AddPolicy("AllowOrigin", options =>
                 {
-                    options.WithOrigins("http://localhost:5000", "https://todetaxi.cloudme.com.br/", "http://todetaxi.cloudme.com.br/");
+                    options.WithOrigins("http://localhost:8080", "https://todetaxi.cloudme.com.br/", "http://todetaxi.cloudme.com.br/");
                     options.WithHeaders("Authorization", "content-type");
                     options.AllowAnyMethod();
                 });
@@ -107,13 +121,13 @@ namespace CloudMe.ToDeTaxi.Api
         {
             StartupHelpers.UpdateDatabase(app);
 
-            /*var supportedCultures = new[] { new CultureInfo("pt-BR") };
+            var supportedCultures = new[] { new CultureInfo("pt-BR") };
             app.UseRequestLocalization(new RequestLocalizationOptions
             {
                 DefaultRequestCulture = new RequestCulture(culture: "pt-BR", uiCulture: "pt-BR"),
                 SupportedCultures = supportedCultures,
                 SupportedUICultures = supportedCultures
-            });*/
+            });
 
             if (env.IsDevelopment())
             {
@@ -127,7 +141,8 @@ namespace CloudMe.ToDeTaxi.Api
 
             // ===== Use Authentication ======
             app.UseAuthentication();
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
+            //app.UseStaticFiles();
 
             //app.ApiAllowOrigin();
             app.UseSwagger();
@@ -135,10 +150,10 @@ namespace CloudMe.ToDeTaxi.Api
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "CloudMe ToDeTaxi - V1");
+                c.RoutePrefix = string.Empty;
                 c.OAuthClientId("ToDeTaxiAPI_swagger");
                 c.OAuthAppName("TOdeTaxi API - Swagger");
             });
-            //app.UseCors("AllowOrigin");
 
             app.UseMvc();
         }

@@ -7,18 +7,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CloudMe.ToDeTaxi.Domain.Services;
 using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
-using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
-using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
-using CloudMe.ToDeTaxi.Infraestructure.Repositories;
-using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using CloudMe.ToDeTaxi.Configuration.Library.Constants;
-using System;
+using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
+using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
+using CloudMe.ToDeTaxi.Infraestructure.Repositories;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
-using CloudMe.ToDeTaxi.Configuration.Library.Identity;
-using IdentityServer4.EntityFramework.Mappers;
-using IdentityServer4.EntityFramework.DbContexts;
-using System.Linq;
 
 namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 {
@@ -29,7 +24,7 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
         {
 
             var migrationsAssembly = typeof(TContext).GetTypeInfo().Assembly.GetName().Name;
-            var connectionString = configuration.GetConnectionString(ConfigurationConsts.ToDeTaxiConnectionStringKey);
+            var connectionString = configuration.GetConnectionString(ConfigurationConsts.AdminConnectionStringKey);
 
             services.AddSingleton<OperationalStoreOptions>();
             services.AddSingleton<ConfigurationStoreOptions>();
@@ -91,96 +86,13 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             return services;
         }
 
-        public static void AddAuthenticationServices<TContext, TUser, TUserRole>(this IServiceCollection services, IHostingEnvironment hostingEnvironment, IConfiguration configuration) where TContext : DbContext
-            where TUser : class where TUserRole : class
-        {
-            var connectionString = configuration.GetConnectionString(ConfigurationConsts.ToDeTaxiConnectionStringKey);
-            var migrationsAssembly = typeof(TContext).GetTypeInfo().Assembly.GetName().Name;
-
-            services.AddIdentity<TUser, TUserRole>()
-                .AddEntityFrameworkStores<TContext>()
-                .AddDefaultTokenProviders();
-
-            var builder = services.AddIdentityServer(options =>
-            {
-                options.Events.RaiseErrorEvents = true;
-                options.Events.RaiseInformationEvents = true;
-                options.Events.RaiseFailureEvents = true;
-                options.Events.RaiseSuccessEvents = true;
-            })
-                .AddAspNetIdentity<TUser>()
-                .AddConfigurationStore(options =>
-                {
-                    options.ConfigureDbContext = b => b.UseNpgsql(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
-                })
-                .AddOperationalStore(options =>
-                {
-                    options.ConfigureDbContext = b => b.UseNpgsql(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
-                    options.EnableTokenCleanup = true;
-                })
-                .AddDeveloperSigningCredential(false);
-
-            //services.AddLocalApiAuthentication();
-        }
-
-        public static void UpdateDatabase(IApplicationBuilder app)
+        public static async void UpdateDatabase(IApplicationBuilder app)
         {
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetService<CloudMeToDeTaxiContext>())
                 {
                     context.Database.Migrate();
-                }
-            }
-        }
-
-        public static async void InitializeTokenServerConfigurationDatabase(IApplicationBuilder app)
-        {
-            using (var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                using (var context = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>() )
-                {
-                    if (!context.Clients.Any())
-                    {
-                        foreach (var client in IdentityConfig.GetClients())
-                        {
-                            context.Clients.Add(client.ToEntity());
-                        }
-                        context.SaveChanges();
-                    }
-
-                    if (!context.IdentityResources.Any())
-                    {
-                        foreach (var resource in IdentityConfig.GetIdentityResources())
-                        {
-                            context.IdentityResources.Add(resource.ToEntity());
-                        }
-                        context.SaveChanges();
-                    }
-
-                    if (!context.ApiResources.Any())
-                    {
-                        foreach (var resource in IdentityConfig.GetApiResources())
-                        {
-                            context.ApiResources.Add(resource.ToEntity());
-                        }
-                        context.SaveChanges();
-                    }
-                }
-
-                using (var context = scope.ServiceProvider.GetService<CloudMeToDeTaxiContext>())
-                {
-                    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario>>();
-                    var masterUser = await userManager.FindByNameAsync(IdentityConfig.masterUserName);
-                    if(masterUser == null)
-                    {
-                        var result = await userManager.CreateAsync(new Infraestructure.Entries.Usuario() 
-                        {
-                            UserName = IdentityConfig.masterUserName,
-                            tipo = Domain.Enums.TipoUsuario.Administrador
-                        },
-                        IdentityConfig.masterUserPassword);
-                    }
                 }
             }
         }
