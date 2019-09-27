@@ -13,7 +13,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public Usuario Usuario { get; set; }
 
         public Guid IdEndereco { get; set; }
-        public virtual Localizacao Endereco { get; set; }
+        public virtual Endereco Endereco { get; set; }
 
         public Guid? IdLocalizacaoAtual { get; set; }
         public virtual Localizacao LocalizacaoAtual { get; set; }

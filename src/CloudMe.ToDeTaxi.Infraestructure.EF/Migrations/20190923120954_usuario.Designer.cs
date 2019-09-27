@@ -3,15 +3,17 @@ using System;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 {
     [DbContext(typeof(CloudMeToDeTaxiContext))]
-    partial class CloudMeToDeTaxiContextModelSnapshot : ModelSnapshot
+    [Migration("20190923120954_usuario")]
+    partial class usuario
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,43 +70,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.HasIndex("IdVeiculo");
 
                     b.ToTable("Corrida");
-                });
-
-            modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.Endereco", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Bairro")
-                        .IsRequired();
-
-                    b.Property<string>("CEP")
-                        .IsRequired();
-
-                    b.Property<string>("Complemento");
-
-                    b.Property<Guid?>("IdLocalizacao");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("Localidade")
-                        .IsRequired();
-
-                    b.Property<string>("Logradouro")
-                        .IsRequired();
-
-                    b.Property<string>("Numero")
-                        .IsRequired();
-
-                    b.Property<string>("UF")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdLocalizacao")
-                        .IsUnique();
-
-                    b.ToTable("Endereco");
                 });
 
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.FaixaDesconto", b =>
@@ -1312,13 +1277,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.Endereco", b =>
-                {
-                    b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Localizacao", "Localizacao")
-                        .WithOne()
-                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Endereco", "IdLocalizacao");
-                });
-
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.FaixaDescontoTaxista", b =>
                 {
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.FaixaDesconto", "FaixaDesconto")
@@ -1422,7 +1380,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.Taxista", b =>
                 {
-                    b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Endereco", "Endereco")
+                    b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Localizacao", "Endereco")
                         .WithOne()
                         .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Taxista", "IdEndereco")
                         .OnDelete(DeleteBehavior.Cascade);

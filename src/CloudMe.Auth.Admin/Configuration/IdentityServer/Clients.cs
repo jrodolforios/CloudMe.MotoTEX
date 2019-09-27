@@ -14,17 +14,43 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 		{
 			return new List<Client>
 			{
+	            new Client
+                {
+                    ClientId = AuthenticationConsts.OidcClientId,
+                    ClientName = AuthenticationConsts.OidcClientName,
+                    ClientUri = adminConfiguration.IdentityAdminBaseUrl,
+
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+
+                    RedirectUris = { $"{adminConfiguration.IdentityAdminBaseUrl}/signin-oidc"},
+                    FrontChannelLogoutUri = $"{adminConfiguration.IdentityAdminBaseUrl}/signout-oidc",
+                    PostLogoutRedirectUris = { $"{adminConfiguration.IdentityAdminBaseUrl}/signout-callback-oidc"},
+                    AllowedCorsOrigins = { adminConfiguration.IdentityAdminBaseUrl },
+                    ClientSecrets ={new Secret(AuthenticationConsts.OidcClientSecret.Sha256())},
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        "roles"
+                    }
+                },
 				// resource owner password grant client
 				new Client
 				{
 					ClientId = "ToDeTaxiAPI_admin",
 					ClientName = "Portal admnistrativo do sistema TOdeTaxi",
-					AllowedGrantTypes = new List<string> { "authorization_code" },
+					AllowedGrantTypes = GrantTypes.Implicit,
 					AllowedScopes = { "todetaxiapi" },
 					AllowAccessTokensViaBrowser = true,
 					RequireConsent = true,
+					/*ClientSecrets =
+					{
+						new Secret("secret".Sha256())
+					},*/
 					RedirectUris = {
-						"http://localhost:4200/login-callback",
+						"http://localhost:4200/auth/callback",
 					},
 					PostLogoutRedirectUris = {
 						"http://localhost:4200"
@@ -38,7 +64,7 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					AllowedGrantTypes = GrantTypes.Implicit,
 					AllowAccessTokensViaBrowser = true,
 					RedirectUris = {
-						"http://localhost:4200/login-callback",
+						"http://localhost:4200/auth/callback",
 					},
 				},
 				new Client

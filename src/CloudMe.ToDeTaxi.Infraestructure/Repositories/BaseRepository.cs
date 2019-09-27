@@ -75,19 +75,19 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
             return await qry.ToListAsync();
         }
 
-        public async Task<bool> SaveAsync(TEntry entry)
+        public async virtual Task<bool> SaveAsync(TEntry entry)
         {
             this.Context.Entry(entry).State = EntityState.Added;
             return await Task.FromResult(true);
         }
 
-        public async Task<bool> ModifyAsync(TEntry entry)
+        public async virtual Task<bool> ModifyAsync(TEntry entry)
         {
             this.Context.Entry(entry).State = EntityState.Modified;
             return await Task.FromResult(true);
         }
 
-        public async Task<bool> DeleteAsync(TEntry entry)
+        public async virtual Task<bool> DeleteAsync(TEntry entry)
         {
             this.Context.Entry(entry).State = EntityState.Deleted;
             return await Task.FromResult(true);

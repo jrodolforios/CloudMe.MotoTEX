@@ -74,7 +74,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 this.AddNotification(new Notification("summary", "Localizacao: sumário é obrigatório"));
             }
 
-            if (string.IsNullOrEmpty(summary.Longitude))
+            /*if (string.IsNullOrEmpty(summary.Longitude))
             {
                 this.AddNotification(new Notification("Longitude", "Localizacao: longitude é obrigatória"));
             }
@@ -82,7 +82,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             if (string.IsNullOrEmpty(summary.Latitude))
             {
                 this.AddNotification(new Notification("Latitude", "Localizacao: latitude é obrigatória"));
-            }
+            }*/
         }
     }
 }

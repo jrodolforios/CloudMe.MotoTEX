@@ -1,23 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <Compile Remove="Security\**" />
-    <EmbeddedResource Remove="Security\**" />
-    <None Remove="Security\**" />
+    <Compile Remove="Security\**"/>
+    <EmbeddedResource Remove="Security\**"/>
+    <None Remove="Security\**"/>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.2.0"/>
+    <PackageReference Include="Skoruba.IdentityServer4.Admin.BusinessLogic.Identity" Version="1.0.0-beta5"/>
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Model\CloudMe.ToDeTaxi.Domain.Model.csproj" />
-    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.Abstracts\CloudMe.ToDeTaxi.Infraestructure.Abstracts.csproj" />
-    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure\CloudMe.ToDeTaxi.Infraestructure.csproj" />
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Model\CloudMe.ToDeTaxi.Domain.Model.csproj"/>
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.Abstracts\CloudMe.ToDeTaxi.Infraestructure.Abstracts.csproj"/>
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure\CloudMe.ToDeTaxi.Infraestructure.csproj"/>
   </ItemGroup>
-
 </Project>

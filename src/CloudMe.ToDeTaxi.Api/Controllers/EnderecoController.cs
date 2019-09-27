@@ -1,35 +1,35 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
-using CloudMe.ToDeTaxi.Domain.Model.Corrida;
+using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
-    public class FaixaDescontoController : BaseController
+    public class EnderecoController : BaseController
     {
-        IFaixaDescontoService _faixaDescontoService;
+        IEnderecoService _EnderecoService;
 
-        public FaixaDescontoController(IFaixaDescontoService faixaDescontoService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public EnderecoController(IEnderecoService EnderecoService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _faixaDescontoService = faixaDescontoService;
+            _EnderecoService = EnderecoService;
         }
 
         /// <summary>
-        /// Gets all faixaDescontos.
+        /// Gets all Enderecos.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<FaixaDescontoSummary>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<EnderecoSummary>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAll()
         {
             try
             {
-                return await base.ResponseAsync(await _faixaDescontoService.GetAllSummariesAsync(), _faixaDescontoService);
+                return await base.ResponseAsync(await _EnderecoService.GetAllSummariesAsync(), _EnderecoService);
             }
             catch (Exception ex)
             {
@@ -38,16 +38,16 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
-        /// Gets a FaixaDesconto.
-        /// <param name="id">FaixaDesconto's ID</param>
+        /// Gets a Endereco.
+        /// <param name="id">Endereco's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(FaixaDescontoSummary), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(EnderecoSummary), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get(Guid id)
         {
             try
             {
-                return await base.ResponseAsync(await _faixaDescontoService.GetSummaryAsync(id), _faixaDescontoService);
+                return await base.ResponseAsync(await _EnderecoService.GetSummaryAsync(id), _EnderecoService);
             }
             catch (Exception ex)
             {
@@ -56,18 +56,16 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
-        /// Creates a new FaixaDesconto.
+        /// Creates a new Endereco.
         /// </summary>
-        /// <param name="faixaDescontoSummary">FaixaDesconto's summary</param>
+        /// <param name="EnderecoSummary">Endereco's summary</param>
         [HttpPost]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] FaixaDescontoSummary faixaDescontoSummary)
+        public async Task<IActionResult> Post([FromBody] EnderecoSummary EnderecoSummary)
         {
             try
             {
-                var newItem = await this._faixaDescontoService.CreateAsync(faixaDescontoSummary);
-                return await base.ResponseAsync(newItem.Id, _faixaDescontoService);
+                return await base.ResponseAsync(await this._EnderecoService.CreateAsync(EnderecoSummary) != null, _EnderecoService);
             }
             catch (Exception ex)
             {
@@ -76,17 +74,17 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
-        /// Modifies an existing FaixaDesconto.
+        /// Modifies an existing Endereco.
         /// </summary>
-        /// <param name="faixaDescontoSummary">Modified FaixaDesconto list's properties summary</param>
+        /// <param name="EnderecoSummary">Modified Endereco list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
         [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] FaixaDescontoSummary faixaDescontoSummary)
+        public async Task<IActionResult> Put([FromBody] EnderecoSummary EnderecoSummary)
         {
             try
             {
-                return await base.ResponseAsync(await this._faixaDescontoService.UpdateAsync(faixaDescontoSummary) != null, _faixaDescontoService);
+                return await base.ResponseAsync(await this._EnderecoService.UpdateAsync(EnderecoSummary) != null, _EnderecoService);
             }
             catch (Exception ex)
             {
@@ -95,7 +93,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
-        /// Removes an existing FaixaDesconto.
+        /// Removes an existing Endereco.
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
@@ -104,7 +102,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         {
             try
             {
-                return await base.ResponseAsync(await this._faixaDescontoService.DeleteAsync(id), _faixaDescontoService);
+                return await base.ResponseAsync(await this._EnderecoService.DeleteAsync(id), _EnderecoService);
             }
             catch (Exception ex)
             {

@@ -5,31 +5,242 @@ using prmToolkit.NotificationPattern;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CloudMe.ToDeTaxi.Domain.Model.Usuario;
+using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Services.Interfaces;
+using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
+using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
-    public class UsuarioService : Notifiable, IUsuarioService
+    public class UsuarioService : ServiceBase<Usuario, UsuarioSummary, Guid>, IUsuarioService
     {
         private readonly IUsuarioRepository _userRepository;
+        private readonly IIdentityService<CloudMeToDeTaxiContext, UserDto<Guid>, Guid, RoleDto<Guid>, Guid, Guid, Guid, CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,  IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>> _identityService;
+        UserManager<Usuario> _userManager;
 
-        public UsuarioService(IUsuarioRepository userRepository)
+        public UsuarioService(
+            IUsuarioRepository userRepository,
+            UserManager<Usuario> userManager,
+            IIdentityService<CloudMeToDeTaxiContext, UserDto<Guid>, Guid, RoleDto<Guid>, Guid, Guid, Guid, CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,  IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>> identityService)
         {
             _userRepository = userRepository;
+            _identityService = identityService;
+            _userManager = userManager;
         }
 
-        public IEnumerable<Usuario> FindAll()
+        protected override Task<Usuario> CreateEntryAsync(UsuarioSummary summary)
         {
-            return _userRepository.FindAll();
+            if (summary.Id.Equals(Guid.Empty))
+                summary.Id = Guid.NewGuid();
+
+            var Usuario = new Usuario
+            {
+                Id = summary.Id,
+                Nome = summary.Nome,
+                UserName = summary.Login,
+                Email = summary.Email,
+                PhoneNumber = summary.Telefone
+            };
+            return Task.FromResult(Usuario);
+        }
+
+        protected override Task<UsuarioSummary> CreateSummaryAsync(Usuario entry)
+        {
+            var Usuario = new UsuarioSummary
+            {
+                Id = entry.Id,
+                Login = entry.UserName,
+                Nome = entry.Nome,
+                Email = entry.Email,
+                Telefone = entry.PhoneNumber
+            };
+
+            return Task.FromResult(Usuario);
+        }
+
+        protected override Guid GetKeyFromSummary(UsuarioSummary summary)
+        {
+            return summary.Id;
+        }
+
+        protected override IBaseRepository<Usuario> GetRepository()
+        {
+            return _userRepository;
+        }
+
+        protected override void UpdateEntry(Usuario entry, UsuarioSummary summary)
+        {
+            entry.Nome = summary.Nome;
+            entry.UserName = summary.Login;
+            entry.Email = summary.Email;
+            entry.PhoneNumber = summary.Telefone;
+        }
+
+        protected override void ValidateSummary(UsuarioSummary summary)
+        {
+            if (summary is null)
+            {
+                this.AddNotification(new Notification("summary", "Usuario: sumário é obrigatório"));
+            }
+
+            if (string.IsNullOrEmpty(summary.Login))
+            {
+                this.AddNotification(new Notification("Login", "Usuario: Login não informado"));
+            }
+
+            if (string.IsNullOrEmpty(summary.Nome))
+            {
+                this.AddNotification(new Notification("Nome", "Usuario: Nome não informado"));
+            }
+
+            if (string.IsNullOrEmpty(summary.Email))
+            {
+                this.AddNotification(new Notification("Nome", "Usuario: email não informado"));
+            }
+        }
+
+        public async Task<IEnumerable<Usuario>> FindAllAsync(string search, int page=1, int pageSize=10)
+        {
+            return this._userManager.Users;
         }
 
         public async Task<Usuario> FindByIdAsync(Guid id)
         {
-            return await _userRepository.FindByIdAsync(id);
+            return await this._userManager.FindByIdAsync(id.ToString());
         }
 
-        public IEnumerable<Usuario> FindAllbyCompany(Guid idCompany)
+        public override async Task<Usuario> CreateAsync(UsuarioSummary summary)
         {
-            return _userRepository.FindAll();
+            ValidateSummary(summary);
+
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            var user = new Usuario
+            {
+                Nome = summary.Nome,
+                UserName = summary.Login,
+                Email = summary.Email,
+                EmailConfirmed = true,
+                PhoneNumber = summary.Telefone
+            };
+
+            var createResult = await _userManager.CreateAsync(user, summary.Senha);
+
+            if (createResult.Succeeded)
+            {
+                return user;
+            }
+            else
+            {
+                foreach(var error in createResult.Errors)
+                {
+                    this.AddNotification(new Notification(error.Code, error.Description));
+                }
+                return null;
+            }
+        }
+
+        public override async Task<bool> DeleteAsync(Guid key)
+        {
+            var usuario = await this._userManager.FindByIdAsync(key.ToString());
+            if(usuario == null)
+            {
+                return false;
+            }
+
+            var lockoutResult = await this._userManager.SetLockoutEnabledAsync(usuario, true);
+            var lockoutResultEndDate = await this._userManager.SetLockoutEndDateAsync(usuario, DateTime.MaxValue);
+
+            if(lockoutResult.Succeeded && lockoutResultEndDate.Succeeded)
+            {
+                return true;
+            }
+            else
+            {
+                foreach(var error in lockoutResult.Errors)
+                {
+                    this.AddNotification(new Notification(error.Code, error.Description));
+                }
+                
+                foreach(var error in lockoutResultEndDate.Errors)
+                {
+                    this.AddNotification(new Notification(error.Code, error.Description));
+                }
+
+                return false;
+            }
+            
+            /*var deleteResult = await this._userManager.DeleteAsync(usuario);
+
+            if(deleteResult.Succeeded)
+            {
+                return true;
+            }
+            else
+            {
+                this.AddNotification(new Notification("CreateAsync", "Usuario: " + deleteResult.Errors.ToString()));
+                return false;
+            }*/
+        }
+
+        public override async Task<Usuario> UpdateAsync(UsuarioSummary summary)
+        {
+            ValidateSummary(summary);
+
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            var usuario = await this._userManager.FindByIdAsync(summary.Id.ToString());
+            if(usuario == null)
+            {
+                return null;
+            }
+
+            UpdateEntry(usuario, summary);
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            var updateResult = await this._userManager.UpdateAsync(usuario);
+            if(updateResult.Succeeded)
+            {
+                return usuario;
+            }
+            else
+            {
+                foreach(var error in updateResult.Errors)
+                {
+                    this.AddNotification(new Notification(error.Code, error.Description));
+                }
+                return null;
+            }
+        }
+
+        public async Task<bool> ChangePasswordAsync(Guid key, string old_password, string new_password)
+        {
+            var usuario = await this._userManager.FindByIdAsync(key.ToString());
+            if(usuario == null)
+            {
+                return false;
+            }
+
+            var passwordResult = await this._userManager.ChangePasswordAsync(usuario, old_password, new_password);
+
+            if(passwordResult.Succeeded)
+            {
+                return true;
+            }
+            else
+            {
+                throw new Exception(passwordResult.Errors.ToString());
+            }
         }
     }
 }

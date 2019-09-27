@@ -18,6 +18,10 @@ using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.Identity;
+using CloudMe.ToDeTaxi.Infraestructure.Entries;
+using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Extensions;
+using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
 
 public class AuthorizeCheckOperationFilter : IOperationFilter
 {
@@ -63,8 +67,22 @@ namespace CloudMe.ToDeTaxi.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddIdentity<Usuario, IdentityRole<Guid>>()
+                .AddEntityFrameworkStores<CloudMeToDeTaxiContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAdminAspNetIdentityServices<CloudMeToDeTaxiContext, UserDto<Guid>, Guid, RoleDto<Guid>, Guid, Guid, Guid,
+                                CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,
+                                 IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>();
+
             var authorityBaseUrl = Configuration["Identity:Authority"];
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+            //services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+            services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = IdentityServerAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = IdentityServerAuthenticationDefaults.AuthenticationScheme;
+                //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
                 .AddIdentityServerAuthentication(c =>
                 {
                     c.Authority = authorityBaseUrl;
@@ -96,6 +114,8 @@ namespace CloudMe.ToDeTaxi.Api
             services.AddDbContexts<CloudMeToDeTaxiContext>(Configuration);
             services.AddToDeTaxiServices()
                     .AddToDeTaxiRepositories();
+
+            services.AddAuthorizationPolicies();
 
             /*services.AddCors(c =>
             {

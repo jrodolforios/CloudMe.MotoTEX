@@ -14,10 +14,18 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
     public class TaxistaController : BaseController
     {
         ITaxistaService _taxistaService;
+        IUsuarioService _usuarioService;
+        IEnderecoService _enderecoService;
 
-        public TaxistaController(ITaxistaService taxistaService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public TaxistaController(
+            ITaxistaService taxistaService,
+            IUsuarioService usuarioService,
+            IEnderecoService localizacaoService,
+            IUnitOfWork unitOfWork) : base(unitOfWork)
         {
             _taxistaService = taxistaService;
+            _usuarioService = usuarioService;
+            _enderecoService = localizacaoService;
         }
 
         /// <summary>
@@ -60,12 +68,34 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="taxistaSummary">Taxista's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Post([FromBody] TaxistaSummary taxistaSummary)
         {
             try
             {
-                return await base.ResponseAsync(await this._taxistaService.CreateAsync(taxistaSummary) != null, _taxistaService);
+                // cria um usuario para o taxista
+                var usuario = await this._usuarioService.CreateAsync(taxistaSummary.Usuario);
+                if (usuario == null)
+                {
+                    throw new Exception("Não foi possível criar usuário para o taxista"); // TODO: Tirar essa gambiarra (exception)
+                }
+                taxistaSummary.Usuario.Id = usuario.Id;
+
+                // cria um endereço para o taxista
+                var endereco = await this._enderecoService.CreateAsync(taxistaSummary.Endereco);
+                if (endereco == null)
+                {
+                    throw new Exception("Não foi possível criar endereço para o taxista"); // TODO: Tirar essa gambiarra (exception)
+                }
+                taxistaSummary.Endereco.Id = endereco.Id;
+
+                var taxista = await this._taxistaService.CreateAsync(taxistaSummary);
+                if(taxista == null)
+                {
+                    throw new Exception("Não foi possível criar registro do taxista"); // TODO: Tirar essa gambiarra (exception)
+                }
+                return await base.ResponseAsync(taxista.Id, _taxistaService);
             }
             catch (Exception ex)
             {

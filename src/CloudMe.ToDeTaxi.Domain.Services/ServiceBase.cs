@@ -105,7 +105,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return null;
         }
 
-        public async Task<TEntry> UpdateAsync(TEntrySummary summary)
+        public virtual async Task<TEntry> UpdateAsync(TEntrySummary summary)
         {
             ValidateSummary(summary);
 

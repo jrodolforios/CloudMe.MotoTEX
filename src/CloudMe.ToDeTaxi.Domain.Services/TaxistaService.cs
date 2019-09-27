@@ -20,10 +20,17 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         private string[] defaultPaths = {"Endereco", "Usuario"};
 
         private readonly ITaxistaRepository _TaxistaRepository;
+        //private readonly IUsuarioService _usuarioService;
+        //private readonly ILocalizacaoService _localizacaoService;
 
-        public TaxistaService(ITaxistaRepository TaxistaRepository)
+        public TaxistaService(
+            ITaxistaRepository TaxistaRepository)
+            //IUsuarioService usuarioService,
+            //ILocalizacaoService localizacaoService)
         {
             _TaxistaRepository = TaxistaRepository;
+            //_usuarioService = usuarioService;
+            //_localizacaoService = localizacaoService;
         }
 
         protected override Task<Taxista> CreateEntryAsync(TaxistaSummary summary)
@@ -34,7 +41,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Taxista = new Taxista
             {
                 Id = summary.Id,
-                IdUsuario = summary.IdUsuario,
+                IdUsuario = summary.Usuario.Id,
                 RG = summary.RG,
                 CPF = summary.CPF,
                 IdFoto = summary.IdFoto,
@@ -50,19 +57,29 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Taxista = new TaxistaSummary
             {
                 Id = entry.Id,
-                IdUsuario = entry.IdUsuario,
                 RG = entry.RG,
                 CPF = entry.CPF,
                 IdFoto = entry.IdFoto,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
                 IdPontoTaxi = entry.IdPontoTaxi,
-                Endereco = new LocalizacaoSummary()
+                Usuario = new UsuarioSummary()
+                {
+                    Id = entry.Usuario.Id,
+                    Nome = entry.Usuario.UserName,
+                    Email = entry.Usuario.Email,
+                    Telefone = entry.Usuario.PhoneNumber
+                },
+                Endereco = new EnderecoSummary()
                 {
                     Id = entry.Endereco.Id,
-                    Endereco = entry.Endereco.Endereco,
-                    Longitude = entry.Endereco.Longitude,
-                    Latitude = entry.Endereco.Latitude,
-                    NomePublico = entry.Endereco.NomePublico
+                    CEP = entry.Endereco.CEP,
+                    Logradouro = entry.Endereco.Logradouro,
+                    Numero = entry.Endereco.Numero,
+                    Complemento = entry.Endereco.Complemento,
+                    Bairro = entry.Endereco.Bairro,
+                    Localidade = entry.Endereco.Localidade,
+                    UF = entry.Endereco.UF,
+                    IdLocalizacao = entry.Endereco.IdLocalizacao
                 },
             };
 
@@ -81,7 +98,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         protected override void UpdateEntry(Taxista entry, TaxistaSummary summary)
         {
-            entry.IdUsuario = summary.IdUsuario;
+            entry.IdUsuario = summary.Usuario.Id;
             entry.RG = summary.RG;
             entry.CPF = summary.CPF;
             entry.IdFoto = summary.IdFoto;
@@ -95,11 +112,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             if (summary is null)
             {
                 this.AddNotification(new Notification("summary", "Taxista: sumário é obrigatório"));
-            }
-
-            if (summary.IdUsuario.Equals(Guid.Empty))
-            {
-                this.AddNotification(new Notification("IdUsuario", "Taxista: usuário inexistente ou não informado"));
             }
 
             if (string.IsNullOrEmpty(summary.RG))
@@ -127,5 +139,98 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         {
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
         }
+
+        /*public override async Task<Taxista> CreateAsync(TaxistaSummary summary)
+        {
+            ValidateSummary(summary);
+
+            if (IsInvalid() || _usuarioService.IsInvalid() || _localizacaoService.IsInvalid())
+            {
+                return null;
+            }
+
+            // cria um usuario para o taxista
+            var usuario = _usuarioService.CreateAsync(summary.Usuario);
+            if(usuario == null)
+            {
+                if(_usuarioService.IsInvalid())
+                {
+                    this.AddNotifications(_usuarioService.Notifications);
+                }
+            }
+
+            // cria um endereço para o taxista
+            var endereco = _localizacaoService.CreateAsync(summary.Endereco);
+            if(endereco == null)
+            {
+                if(_localizacaoService.IsInvalid())
+                {
+                    this.AddNotifications(_localizacaoService.Notifications);
+                }
+            }
+
+            var entry = await CreateEntryAsync(summary);
+
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            if (await GetRepository().SaveAsync(entry))
+            {
+                return entry;
+            }
+            else
+            {
+                this.AddNotifications(GetRepository().Notifications);
+            }
+
+            return null;
+        }*/
+
+        /*public override async Task<Taxista> UpdateAsync(TaxistaSummary summary)
+        {
+            ValidateSummary(summary);
+
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            var taxista = await GetRepository().FindByIdAsync(GetKeyFromSummary(summary));
+            if(taxista != null)
+            {
+                UpdateEntry(taxista, summary);
+
+                // atualiza tambem o usuario do taxista
+                await _usuarioService.UpdateAsync(summary.Usuario);
+
+                if (IsInvalid())
+                {
+                    return null;
+                }
+
+                if (await GetRepository().ModifyAsync(taxista))
+                {
+                    return taxista;
+                }
+            }
+
+            return null;
+        }*/
+
+        /*public override async Task<bool> DeleteAsync(Guid key)
+        {
+            var repo = GetRepository();
+            var taxista = await repo.FindByIdAsync(key);
+
+            // remove o usuario associado ao taxista
+            if(await this._usuarioService.DeleteAsync(taxista.Usuario.Id))
+            {
+                return await repo.DeleteAsync(taxista);
+            }
+
+            return false;
+        }*/
     }
 }

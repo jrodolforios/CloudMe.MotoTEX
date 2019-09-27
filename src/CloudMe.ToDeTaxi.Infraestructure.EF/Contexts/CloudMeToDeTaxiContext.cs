@@ -18,6 +18,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
         public DbSet<FormaPagamentoTaxista> FormasPagamentoTaxistas { get; set; }
         public DbSet<GrupoUsuario> GruposUsuario { get; set; }
         public DbSet<Localizacao> Localizacoes { get; set; }
+        public DbSet<Localizacao> Enderecos { get; set; }
         public DbSet<Passageiro> Passageiros { get; set; }
         public DbSet<Rota> Rotas { get; set; }
         public DbSet<SolicitacaoCorrida> SolicitacoesCorrida { get; set; }
@@ -50,6 +51,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
             builder.ApplyConfiguration(new MapFormaPagamentoTaxista());
             builder.ApplyConfiguration(new MapGrupoUsuario());
             builder.ApplyConfiguration(new MapLocalizacao());
+            builder.ApplyConfiguration(new MapEndereco());
             builder.ApplyConfiguration(new MapPassageiro());
             builder.ApplyConfiguration(new MapRota());
             builder.ApplyConfiguration(new MapSolicitacaoCorrida());

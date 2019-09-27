@@ -15,6 +15,7 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                 new IdentityResources.Profile(),
                 new IdentityResources.Address(),
                 new IdentityResources.Email(),
+                new IdentityResource("roles", "Roles", new[] { "role" }),
                 /*
 				// custom identity resource with some consolidated claims
                 new IdentityResource("custom.profile", new[] { JwtClaimTypes.Name, JwtClaimTypes.Email, "location" }),

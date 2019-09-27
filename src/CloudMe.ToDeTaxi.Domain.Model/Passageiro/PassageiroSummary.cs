@@ -1,7 +1,5 @@
 ﻿using System;
-using CloudMe.ToDeTaxi.Domain.Model.Usuario;
 using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
-using CloudMe.ToDeTaxi.Domain.Model.Foto;
 
 namespace CloudMe.ToDeTaxi.Domain.Model.Passageiro
 {

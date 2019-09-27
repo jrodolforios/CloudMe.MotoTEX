@@ -42,6 +42,7 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             services.AddTransient<IFormaPagamentoTaxistaService, FormaPagamentoTaxistaService>();
             services.AddTransient<IGrupoUsuarioService, GrupoUsuarioService>();
             services.AddTransient<ILocalizacaoService, LocalizacaoService>();
+            services.AddTransient<IEnderecoService, EnderecoService>();
             services.AddTransient<IPassageiroService, PassageiroService>();
             services.AddTransient<IRotaService, RotaService>();
             services.AddTransient<ISolicitacaoCorridaService, SolicitacaoCorridaService>();
@@ -69,6 +70,7 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             services.AddTransient<IFormaPagamentoTaxistaRepository, FormaPagamentoTaxistaRepository>();
             services.AddTransient<IGrupoUsuarioRepository, GrupoUsuarioRepository>();
             services.AddTransient<ILocalizacaoRepository, LocalizacaoRepository>();
+            services.AddTransient<IEnderecoRepository, EnderecoRepository>();
             services.AddTransient<IPassageiroRepository, PassageiroRepository>();
             services.AddTransient<IRotaRepository, RotaRepository>();
             services.AddTransient<ISolicitacaoCorridaRepository, SolicitacaoCorridaRepository>();
@@ -95,6 +97,15 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
                     context.Database.Migrate();
                 }
             }
+        }
+
+        public static void AddAuthorizationPolicies(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(AuthorizationConsts.AdministrationPolicy,
+                    policy => policy.RequireRole(AuthorizationConsts.AdministrationRole));
+            });
         }
     }
 }

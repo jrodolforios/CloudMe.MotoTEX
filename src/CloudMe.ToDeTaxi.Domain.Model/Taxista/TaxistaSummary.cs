@@ -7,7 +7,6 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Taxista
     public class TaxistaSummary
     {
         public Guid Id { get; set; }
-        public Guid IdUsuario { get; set; }
         public string CPF { get; set; }
         public string RG { get; set; }
 
@@ -15,6 +14,7 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Taxista
         public Guid? IdLocalizacaoAtual { get; set; }
         public Guid? IdPontoTaxi { get; set; }
 
-        public LocalizacaoSummary Endereco { get; set; } 
+        public UsuarioSummary Usuario { get; set; } 
+        public EnderecoSummary Endereco { get; set; } 
     }
 }
