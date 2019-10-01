@@ -1,7 +1,5 @@
 using System;
 using System.Net;
-using System.IO;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +7,9 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Foto;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -26,17 +27,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// Gets all Fotos.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<FotoSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<FotoSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<FotoSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _FotoService.GetAllSummariesAsync(), _FotoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FotoService.GetAllSummariesAsync(), _FotoService);
         }
 
         /// <summary>
@@ -44,70 +38,27 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">Foto's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(FotoSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<FotoSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<FotoSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _FotoService.GetSummaryAsync(id), _FotoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
-        }
-
-        /// <summary>
-        /// Creates a new Corrida.
-        /// </summary>
-        /// <param name="fotoSummary">Corrida's summary</param>
-        [HttpPost]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] FotoSummary fotoSummary)
-        {
-            try
-            {
-                return await base.ResponseAsync((await this._FotoService.CreateAsync(fotoSummary)).Id.ToString(), _FotoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FotoService.GetSummaryAsync(id), _FotoService);
         }
 
         /// <summary>
         /// Creates a new Foto.
         /// </summary>
-        /// <param arquivo="IFormFile">Imagem da foto</param>
-        [HttpPost("upload"), DisableRequestSizeLimit]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        /// <param name="FotoSummary">Foto's summary</param>
+        [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Upload(IFormFile arquivo)
+        public async Task<Response<Guid>> Post([FromBody] FotoSummary FotoSummary)
         {
-            try
+            var entity = await this._FotoService.CreateAsync(FotoSummary);
+            if (_FotoService.IsInvalid())
             {
-                if (arquivo != null && arquivo.Length > 0)
-                {
-                    using (MemoryStream stream = new MemoryStream())
-                    {
-                        await arquivo.CopyToAsync(stream);
-                        var fotoSummary = new FotoSummary
-                        {
-                            NomeArquivo = arquivo.FileName,
-                            Dados = stream.GetBuffer()
-                        };
-
-                        return await base.ResponseAsync((await this._FotoService.CreateAsync(fotoSummary)).Id.ToString(), _FotoService);
-                    }
-                }
-                return await base.ResponseAsync(string.Empty, _FotoService);
+                return await base.ErrorResponseAsync<Guid>(_FotoService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
-            
+            return await base.ResponseAsync(entity.Id, _FotoService);
         }
 
         /// <summary>
@@ -116,17 +67,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="FotoSummary">Modified Foto list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] FotoSummary FotoSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] FotoSummary FotoSummary)
         {
-            try
-            {
-                return await base.ResponseAsync((await this._FotoService.UpdateAsync(FotoSummary)).Id.ToString(), _FotoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FotoService.UpdateAsync(FotoSummary) != null, _FotoService);
         }
 
         /// <summary>
@@ -134,17 +78,43 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
+            return await base.ResponseAsync(await this._FotoService.DeleteAsync(id), _FotoService);
+        }
+
+
+        /// <summary>
+        /// Creates a new Foto.
+        /// </summary>
+        /// <param arquivo="IFormFile">Imagem da foto</param>
+        [HttpPost("upload"), DisableRequestSizeLimit]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
+        //[ValidateAntiForgeryToken]
+        public async Task<Response<Guid>> Upload(IFormFile arquivo)
+        {
+            if (arquivo != null && arquivo.Length > 0)
             {
-                return await base.ResponseAsync(await this._FotoService.DeleteAsync(id), _FotoService);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    await arquivo.CopyToAsync(stream);
+                    var fotoSummary = new FotoSummary
+                    {
+                        NomeArquivo = arquivo.FileName,
+                        Dados = stream.GetBuffer()
+                    };
+
+                    var entity = await this._FotoService.CreateAsync(fotoSummary);
+                    if (_FotoService.IsInvalid())
+                    {
+                        return await base.ErrorResponseAsync<Guid>(_FotoService);
+                    }
+                    return await base.ResponseAsync(entity.Id, _FotoService);
+                }
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(Guid.Empty, _FotoService);            
         }
     }
 }
+

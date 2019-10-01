@@ -8,6 +8,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
     public class Usuario: IdentityUser<Guid>
     {
         public string Nome { get; set; }
+        public string CPF { get; set; }
+        public string RG { get; set; }
         public TipoUsuario tipo { get; set; }
         //public DateTime DataRegistro { get; set; }
         //public DateTime DataExclusao { get; set; }

@@ -1,22 +1,18 @@
 ﻿using System;
+using System.Net;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Services.Interfaces;
-using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
-using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
-using Microsoft.AspNetCore.Identity;
-using System.Net;
-using CloudMe.ToDeTaxi.Domain.Model.Usuario;
-using System.Collections.Generic;
-using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
+using CloudMe.ToDeTaxi.Domain.Model.Usuario;
+using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using CloudMe.ToDeTaxi.Configuration.Library.Constants;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
-    [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
     [ApiController, Route("api/v1/[controller]")]
     public class UsuarioController : BaseController
     {
@@ -31,17 +27,11 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// Gets all Usuarios.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<UsuarioSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll(string search, int? page=1, int? pageSize=10)
+        //[Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
+        [ProducesResponseType(typeof(Response<IEnumerable<UsuarioSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<UsuarioSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _UsuarioService.GetAllSummariesAsync(), _UsuarioService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _UsuarioService.GetAllSummariesAsync(), _UsuarioService);
         }
 
         /// <summary>
@@ -49,17 +39,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">Usuario's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(UsuarioSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<UsuarioSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<UsuarioSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _UsuarioService.GetSummaryAsync(id), _UsuarioService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _UsuarioService.GetSummaryAsync(id), _UsuarioService);
         }
 
         /// <summary>
@@ -67,18 +50,16 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="UsuarioSummary">Usuario's summary</param>
         [HttpPost]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] UsuarioSummary UsuarioSummary)
+        public async Task<Response<Guid>> Post([FromBody] UsuarioSummary UsuarioSummary)
         {
-            try
+            var entity = await this._UsuarioService.CreateAsync(UsuarioSummary);
+            if (_UsuarioService.IsInvalid())
             {
-                return await base.ResponseAsync((await this._UsuarioService.CreateAsync(UsuarioSummary)).Id, _UsuarioService);
+                return await base.ErrorResponseAsync<Guid>(_UsuarioService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _UsuarioService);
         }
 
         /// <summary>
@@ -87,17 +68,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="UsuarioSummary">Modified Usuario list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] UsuarioSummary UsuarioSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] UsuarioSummary UsuarioSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._UsuarioService.UpdateAsync(UsuarioSummary) != null, _UsuarioService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._UsuarioService.UpdateAsync(UsuarioSummary) != null, _UsuarioService);
         }
 
         /// <summary>
@@ -105,17 +79,36 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._UsuarioService.DeleteAsync(id), _UsuarioService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._UsuarioService.DeleteAsync(id), _UsuarioService);
+        }
+
+        /// <summary>
+        /// Altera senha do usuario.
+        /// </summary>
+        /// <param name="id">DialList's ID</param>
+        [HttpPost("altera_senha/{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> AlterarSenha(Guid id, [FromBody] CredenciaisUsuario credenciais)
+        {
+            return await base.ResponseAsync(
+                await this._UsuarioService.ChangePasswordAsync(id, credenciais.SenhaAnterior, credenciais.Senha), _UsuarioService);
+        }
+
+        /// <summary>
+        /// Bloqueia/desbloqueia um usuario.
+        /// </summary>
+        /// <param name="id">DialList's ID</param>
+        [HttpPost("bloquear/{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Bloquear(Guid id, bool bloquear)
+        {
+            // bloqueia/desbloqueia o usuário do taxista
+            return await base.ResponseAsync(
+                await this._UsuarioService.BloquearAsync(id, bloquear), 
+                this._UsuarioService);
         }
     }
 }

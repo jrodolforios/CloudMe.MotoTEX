@@ -32,8 +32,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Passageiro = new Passageiro
             {
                 Id = summary.Id,
-                IdUsuario = summary.IdUsuario,
-                CPF = summary.CPF,
+                IdUsuario = summary.Usuario.Id,
                 IdEndereco = summary.Endereco.Id,
                 IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
                 IdFoto = summary.IdFoto,
@@ -46,17 +45,26 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Passageiro = new PassageiroSummary
             {
                 Id = entry.Id,
-                IdUsuario = entry.IdUsuario,
-                CPF = entry.CPF,
                 IdFoto = entry.IdFoto,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
-                Endereco = new LocalizacaoSummary()
+                Usuario = new UsuarioSummary()
+                {
+                    Id = entry.Usuario.Id,
+                    Nome = entry.Usuario.Nome,
+                    Email = entry.Usuario.Email,
+                    Telefone = entry.Usuario.PhoneNumber
+                },
+                Endereco = new EnderecoSummary()
                 {
                     Id = entry.Endereco.Id,
-                    Endereco = entry.Endereco.Endereco,
-                    Longitude = entry.Endereco.Longitude,
-                    Latitude = entry.Endereco.Latitude,
-                    NomePublico = entry.Endereco.NomePublico
+                    CEP = entry.Endereco.CEP,
+                    Logradouro = entry.Endereco.Logradouro,
+                    Numero = entry.Endereco.Numero,
+                    Complemento = entry.Endereco.Complemento,
+                    Bairro = entry.Endereco.Bairro,
+                    Localidade = entry.Endereco.Localidade,
+                    UF = entry.Endereco.UF,
+                    IdLocalizacao = entry.Endereco.IdLocalizacao
                 },
             };
 
@@ -75,8 +83,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         protected override void UpdateEntry(Passageiro entry, PassageiroSummary summary)
         {
-            entry.IdUsuario = summary.IdUsuario;
-            entry.CPF = summary.CPF;
+            entry.IdUsuario = summary.Usuario.Id;
             entry.IdEndereco = summary.Endereco.Id;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
             entry.IdFoto = summary.IdFoto;
@@ -87,16 +94,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             if (summary is null)
             {
                 this.AddNotification(new Notification("summary", "Passageiro: sumário é obrigatório"));
-            }
-
-            if (string.IsNullOrEmpty(summary.CPF))
-            {
-                this.AddNotification(new Notification("CPF", "Passageiro: CPF é obrigatório"));
-            }
-
-            if (summary.IdUsuario.Equals(Guid.Empty))
-            {
-                this.AddNotification(new Notification("IdUsuario", "Passageiro: usuário inexistente ou não informado"));
             }
         }
 

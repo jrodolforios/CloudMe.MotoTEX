@@ -51,7 +51,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         public async Task<TEntrySummary> GetSummaryAsync(TEntryKey key)
         {
-            var entry = await GetRepository().FindByIdAsync(key);
+            var entry = await this.Get(key);
             return await GetSummaryAsync(entry);
         }
 
@@ -62,7 +62,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         public async Task<IEnumerable<TEntrySummary>> GetAllSummariesAsync()
         {
-            var entries = await this.GetAll(null);
+            var entries = await this.GetAll();
             return await GetAllSummariesAsync(entries);
         }
 

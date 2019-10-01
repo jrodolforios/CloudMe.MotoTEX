@@ -1,0 +1,16 @@
+MIGRATIONS:
+
+- no projeto Infraestructure.EF:
+dotnet ef migrations add endereco -c CloudMeToDeTaxiContext -s ./../CloudMe.ToDeTaxi.Api
+dotnet ef database update -c CloudMeToDeTaxiContext -s ./../CloudMe.ToDeTaxi.Api
+
+EXECUCAO:
+
+- Portal skoruba (seed):
+sudo dotnet run
+
+- Portal skoruba (seed):
+sudo dotnet run /seed
+
+CORRIGIR ERRO DE ACESSO DO NUGET:
+sudo chown -R gilmar:gilmar /tmp/NuGetScratch/

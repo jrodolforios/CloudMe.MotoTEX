@@ -7,6 +7,7 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Corrida;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -24,17 +25,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// Gets all corridas.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<CorridaSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<CorridaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<CorridaSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _corridaService.GetAllSummariesAsync(), _corridaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _corridaService.GetAllSummariesAsync(), _corridaService);
         }
 
         /// <summary>
@@ -42,17 +36,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">Corrida's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(CorridaSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<CorridaSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<CorridaSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _corridaService.GetSummaryAsync(id), _corridaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _corridaService.GetSummaryAsync(id), _corridaService);
         }
 
         /// <summary>
@@ -60,17 +47,16 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="corridaSummary">Corrida's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] CorridaSummary corridaSummary)
+        public async Task<Response<Guid>> Post([FromBody] CorridaSummary corridaSummary)
         {
-            try
+            var entity = await this._corridaService.CreateAsync(corridaSummary);
+            if (_corridaService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._corridaService.CreateAsync(corridaSummary) != null, _corridaService);
+                return await base.ErrorResponseAsync<Guid>(_corridaService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _corridaService);
         }
 
         /// <summary>
@@ -79,17 +65,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="corridaSummary">Modified Corrida list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] CorridaSummary corridaSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] CorridaSummary corridaSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._corridaService.UpdateAsync(corridaSummary) != null, _corridaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._corridaService.UpdateAsync(corridaSummary) != null, _corridaService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._corridaService.DeleteAsync(id), _corridaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._corridaService.DeleteAsync(id), _corridaService);
         }
     }
 }

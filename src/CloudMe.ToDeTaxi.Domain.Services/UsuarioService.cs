@@ -38,7 +38,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = summary.Id,
                 Nome = summary.Nome,
-                UserName = summary.Login,
+                UserName = summary.Credenciais.Login,
                 Email = summary.Email,
                 PhoneNumber = summary.Telefone
             };
@@ -50,10 +50,13 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Usuario = new UsuarioSummary
             {
                 Id = entry.Id,
-                Login = entry.UserName,
                 Nome = entry.Nome,
                 Email = entry.Email,
-                Telefone = entry.PhoneNumber
+                Telefone = entry.PhoneNumber,
+                Credenciais = new CredenciaisUsuario()
+                {
+                    Login = entry.UserName,
+                }
             };
 
             return Task.FromResult(Usuario);
@@ -72,7 +75,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         protected override void UpdateEntry(Usuario entry, UsuarioSummary summary)
         {
             entry.Nome = summary.Nome;
-            entry.UserName = summary.Login;
+            entry.UserName = summary.Credenciais.Login;
             entry.Email = summary.Email;
             entry.PhoneNumber = summary.Telefone;
         }
@@ -84,7 +87,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 this.AddNotification(new Notification("summary", "Usuario: sumário é obrigatório"));
             }
 
-            if (string.IsNullOrEmpty(summary.Login))
+            if (string.IsNullOrEmpty(summary.Credenciais.Login))
             {
                 this.AddNotification(new Notification("Login", "Usuario: Login não informado"));
             }
@@ -122,125 +125,188 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var user = new Usuario
             {
                 Nome = summary.Nome,
-                UserName = summary.Login,
+                UserName = summary.Credenciais.Login,
                 Email = summary.Email,
                 EmailConfirmed = true,
                 PhoneNumber = summary.Telefone
             };
 
-            var createResult = await _userManager.CreateAsync(user, summary.Senha);
+            try
+            {
+                var createResult = await _userManager.CreateAsync(user, summary.Credenciais.Senha);
 
-            if (createResult.Succeeded)
-            {
-                return user;
-            }
-            else
-            {
-                foreach(var error in createResult.Errors)
+                if (createResult.Succeeded)
                 {
-                    this.AddNotification(new Notification(error.Code, error.Description));
+                    return user;
                 }
-                return null;
+                else
+                {
+                    foreach(var error in createResult.Errors)
+                    {
+                        this.AddNotification(new Notification(error.Code, error.Description));
+                    }
+                    return null;
+                }
             }
+            catch(Exception ex)
+            {
+                this.AddNotification(new Notification("Create", ex.Message));
+                return null;
+            }            
+        }
+
+        public async Task<bool> BloquearAsync(Guid key, bool bloquear)
+        {
+            try
+            {
+                var usuario = await this._userManager.FindByIdAsync(key.ToString());
+                if(usuario == null)
+                {
+                    return false;
+                }
+
+                var lockoutEnabled = await this._userManager.GetLockoutEnabledAsync(usuario);
+                if(lockoutEnabled == bloquear)
+                {
+                    return false;
+                }
+
+                var lockoutResult = await this._userManager.SetLockoutEnabledAsync(usuario, bloquear);
+
+                if(lockoutResult.Succeeded)
+                {
+                    if(bloquear)
+                    {
+                        var lockoutResultEndDate = await this._userManager.SetLockoutEndDateAsync(usuario, DateTimeOffset.MaxValue);
+                        if(!lockoutResultEndDate.Succeeded)
+                        {
+                            foreach(var error in lockoutResultEndDate.Errors)
+                            {
+                                this.AddNotification(new Notification(error.Code, error.Description));
+                            }
+
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                else
+                {
+                    foreach(var error in lockoutResult.Errors)
+                    {
+                        this.AddNotification(new Notification(error.Code, error.Description));
+                    }
+                    return false;
+                }                
+            }
+            catch(Exception ex)
+            {
+                this.AddNotification(new Notification("Delete", ex.Message));
+                return false;
+            }            
         }
 
         public override async Task<bool> DeleteAsync(Guid key)
         {
-            var usuario = await this._userManager.FindByIdAsync(key.ToString());
-            if(usuario == null)
+            try
             {
-                return false;
-            }
-
-            var lockoutResult = await this._userManager.SetLockoutEnabledAsync(usuario, true);
-            var lockoutResultEndDate = await this._userManager.SetLockoutEndDateAsync(usuario, DateTime.MaxValue);
-
-            if(lockoutResult.Succeeded && lockoutResultEndDate.Succeeded)
-            {
-                return true;
-            }
-            else
-            {
-                foreach(var error in lockoutResult.Errors)
+                var usuario = await this._userManager.FindByIdAsync(key.ToString());
+                if(usuario == null)
                 {
-                    this.AddNotification(new Notification(error.Code, error.Description));
-                }
-                
-                foreach(var error in lockoutResultEndDate.Errors)
-                {
-                    this.AddNotification(new Notification(error.Code, error.Description));
+                    return false;
                 }
 
-                return false;
-            }
-            
-            /*var deleteResult = await this._userManager.DeleteAsync(usuario);
+                var deleteResult = await this._userManager.DeleteAsync(usuario);
 
-            if(deleteResult.Succeeded)
-            {
+                if(!deleteResult.Succeeded)
+                {
+                    foreach(var error in deleteResult.Errors)
+                    {
+                        this.AddNotification(new Notification(error.Code, error.Description));
+                    }
+
+                    return false;
+                }
+
                 return true;
             }
-            else
+            catch(Exception ex)
             {
-                this.AddNotification(new Notification("CreateAsync", "Usuario: " + deleteResult.Errors.ToString()));
+                this.AddNotification(new Notification("Delete", ex.Message));
                 return false;
-            }*/
+            }            
         }
 
         public override async Task<Usuario> UpdateAsync(UsuarioSummary summary)
         {
-            ValidateSummary(summary);
+            try
+            {
+                ValidateSummary(summary);
 
-            if (IsInvalid())
-            {
-                return null;
-            }
-
-            var usuario = await this._userManager.FindByIdAsync(summary.Id.ToString());
-            if(usuario == null)
-            {
-                return null;
-            }
-
-            UpdateEntry(usuario, summary);
-            if (IsInvalid())
-            {
-                return null;
-            }
-
-            var updateResult = await this._userManager.UpdateAsync(usuario);
-            if(updateResult.Succeeded)
-            {
-                return usuario;
-            }
-            else
-            {
-                foreach(var error in updateResult.Errors)
+                if (IsInvalid())
                 {
-                    this.AddNotification(new Notification(error.Code, error.Description));
+                    return null;
                 }
-                return null;
+
+                var usuario = await this._userManager.FindByIdAsync(summary.Id.ToString());
+                if(usuario == null)
+                {
+                    return null;
+                }
+
+                UpdateEntry(usuario, summary);
+                if (IsInvalid())
+                {
+                    return null;
+                }
+
+                var updateResult = await this._userManager.UpdateAsync(usuario);
+                if(updateResult.Succeeded)
+                {
+                    return usuario;
+                }
+                else
+                {
+                    foreach(var error in updateResult.Errors)
+                    {
+                        this.AddNotification(new Notification(error.Code, error.Description));
+                    }
+                    return null;
+                }
             }
+            catch(Exception ex)
+            {
+                this.AddNotification(new Notification("Update", ex.Message));
+                return null;
+            }            
         }
 
         public async Task<bool> ChangePasswordAsync(Guid key, string old_password, string new_password)
         {
-            var usuario = await this._userManager.FindByIdAsync(key.ToString());
-            if(usuario == null)
+            try
             {
+                var usuario = await this._userManager.FindByIdAsync(key.ToString());
+                if(usuario == null)
+                {
+                    return false;
+                }
+
+                var passwordResult = await this._userManager.ChangePasswordAsync(usuario, old_password, new_password);
+
+                if(passwordResult.Succeeded)
+                {
+                    return true;
+                }
+                else
+                {
+                    throw new Exception(passwordResult.Errors.ToString());
+                }
+            }
+            catch(Exception ex)
+            {
+                this.AddNotification(new Notification("ChangePassword", ex.Message));
                 return false;
-            }
-
-            var passwordResult = await this._userManager.ChangePasswordAsync(usuario, old_password, new_password);
-
-            if(passwordResult.Succeeded)
-            {
-                return true;
-            }
-            else
-            {
-                throw new Exception(passwordResult.Errors.ToString());
-            }
+            }            
         }
     }
 }

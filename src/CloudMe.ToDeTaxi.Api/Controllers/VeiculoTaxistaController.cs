@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Taxista;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class VeiculoTaxistaController : BaseController
     {
-        IVeiculoTaxistaService _veiculoTaxistaService;
+        IVeiculoTaxistaService _VeiculoTaxistaService;
 
-        public VeiculoTaxistaController(IVeiculoTaxistaService veiculoTaxistaService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public VeiculoTaxistaController(IVeiculoTaxistaService VeiculoTaxistaService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _veiculoTaxistaService = veiculoTaxistaService;
+            _VeiculoTaxistaService = VeiculoTaxistaService;
         }
 
         /// <summary>
-        /// Gets all veiculoTaxistas.
+        /// Gets all VeiculoTaxistas.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<VeiculoTaxistaSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<VeiculoTaxistaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<VeiculoTaxistaSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _veiculoTaxistaService.GetAllSummariesAsync(), _veiculoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _VeiculoTaxistaService.GetAllSummariesAsync(), _VeiculoTaxistaService);
         }
 
         /// <summary>
@@ -42,54 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">VeiculoTaxista's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(VeiculoTaxistaSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<VeiculoTaxistaSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<VeiculoTaxistaSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _veiculoTaxistaService.GetSummaryAsync(id), _veiculoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _VeiculoTaxistaService.GetSummaryAsync(id), _VeiculoTaxistaService);
         }
 
         /// <summary>
         /// Creates a new VeiculoTaxista.
         /// </summary>
-        /// <param name="veiculoTaxistaSummary">VeiculoTaxista's summary</param>
+        /// <param name="VeiculoTaxistaSummary">VeiculoTaxista's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] VeiculoTaxistaSummary veiculoTaxistaSummary)
+        public async Task<Response<Guid>> Post([FromBody] VeiculoTaxistaSummary VeiculoTaxistaSummary)
         {
-            try
+            var entity = await this._VeiculoTaxistaService.CreateAsync(VeiculoTaxistaSummary);
+            if (_VeiculoTaxistaService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._veiculoTaxistaService.CreateAsync(veiculoTaxistaSummary) != null, _veiculoTaxistaService);
+                return await base.ErrorResponseAsync<Guid>(_VeiculoTaxistaService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _VeiculoTaxistaService);
         }
 
         /// <summary>
         /// Modifies an existing VeiculoTaxista.
         /// </summary>
-        /// <param name="veiculoTaxistaSummary">Modified VeiculoTaxista list's properties summary</param>
+        /// <param name="VeiculoTaxistaSummary">Modified VeiculoTaxista list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] VeiculoTaxistaSummary veiculoTaxistaSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] VeiculoTaxistaSummary VeiculoTaxistaSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._veiculoTaxistaService.UpdateAsync(veiculoTaxistaSummary) != null, _veiculoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._VeiculoTaxistaService.UpdateAsync(VeiculoTaxistaSummary) != null, _VeiculoTaxistaService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._veiculoTaxistaService.DeleteAsync(id), _veiculoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._VeiculoTaxistaService.DeleteAsync(id), _VeiculoTaxistaService);
         }
     }
 }

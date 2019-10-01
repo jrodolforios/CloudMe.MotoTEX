@@ -266,17 +266,13 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("CPF")
-                        .IsRequired()
-                        .HasMaxLength(20);
-
                     b.Property<Guid>("IdEndereco");
 
                     b.Property<Guid?>("IdFoto");
 
                     b.Property<Guid?>("IdLocalizacaoAtual");
 
-                    b.Property<Guid>("IdUsuario");
+                    b.Property<Guid?>("IdUsuario");
 
                     b.Property<bool>("IsDeleted");
 
@@ -408,8 +404,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("CPF")
-                        .IsRequired();
+                    b.Property<bool>("Ativo");
 
                     b.Property<Guid>("IdEndereco");
 
@@ -419,12 +414,9 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<Guid?>("IdPontoTaxi");
 
-                    b.Property<Guid>("IdUsuario");
+                    b.Property<Guid?>("IdUsuario");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("RG")
-                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -452,6 +444,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<int>("AccessFailedCount");
 
+                    b.Property<string>("CPF");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
@@ -477,6 +471,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<string>("PhoneNumber");
 
                     b.Property<bool>("PhoneNumberConfirmed");
+
+                    b.Property<string>("RG");
 
                     b.Property<string>("SecurityStamp");
 
@@ -1360,7 +1356,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.Passageiro", b =>
                 {
-                    b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Localizacao", "Endereco")
+                    b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Endereco", "Endereco")
                         .WithOne()
                         .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Passageiro", "IdEndereco")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -1375,8 +1371,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario", "Usuario")
                         .WithOne()
-                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Passageiro", "IdUsuario")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Passageiro", "IdUsuario");
                 });
 
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.PontoTaxi", b =>
@@ -1441,8 +1436,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario", "Usuario")
                         .WithOne()
-                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Taxista", "IdUsuario")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Taxista", "IdUsuario");
                 });
 
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.UsuarioGrupoUsuario", b =>

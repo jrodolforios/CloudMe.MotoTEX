@@ -9,6 +9,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
 {
     public interface IUsuarioService : IServiceBase<Usuario, UsuarioSummary, Guid>
     {
+        Task<bool> BloquearAsync(Guid key, bool bloquear);
         Task<bool> ChangePasswordAsync(Guid key, string old_password, string new_password);
     }
 }

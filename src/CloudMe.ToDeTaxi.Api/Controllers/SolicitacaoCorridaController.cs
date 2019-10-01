@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Corrida;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class SolicitacaoCorridaController : BaseController
     {
-        ISolicitacaoCorridaService _solicitacaoCorridaService;
+        ISolicitacaoCorridaService _SolicitacaoCorridaService;
 
-        public SolicitacaoCorridaController(ISolicitacaoCorridaService solicitacaoCorridaService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public SolicitacaoCorridaController(ISolicitacaoCorridaService SolicitacaoCorridaService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _solicitacaoCorridaService = solicitacaoCorridaService;
+            _SolicitacaoCorridaService = SolicitacaoCorridaService;
         }
 
         /// <summary>
-        /// Gets all solicitacaoCorridas.
+        /// Gets all SolicitacaoCorridas.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<SolicitacaoCorridaSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<SolicitacaoCorridaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<SolicitacaoCorridaSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _solicitacaoCorridaService.GetAllSummariesAsync(), _solicitacaoCorridaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _SolicitacaoCorridaService.GetAllSummariesAsync(), _SolicitacaoCorridaService);
         }
 
         /// <summary>
@@ -42,54 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">SolicitacaoCorrida's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(SolicitacaoCorridaSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<SolicitacaoCorridaSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<SolicitacaoCorridaSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _solicitacaoCorridaService.GetSummaryAsync(id), _solicitacaoCorridaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _SolicitacaoCorridaService.GetSummaryAsync(id), _SolicitacaoCorridaService);
         }
 
         /// <summary>
         /// Creates a new SolicitacaoCorrida.
         /// </summary>
-        /// <param name="solicitacaoCorridaSummary">SolicitacaoCorrida's summary</param>
+        /// <param name="SolicitacaoCorridaSummary">SolicitacaoCorrida's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] SolicitacaoCorridaSummary solicitacaoCorridaSummary)
+        public async Task<Response<Guid>> Post([FromBody] SolicitacaoCorridaSummary SolicitacaoCorridaSummary)
         {
-            try
+            var entity = await this._SolicitacaoCorridaService.CreateAsync(SolicitacaoCorridaSummary);
+            if (_SolicitacaoCorridaService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._solicitacaoCorridaService.CreateAsync(solicitacaoCorridaSummary) != null, _solicitacaoCorridaService);
+                return await base.ErrorResponseAsync<Guid>(_SolicitacaoCorridaService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _SolicitacaoCorridaService);
         }
 
         /// <summary>
         /// Modifies an existing SolicitacaoCorrida.
         /// </summary>
-        /// <param name="solicitacaoCorridaSummary">Modified SolicitacaoCorrida list's properties summary</param>
+        /// <param name="SolicitacaoCorridaSummary">Modified SolicitacaoCorrida list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] SolicitacaoCorridaSummary solicitacaoCorridaSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] SolicitacaoCorridaSummary SolicitacaoCorridaSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._solicitacaoCorridaService.UpdateAsync(solicitacaoCorridaSummary) != null, _solicitacaoCorridaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._SolicitacaoCorridaService.UpdateAsync(SolicitacaoCorridaSummary) != null, _SolicitacaoCorridaService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._solicitacaoCorridaService.DeleteAsync(id), _solicitacaoCorridaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._SolicitacaoCorridaService.DeleteAsync(id), _SolicitacaoCorridaService);
         }
     }
 }

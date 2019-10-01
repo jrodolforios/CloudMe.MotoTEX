@@ -17,48 +17,34 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions
             _context = context;
         }
 
-        public async Task<bool> CommitAsync()
+        public async Task<bool> CommitAsync(CancellationToken cancellationToken = default)
         {
-            return await this.SaveChangesAsync() >= 0;
-        }
-
-        private async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            using (var transaction = _context.Database.BeginTransaction())
+            bool result = false;
+            try
             {
-                int result = -1;
-                try
+                using (var transaction = _context.Database.BeginTransaction())
                 {
-                    result = await _context.SaveChangesAsync(cancellationToken);
-                }
-                catch (DbUpdateException dbEx)
-                {
-                    Exception raise = dbEx.InnerException;
-                    string message = string.Format("{0}:{1}", raise.Data["Code"], raise.Data["MessageText"]);
-                    raise = new InvalidOperationException(message, raise);
-                    AddNotification("DbUpdateException", message);
-                    result = -1;
-                }
-                catch (Exception dbEx)
-                {
-                    Exception raise = dbEx.InnerException;
-                    string message = raise.Message;
-                    AddNotification("DbUpdateException", message);
-                    result = -1;
-                }
-                finally
-                {
-                    if (result > 0)
+                    if((await _context.SaveChangesAsync(cancellationToken)) >= 0)
                     {
                         transaction.Commit();
+                        result = true;
                     }
                     else
                     {
                         transaction.Rollback();
+                        result = false;
                     }
                 }
-                return result;
             }
+            catch (Exception dbEx)
+            {
+                Exception raise = dbEx.InnerException;
+                string message = raise.Message;
+                AddNotification("DatabaseException", message);
+                result = false;
+            }
+
+            return result;
         }
     }
 }

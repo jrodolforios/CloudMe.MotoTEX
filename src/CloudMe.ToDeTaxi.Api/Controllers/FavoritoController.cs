@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Passageiro;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class FavoritoController : BaseController
     {
-        IFavoritoService _favoritoService;
+        IFavoritoService _FavoritoService;
 
-        public FavoritoController(IFavoritoService favoritoService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public FavoritoController(IFavoritoService FavoritoService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _favoritoService = favoritoService;
+            _FavoritoService = FavoritoService;
         }
 
         /// <summary>
-        /// Gets all favoritos.
+        /// Gets all Favoritos.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<FavoritoSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<FavoritoSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<FavoritoSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _favoritoService.GetAllSummariesAsync(), _favoritoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FavoritoService.GetAllSummariesAsync(), _FavoritoService);
         }
 
         /// <summary>
@@ -42,54 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">Favorito's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(FavoritoSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<FavoritoSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<FavoritoSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _favoritoService.GetSummaryAsync(id), _favoritoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FavoritoService.GetSummaryAsync(id), _FavoritoService);
         }
 
         /// <summary>
         /// Creates a new Favorito.
         /// </summary>
-        /// <param name="favoritoSummary">Favorito's summary</param>
+        /// <param name="FavoritoSummary">Favorito's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] FavoritoSummary favoritoSummary)
+        public async Task<Response<Guid>> Post([FromBody] FavoritoSummary FavoritoSummary)
         {
-            try
+            var entity = await this._FavoritoService.CreateAsync(FavoritoSummary);
+            if (_FavoritoService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._favoritoService.CreateAsync(favoritoSummary) != null, _favoritoService);
+                return await base.ErrorResponseAsync<Guid>(_FavoritoService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _FavoritoService);
         }
 
         /// <summary>
         /// Modifies an existing Favorito.
         /// </summary>
-        /// <param name="favoritoSummary">Modified Favorito list's properties summary</param>
+        /// <param name="FavoritoSummary">Modified Favorito list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] FavoritoSummary favoritoSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] FavoritoSummary FavoritoSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._favoritoService.UpdateAsync(favoritoSummary) != null, _favoritoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FavoritoService.UpdateAsync(FavoritoSummary) != null, _FavoritoService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._favoritoService.DeleteAsync(id), _favoritoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FavoritoService.DeleteAsync(id), _FavoritoService);
         }
     }
 }

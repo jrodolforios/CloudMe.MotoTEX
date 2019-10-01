@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Corrida;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class TarifaController : BaseController
     {
-        ITarifaService _tarifaService;
+        ITarifaService _TarifaService;
 
-        public TarifaController(ITarifaService tarifaService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public TarifaController(ITarifaService TarifaService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _tarifaService = tarifaService;
+            _TarifaService = TarifaService;
         }
 
         /// <summary>
-        /// Gets all tarifas.
+        /// Gets all Tarifas.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<TarifaSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<TarifaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<TarifaSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _tarifaService.GetAllSummariesAsync(), _tarifaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _TarifaService.GetAllSummariesAsync(), _TarifaService);
         }
 
         /// <summary>
@@ -42,55 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">Tarifa's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(TarifaSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<TarifaSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<TarifaSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _tarifaService.GetSummaryAsync(id), _tarifaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _TarifaService.GetSummaryAsync(id), _TarifaService);
         }
 
         /// <summary>
         /// Creates a new Tarifa.
         /// </summary>
-        /// <param name="tarifaSummary">Tarifa's summary</param>
+        /// <param name="TarifaSummary">Tarifa's summary</param>
         [HttpPost]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] TarifaSummary tarifaSummary)
+        public async Task<Response<Guid>> Post([FromBody] TarifaSummary TarifaSummary)
         {
-            try
+            var entity = await this._TarifaService.CreateAsync(TarifaSummary);
+            if (_TarifaService.IsInvalid())
             {
-                return await base.ResponseAsync((await this._tarifaService.CreateAsync(tarifaSummary)).Id, _tarifaService);
+                return await base.ErrorResponseAsync<Guid>(_TarifaService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _TarifaService);
         }
 
         /// <summary>
         /// Modifies an existing Tarifa.
         /// </summary>
-        /// <param name="tarifaSummary">Modified Tarifa list's properties summary</param>
+        /// <param name="TarifaSummary">Modified Tarifa list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] TarifaSummary tarifaSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] TarifaSummary TarifaSummary)
         {
-            try
-            {
-                return await base.ResponseAsync((await this._tarifaService.UpdateAsync(tarifaSummary)).Id, _tarifaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._TarifaService.UpdateAsync(TarifaSummary) != null, _TarifaService);
         }
 
         /// <summary>
@@ -98,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._tarifaService.DeleteAsync(id), _tarifaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._TarifaService.DeleteAsync(id), _TarifaService);
         }
     }
 }
