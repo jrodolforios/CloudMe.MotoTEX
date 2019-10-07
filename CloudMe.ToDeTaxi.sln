@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMe.ToDeTaxi.Api", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMe.ToDeTaxi.Configuration.Library", "src\CloudMe.ToDeTaxi.Configuration.Library\CloudMe.ToDeTaxi.Configuration.Library.csproj", "{913FD67C-00E4-41EF-B0D4-95708BA6CD0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMe.Auth.Admin", "..\Experimental\CloudMe.ToDeTaxi\src\CloudMe.Auth.Admin\CloudMe.Auth.Admin.csproj", "{8B0B136C-21BB-4BA7-AF88-4F91FFAFEC35}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMe.Auth.Admin", "src\CloudMe.Auth.Admin\CloudMe.Auth.Admin.csproj", "{8B0B136C-21BB-4BA7-AF88-4F91FFAFEC35}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMe.ToDeTaxi", "src\CloudMe.ToDeTaxi\CloudMe.ToDeTaxi.csproj", "{A2254298-73A8-4341-967C-910F44D47B7D}"
 EndProject
