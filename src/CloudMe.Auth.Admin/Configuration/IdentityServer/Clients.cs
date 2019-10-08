@@ -68,11 +68,16 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					AllowedGrantTypes = GrantTypes.Implicit,
 					AllowAccessTokensViaBrowser = true,
 					RedirectUris = {
-						"http://localhost:4200/auth/callback",
+                        "http://localhost:8100/auth/callback",
                         "http://passanger.todetaxi.com.br/auth/callback",
                         "http://driver.todetaxi.com.br/auth/callback"
                     },
-				},
+                    PostLogoutRedirectUris = {
+                        "http://localhost:8100",
+                        "http://passanger.todetaxi.com.br",
+                        "http://driver.todetaxi.com.br"
+                    }
+                },
 				new Client
 				{
 					ClientId = "ToDeTaxiAPI_swagger",
