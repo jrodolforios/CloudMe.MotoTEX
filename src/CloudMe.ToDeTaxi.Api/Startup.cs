@@ -97,7 +97,7 @@ namespace CloudMe.ToDeTaxi.Api
                 x.AddSecurityDefinition("oauth2", new OAuth2Scheme
                 {
                     Flow = "implicit",
-                    AuthorizationUrl = "http://localhost:5000/connect/authorize",
+                    AuthorizationUrl = "https://auth.todetaxi.com.br/connect/authorize",
                     Scopes = new Dictionary<string, string>
                     {
                         { "todetaxiapi", "TOdeTaxiAPI" } 
@@ -161,7 +161,7 @@ namespace CloudMe.ToDeTaxi.Api
 
             // ===== Use Authentication ======
             app.UseAuthentication();
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             //app.UseStaticFiles();
 
             //app.ApiAllowOrigin();

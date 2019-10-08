@@ -51,10 +51,14 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					},*/
 					RedirectUris = {
 						"http://localhost:4200/auth/callback",
-					},
+                        "http://passanger.todetaxi.com.br/auth/callback",
+                        "http://driver.todetaxi.com.br/auth/callback"
+                    },
 					PostLogoutRedirectUris = {
-						"http://localhost:4200"
-					}
+						"http://localhost:4200",
+                        "http://passanger.todetaxi.com.br",
+                        "http://driver.todetaxi.com.br"
+                    }
 				},
 				new Client
 				{
@@ -65,7 +69,9 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					AllowAccessTokensViaBrowser = true,
 					RedirectUris = {
 						"http://localhost:4200/auth/callback",
-					},
+                        "http://passanger.todetaxi.com.br/auth/callback",
+                        "http://driver.todetaxi.com.br/auth/callback"
+                    },
 				},
 				new Client
 				{
@@ -80,8 +86,15 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 						"http://localhost:5002/swagger/signin-oidc",
 						"http://localhost:5002/oauth2-redirect.html",
 						"http://localhost:5002/o2c.html",
-						"http://localhost:5002/signin-oidc"
-					},
+						"http://localhost:5002/signin-oidc",
+
+                        "https://api.todetaxi.com.br/swagger/oauth2-redirect.html",
+                        "https://api.todetaxi.com.br/swagger/o2c.html",
+                        "https://api.todetaxi.com.br/swagger/signin-oidc",
+                        "https://api.todetaxi.com.br/oauth2-redirect.html",
+                        "https://api.todetaxi.com.br/o2c.html",
+                        "https://api.todetaxi.com.br/signin-oidc"
+                    },
 				}
 			};
 		}
