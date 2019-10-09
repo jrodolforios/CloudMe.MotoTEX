@@ -84,7 +84,7 @@ namespace CloudMe.ToDeTaxi
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseSecurityHeaders();
+            app.UseSecurityHeaders();
             app.UseStaticFiles();
             app.UseIdentityServer();
             app.UseMvcLocalizationServices();
