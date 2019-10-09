@@ -14,7 +14,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
 
         Task<TEntry> Get(TEntryKey key, string[] paths = null);
         Task<IEnumerable<TEntry>> GetAll(string[] paths = null);
-        IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null, SearchOptions options = null);
+        IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null, Pagination pagination = null);
 
         Task<TEntrySummary> GetSummaryAsync(TEntryKey key);
         Task<TEntrySummary> GetSummaryAsync(TEntry entry);
@@ -23,6 +23,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
 
         Task<TEntry> CreateAsync(TEntrySummary summary);
         Task<TEntry> UpdateAsync(TEntrySummary summary);
-        Task<bool> DeleteAsync(TEntryKey key);
+        Task<bool> DeleteAsync(TEntryKey key, bool logical = true);
     }
 }

@@ -9,7 +9,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories
     public interface IBaseRepository<TEntry>: INotifiable where TEntry : class
     {
         Task<int> CountAsync();
-        Task<bool> DeleteAsync(TEntry entry);
+        Task<bool> DeleteAsync(TEntry entry, bool logical = true);
         void Detach<TEntity>(TEntity entry) where TEntity : class;
         IEnumerable<TEntry> FindAll();
         Task<IEnumerable<TEntry>> FindAllAsync();

@@ -36,11 +36,13 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             var Usuario = new Usuario
             {
-                Id = summary.Id,
+                Id = (Guid)summary.Id,
                 Nome = summary.Nome,
                 UserName = summary.Credenciais.Login,
                 Email = summary.Email,
-                PhoneNumber = summary.Telefone
+                PhoneNumber = summary.Telefone,
+                CPF = summary.CPF,
+                RG = summary.RG
             };
             return Task.FromResult(Usuario);
         }
@@ -53,6 +55,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Nome = entry.Nome,
                 Email = entry.Email,
                 Telefone = entry.PhoneNumber,
+                CPF = entry.CPF,
+                RG = entry.RG,
                 Credenciais = new CredenciaisUsuario()
                 {
                     Login = entry.UserName,
@@ -64,7 +68,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         protected override Guid GetKeyFromSummary(UsuarioSummary summary)
         {
-            return summary.Id;
+            return (Guid)summary.Id;
         }
 
         protected override IBaseRepository<Usuario> GetRepository()
@@ -78,6 +82,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             entry.UserName = summary.Credenciais.Login;
             entry.Email = summary.Email;
             entry.PhoneNumber = summary.Telefone;
+            entry.CPF = summary.CPF;
+            entry.RG = summary.RG;
         }
 
         protected override void ValidateSummary(UsuarioSummary summary)
@@ -128,7 +134,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 UserName = summary.Credenciais.Login,
                 Email = summary.Email,
                 EmailConfirmed = true,
-                PhoneNumber = summary.Telefone
+                PhoneNumber = summary.Telefone,
+                CPF = summary.CPF,
+                RG = summary.RG
             };
 
             try
@@ -206,7 +214,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             }            
         }
 
-        public override async Task<bool> DeleteAsync(Guid key)
+        public override async Task<bool> DeleteAsync(Guid key, bool logical = true)
         {
             try
             {

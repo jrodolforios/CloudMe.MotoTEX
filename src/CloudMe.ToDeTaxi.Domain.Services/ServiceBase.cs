@@ -35,14 +35,14 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return await GetRepository().FindAllAsync(paths);
         }
 
-        public virtual IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null, SearchOptions options = null)
+        public virtual IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null, Pagination pagination = null)
         {
             var rawItens = GetRepository().Search(where, paths);
-            if(options != null)
+            if(pagination != null)
             {
                 rawItens = rawItens
-                    .Skip(options.itensPerPage * options.page)
-                    .Take(options.itensPerPage);
+                    .Skip(pagination.itensPerPage * pagination.page)
+                    .Take(pagination.itensPerPage);
             }
 
             return rawItens;
@@ -133,7 +133,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return null;
         }
 
-        public virtual async Task<bool> DeleteAsync(TEntryKey key)
+        public virtual async Task<bool> DeleteAsync(TEntryKey key, bool logical = true)
         {
             var repo = GetRepository();
             var entry = await repo.FindByIdAsync(key);

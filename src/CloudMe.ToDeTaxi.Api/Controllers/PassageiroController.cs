@@ -152,7 +152,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             }
 
             // remove o registro do usuário
-            await this._usuarioService.DeleteAsync(passageiroSummary.Usuario.Id);
+            await this._usuarioService.DeleteAsync((Guid)passageiroSummary.Usuario.Id);
             if(_usuarioService.IsInvalid())
             {
                 return await base.ErrorResponseAsync<bool>(_usuarioService);

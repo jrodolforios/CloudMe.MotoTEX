@@ -96,7 +96,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return await base.GetAll(paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
         }
 
-        public override IEnumerable<PontoTaxi> Search(Expression<Func<PontoTaxi, bool>> where, string[] paths = null, SearchOptions options = null)
+        public override IEnumerable<PontoTaxi> Search(Expression<Func<PontoTaxi, bool>> where, string[] paths = null, Pagination options = null)
         {
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
         }

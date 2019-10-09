@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CloudMe.ToDeTaxi.Domain.Model
 {
-    public class SearchOptions
+    public class Pagination
     {
         public int page { get; set; }
         public int itensPerPage { get; set; }

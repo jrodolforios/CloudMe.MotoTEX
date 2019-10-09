@@ -72,7 +72,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             if (string.IsNullOrEmpty(summary.NomeArquivo))
             {
-                this.AddNotification(new Notification("CPF", "Foto: nome de arquivo não fornecido"));
+                this.AddNotification(new Notification("NomeArquivo", "Foto: nome de arquivo não fornecido"));
             }
 
             if (summary.Dados == null || summary.Dados.Length == 0)
