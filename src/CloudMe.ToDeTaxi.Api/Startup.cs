@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Identity;
 using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Extensions;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
+using System.Net;
 
 public class AuthorizeCheckOperationFilter : IOperationFilter
 {
@@ -134,6 +135,36 @@ namespace CloudMe.ToDeTaxi.Api
                         options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                         options.SerializerSettings.Formatting = Formatting.Indented;
                     });
+
+            // Get host name
+            string strHostName = Dns.GetHostName();
+
+            // Find host by name
+            IPHostEntry iphostentry = Dns.GetHostEntry(strHostName);
+
+            List<string> urls = new List<string>()
+            {
+                "http://localhost", "http://127.0.0.1", "http://localhost:4200"
+            };
+
+            // Enumerate IP addresses
+            foreach (IPAddress ipaddress in iphostentry.AddressList.Where(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
+            {
+                Console.WriteLine(ipaddress.ToString());
+                urls.Add($"https://{ipaddress.ToString()}");
+                urls.Add($"http://{ipaddress.ToString()}");
+            }
+
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options =>
+                {
+                    options.AllowAnyOrigin();
+                    options.AllowAnyHeader();
+                    options.AllowAnyMethod();
+                    options.AllowCredentials();
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -162,11 +193,9 @@ namespace CloudMe.ToDeTaxi.Api
             // ===== Use Authentication ======
             app.UseAuthentication();
             app.UseHttpsRedirection();
-            //app.UseStaticFiles();
 
-            //app.ApiAllowOrigin();
             app.UseSwagger();
-
+            app.UseCors("AllowOrigin");
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "CloudMe ToDeTaxi - V1");

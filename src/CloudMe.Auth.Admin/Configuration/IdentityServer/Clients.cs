@@ -51,13 +51,22 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					},*/
 					RedirectUris = {
 						"http://localhost:4200/auth/callback",
-                        "http://passanger.todetaxi.com.br/auth/callback",
-                        "http://driver.todetaxi.com.br/auth/callback"
+                        "http://admin.todetaxi.com.br/auth/callback",
+                        "http://passenger.todetaxi.com.br/auth/callback",
+                        "http://driver.todetaxi.com.br/auth/callback",
+
+                        "https://localhost:4200/auth/callback",
+                        "https://admin.todetaxi.com.br/auth/callback",
+                        "https://passenger.todetaxi.com.br/auth/callback",
+                        "https://driver.todetaxi.com.br/auth/callback"
                     },
 					PostLogoutRedirectUris = {
 						"http://localhost:4200",
-                        "http://passanger.todetaxi.com.br",
-                        "http://driver.todetaxi.com.br"
+						"https://admin.todetaxi.com.br",
+                        "http://passenger.todetaxi.com.br",
+                        "http://driver.todetaxi.com.br",
+                        "https://passenger.todetaxi.com.br",
+                        "https://driver.todetaxi.com.br"
                     }
 				},
 				new Client
@@ -69,13 +78,21 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					AllowAccessTokensViaBrowser = true,
 					RedirectUris = {
                         "http://localhost:8100/auth/callback",
-                        "http://passanger.todetaxi.com.br/auth/callback",
-                        "http://driver.todetaxi.com.br/auth/callback"
+                        "http://passenger.todetaxi.com.br/auth/callback",
+                        "http://driver.todetaxi.com.br/auth/callback",
+
+                        "https://localhost:8100/auth/callback",
+                        "https://passenger.todetaxi.com.br/auth/callback",
+                        "https://driver.todetaxi.com.br/auth/callback"
                     },
                     PostLogoutRedirectUris = {
                         "http://localhost:8100",
-                        "http://passanger.todetaxi.com.br",
-                        "http://driver.todetaxi.com.br"
+                        "http://passenger.todetaxi.com.br",
+                        "http://driver.todetaxi.com.br",
+
+                        "https://localhost:8100",
+                        "https://passenger.todetaxi.com.br",
+                        "https://driver.todetaxi.com.br"
                     }
                 },
 				new Client

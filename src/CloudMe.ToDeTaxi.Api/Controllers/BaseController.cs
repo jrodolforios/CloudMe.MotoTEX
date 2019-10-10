@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
-    //[Authorize, EnableCors("AllowOrigin")] 
+    [EnableCors("AllowOrigin")] 
     [Authorize] 
     public class BaseController : Controller
     {
