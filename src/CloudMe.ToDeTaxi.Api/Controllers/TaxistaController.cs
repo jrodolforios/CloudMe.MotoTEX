@@ -18,16 +18,19 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         ITaxistaService _TaxistaService;
         IUsuarioService _usuarioService;
         IEnderecoService _enderecoService;
+        IFotoService _fotoService;
 
         public TaxistaController(
             ITaxistaService taxistaService,
             IUsuarioService usuarioService,
             IEnderecoService localizacaoService,
+            IFotoService fotoService,
             IUnitOfWork unitOfWork) : base(unitOfWork)
         {
             _TaxistaService = taxistaService;
             _usuarioService = usuarioService;
             _enderecoService = localizacaoService;
+            _fotoService = fotoService;
         }
 
         /// <summary>
@@ -91,6 +94,11 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
 
             // aplica o id de usuário
             taxistaSummary.Usuario.Id = usuario.Id;
+            await _TaxistaService.UpdateAsync(taxistaSummary);
+            if (_TaxistaService.IsInvalid())
+            {
+                return await base.ErrorResponseAsync<Guid>(_usuarioService);
+            }
 
             return await base.ResponseAsync(taxista.Id, _TaxistaService);
         }
@@ -167,7 +175,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             }
 
             // remove o registro do usuário
-            await this._usuarioService.DeleteAsync(taxistaSummary.Usuario.Id);
+            await this._usuarioService.DeleteAsync((Guid)taxistaSummary.Usuario.Id);
             if(_usuarioService.IsInvalid())
             {
                 return await base.ErrorResponseAsync<bool>(_usuarioService);

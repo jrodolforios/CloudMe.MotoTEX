@@ -87,9 +87,11 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
             return await Task.FromResult(true);
         }
 
-        public async virtual Task<bool> DeleteAsync(TEntry entry)
+        public async virtual Task<bool> DeleteAsync(TEntry entry, bool logical = true)
         {
-            this.Context.Entry(entry).State = EntityState.Deleted;
+            var ctxEntry = Context.Entry(entry);
+            ctxEntry.CurrentValues["ForceDelete"] = !logical;
+            ctxEntry.State = EntityState.Deleted;
             return await Task.FromResult(true);
         }
 

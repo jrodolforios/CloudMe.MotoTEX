@@ -20,11 +20,14 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         private string[] defaultPaths = {"Endereco", "Usuario"};
 
         private readonly ITaxistaRepository _TaxistaRepository;
+        private readonly IFotoService _FotoService;
 
         public TaxistaService(
-            ITaxistaRepository TaxistaRepository)
+            ITaxistaRepository TaxistaRepository,
+            IFotoService FotoService)
         {
             _TaxistaRepository = TaxistaRepository;
+            _FotoService = FotoService;
         }
 
         protected override Task<Taxista> CreateEntryAsync(TaxistaSummary summary)
@@ -57,7 +60,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                     Id = entry.Usuario.Id,
                     Nome = entry.Usuario.Nome,
                     Email = entry.Usuario.Email,
-                    Telefone = entry.Usuario.PhoneNumber
+                    Telefone = entry.Usuario.PhoneNumber,
+                    CPF = entry.Usuario.CPF,
+                    RG = entry.Usuario.RG
                 },
                 Endereco = new EnderecoSummary()
                 {
@@ -103,6 +108,27 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             }
         }
 
+        public override async Task<Taxista> UpdateAsync(TaxistaSummary summary)
+        {
+            Guid oldFotoID = Guid.Empty;
+
+            var entry = await GetRepository().FindByIdAsync(GetKeyFromSummary(summary));
+            if (entry != null)
+            {
+                oldFotoID = entry.IdFoto ?? Guid.Empty;
+            }
+
+            var updatedEntry = await base.UpdateAsync(summary);
+
+            if(updatedEntry != null && oldFotoID != Guid.Empty && oldFotoID != summary.IdFoto)
+            {
+                // remove permanentemente a foto anterior
+                await _FotoService.DeleteAsync(oldFotoID, false);
+            }
+
+            return updatedEntry;
+        }
+
         public override async Task<Taxista> Get(Guid key, string[] paths = null)
         {
             return await base.Get(key, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
@@ -113,9 +139,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return await base.GetAll(paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
         }
 
-        public override IEnumerable<Taxista> Search(Expression<Func<Taxista, bool>> where, string[] paths = null, SearchOptions options = null)
+        public override IEnumerable<Taxista> Search(Expression<Func<Taxista, bool>> where, string[] paths = null, Pagination pagination = null)
         {
-            return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
+            return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, pagination);
         }
     }
 }

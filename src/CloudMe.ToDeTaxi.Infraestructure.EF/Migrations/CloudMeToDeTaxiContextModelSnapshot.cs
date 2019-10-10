@@ -34,6 +34,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<DateTime?>("Fim");
 
+                    b.Property<bool>("ForceDelete");
+
                     b.Property<Guid>("IdRotaExecutada");
 
                     b.Property<Guid>("IdSolicitacao");
@@ -83,6 +85,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<string>("Complemento");
 
+                    b.Property<bool>("ForceDelete");
+
                     b.Property<Guid?>("IdLocalizacao");
 
                     b.Property<bool>("IsDeleted");
@@ -114,6 +118,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<string>("Descricao");
 
+                    b.Property<bool>("ForceDelete");
+
                     b.Property<bool>("IsDeleted");
 
                     b.Property<float>("Valor");
@@ -127,6 +133,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("ForceDelete");
 
                     b.Property<Guid>("IdFaixaDesconto");
 
@@ -147,6 +155,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("ForceDelete");
 
                     b.Property<Guid>("IdPassageiro");
 
@@ -174,6 +184,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<string>("Descricao")
                         .IsRequired();
 
+                    b.Property<bool>("ForceDelete");
+
                     b.Property<bool>("IsDeleted");
 
                     b.HasKey("Id");
@@ -185,6 +197,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("ForceDelete");
 
                     b.Property<Guid>("IdFormaPagamento");
 
@@ -209,6 +223,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<byte[]>("Dados")
                         .IsRequired();
 
+                    b.Property<bool>("ForceDelete");
+
                     b.Property<bool>("IsDeleted");
 
                     b.Property<string>("Nome");
@@ -229,6 +245,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<string>("Descricao")
                         .IsRequired();
 
+                    b.Property<bool>("ForceDelete");
+
                     b.Property<bool>("IsDeleted");
 
                     b.Property<string>("Nome")
@@ -245,6 +263,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Endereco");
+
+                    b.Property<bool>("ForceDelete");
 
                     b.Property<bool>("IsDeleted");
 
@@ -265,6 +285,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("ForceDelete");
 
                     b.Property<Guid>("IdEndereco");
 
@@ -298,6 +320,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("ForceDelete");
+
                     b.Property<Guid>("IdEndereco");
 
                     b.Property<bool>("IsDeleted");
@@ -318,6 +342,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("ForceDelete");
+
                     b.Property<bool>("IsDeleted");
 
                     b.HasKey("Id");
@@ -333,6 +359,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<DateTime>("Data");
 
                     b.Property<int>("ETA");
+
+                    b.Property<bool>("ForceDelete");
 
                     b.Property<Guid>("IdFaixaDesconto");
 
@@ -386,6 +414,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<float>("Bandeirada");
 
+                    b.Property<bool>("ForceDelete");
+
                     b.Property<float>("HoraParada");
 
                     b.Property<bool>("IsDeleted");
@@ -405,6 +435,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Ativo");
+
+                    b.Property<bool>("ForceDelete");
 
                     b.Property<Guid>("IdEndereco");
 
@@ -500,6 +532,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("ForceDelete");
+
                     b.Property<Guid>("IdGrupoUsuario");
 
                     b.Property<Guid>("IdUsuario");
@@ -523,6 +557,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<int>("Capacidade");
 
                     b.Property<int?>("Cor");
+
+                    b.Property<bool>("ForceDelete");
 
                     b.Property<Guid?>("IdFoto");
 
@@ -551,6 +587,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Ativo");
+
+                    b.Property<bool>("ForceDelete");
 
                     b.Property<Guid>("IdTaxista");
 

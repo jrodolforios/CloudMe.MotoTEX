@@ -104,6 +104,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     Valor = table.Column<float>(nullable: false),
                     Descricao = table.Column<string>(nullable: true)
                 },
@@ -118,6 +119,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     Descricao = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
@@ -131,6 +133,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     Nome = table.Column<string>(nullable: true),
                     NomeArquivo = table.Column<string>(nullable: false),
                     Dados = table.Column<byte[]>(nullable: false)
@@ -146,6 +149,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     Nome = table.Column<string>(nullable: false),
                     Descricao = table.Column<string>(nullable: false)
                 },
@@ -182,6 +186,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     Endereco = table.Column<string>(nullable: true),
                     Longitude = table.Column<string>(nullable: false),
                     Latitude = table.Column<string>(nullable: false),
@@ -247,7 +252,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -260,6 +266,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     Bandeirada = table.Column<float>(nullable: false),
                     KmRodadoBandeira1 = table.Column<float>(nullable: false),
                     KmRodadoBandeira2 = table.Column<float>(nullable: false),
@@ -581,6 +588,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     Placa = table.Column<string>(nullable: false),
                     Marca = table.Column<string>(nullable: false),
                     Modelo = table.Column<string>(nullable: false),
@@ -646,6 +654,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     CEP = table.Column<string>(nullable: false),
                     Logradouro = table.Column<string>(nullable: false),
                     Numero = table.Column<string>(nullable: false),
@@ -672,6 +681,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     Nome = table.Column<string>(nullable: false),
                     IdEndereco = table.Column<Guid>(nullable: false)
                 },
@@ -798,6 +808,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     IdUsuario = table.Column<Guid>(nullable: false),
                     IdGrupoUsuario = table.Column<Guid>(nullable: false)
                 },
@@ -844,6 +855,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     IdUsuario = table.Column<Guid>(nullable: true),
                     IdEndereco = table.Column<Guid>(nullable: false),
                     IdLocalizacaoAtual = table.Column<Guid>(nullable: true),
@@ -884,6 +896,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     Ativo = table.Column<bool>(nullable: false),
                     IdUsuario = table.Column<Guid>(nullable: true),
                     IdEndereco = table.Column<Guid>(nullable: false),
@@ -932,6 +945,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     IdPassageiro = table.Column<Guid>(nullable: false),
                     IdLocalizacaoOrigem = table.Column<Guid>(nullable: false),
                     IdLocalizacaoDestino = table.Column<Guid>(nullable: false),
@@ -993,6 +1007,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     IdFaixaDesconto = table.Column<Guid>(nullable: false),
                     IdTaxista = table.Column<Guid>(nullable: false)
                 },
@@ -1019,6 +1034,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     IdPassageiro = table.Column<Guid>(nullable: false),
                     IdTaxista = table.Column<Guid>(nullable: false),
                     Preferencia = table.Column<int>(nullable: false)
@@ -1046,6 +1062,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     IdFormaPagamento = table.Column<Guid>(nullable: false),
                     IdTaxista = table.Column<Guid>(nullable: false)
                 },
@@ -1072,6 +1089,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     IdVeiculo = table.Column<Guid>(nullable: false),
                     IdTaxista = table.Column<Guid>(nullable: false),
                     Ativo = table.Column<bool>(nullable: false)
@@ -1099,6 +1117,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
                     IdSolicitacao = table.Column<Guid>(nullable: false),
                     IdTaxista = table.Column<Guid>(nullable: false),
                     IdVeiculo = table.Column<Guid>(nullable: false),

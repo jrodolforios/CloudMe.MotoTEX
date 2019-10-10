@@ -95,14 +95,20 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
             {
                 if (entry.Entity is EntryBase)
                 {
+                    var entryBase = (EntryBase)entry.Entity;
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                            entry.CurrentValues["IsDeleted"] = false;
+                            entryBase.IsDeleted = false;
+                            //entry.CurrentValues["IsDeleted"] = false;
                             break;
                         case EntityState.Deleted:
-                            entry.State = EntityState.Modified;
-                            entry.CurrentValues["IsDeleted"] = true;
+                            if (!entryBase.ForceDelete)
+                            {
+                                entryBase.IsDeleted = true;
+                                entry.State = EntityState.Modified;
+                                //entry.CurrentValues["IsDeleted"] = true;
+                            }
                             break;
                     }
                 }
