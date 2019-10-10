@@ -10,6 +10,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
         public virtual void Configure(EntityTypeBuilder<TEntity> builder)
         {
             builder.Property(x => x.IsDeleted);
+            //builder.Property(x => x.ForceDelete);
             builder.HasQueryFilter(x => x.IsDeleted == false);
         }
     }

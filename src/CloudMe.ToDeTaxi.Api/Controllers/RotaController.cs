@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class RotaController : BaseController
     {
-        IRotaService _rotaService;
+        IRotaService _RotaService;
 
-        public RotaController(IRotaService rotaService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public RotaController(IRotaService RotaService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _rotaService = rotaService;
+            _RotaService = RotaService;
         }
 
         /// <summary>
-        /// Gets all rotas.
+        /// Gets all Rotas.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<RotaSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<RotaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<RotaSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _rotaService.GetAllSummariesAsync(), _rotaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _RotaService.GetAllSummariesAsync(), _RotaService);
         }
 
         /// <summary>
@@ -42,54 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">Rota's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(RotaSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<RotaSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<RotaSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _rotaService.GetSummaryAsync(id), _rotaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _RotaService.GetSummaryAsync(id), _RotaService);
         }
 
         /// <summary>
         /// Creates a new Rota.
         /// </summary>
-        /// <param name="rotaSummary">Rota's summary</param>
+        /// <param name="RotaSummary">Rota's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] RotaSummary rotaSummary)
+        public async Task<Response<Guid>> Post([FromBody] RotaSummary RotaSummary)
         {
-            try
+            var entity = await this._RotaService.CreateAsync(RotaSummary);
+            if (_RotaService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._rotaService.CreateAsync(rotaSummary) != null, _rotaService);
+                return await base.ErrorResponseAsync<Guid>(_RotaService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _RotaService);
         }
 
         /// <summary>
         /// Modifies an existing Rota.
         /// </summary>
-        /// <param name="rotaSummary">Modified Rota list's properties summary</param>
+        /// <param name="RotaSummary">Modified Rota list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] RotaSummary rotaSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] RotaSummary RotaSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._rotaService.UpdateAsync(rotaSummary) != null, _rotaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._RotaService.UpdateAsync(RotaSummary) != null, _RotaService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._rotaService.DeleteAsync(id), _rotaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._RotaService.DeleteAsync(id), _RotaService);
         }
     }
 }

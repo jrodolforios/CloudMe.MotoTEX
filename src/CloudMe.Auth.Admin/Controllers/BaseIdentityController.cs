@@ -115,7 +115,7 @@ namespace CloudMe.Auth.Admin.Controllers
             {
                 if (user is CloudMeUserDto CloudMeUserDto)
                 {
-                    CloudMeUserDto.IdCompany = new Guid(CloudMe.Auth.Admin.Configuration.Identity.Users.AdminCompanyId);
+                    //CloudMeUserDto.IdCompany = new Guid(CloudMe.Auth.Admin.Configuration.Identity.Users.AdminCompanyId);
                 }
                 var userData = await _identityService.CreateUserAsync(user);
                 userId = userData.userId;

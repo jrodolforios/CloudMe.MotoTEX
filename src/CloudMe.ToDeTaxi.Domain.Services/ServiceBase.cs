@@ -25,7 +25,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return await GetRepository().CountAsync();
         }
 
-        public async Task<TEntry> Get(TEntryKey key, string[] paths = null)
+        public virtual async Task<TEntry> Get(TEntryKey key, string[] paths = null)
         {
             return await GetRepository().FindByIdAsync(key, paths);
         }
@@ -35,14 +35,14 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return await GetRepository().FindAllAsync(paths);
         }
 
-        public IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null, SearchOptions options = null)
+        public virtual IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null, Pagination pagination = null)
         {
             var rawItens = GetRepository().Search(where, paths);
-            if(options != null)
+            if(pagination != null)
             {
                 rawItens = rawItens
-                    .Skip(options.itensPerPage * options.page)
-                    .Take(options.itensPerPage);
+                    .Skip(pagination.itensPerPage * pagination.page)
+                    .Take(pagination.itensPerPage);
             }
 
             return rawItens;
@@ -51,7 +51,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         public async Task<TEntrySummary> GetSummaryAsync(TEntryKey key)
         {
-            var entry = await GetRepository().FindByIdAsync(key);
+            var entry = await this.Get(key);
             return await GetSummaryAsync(entry);
         }
 
@@ -62,7 +62,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         public async Task<IEnumerable<TEntrySummary>> GetAllSummariesAsync()
         {
-            var entries = await this.GetAll(null);
+            var entries = await this.GetAll();
             return await GetAllSummariesAsync(entries);
         }
 
@@ -105,7 +105,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return null;
         }
 
-        public async Task<TEntry> UpdateAsync(TEntrySummary summary)
+        public virtual async Task<TEntry> UpdateAsync(TEntrySummary summary)
         {
             ValidateSummary(summary);
 
@@ -133,7 +133,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return null;
         }
 
-        public virtual async Task<bool> DeleteAsync(TEntryKey key)
+        public virtual async Task<bool> DeleteAsync(TEntryKey key, bool logical = true)
         {
             var repo = GetRepository();
             var entry = await repo.FindByIdAsync(key);

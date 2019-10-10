@@ -7,13 +7,11 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
     {
         public Guid Id { get; set; }
 
-        public Guid IdUsuario { get; set; }
+        public Guid? IdUsuario { get; set; } // relaxa o relacionamento com o usuario pois este (usuário) é gerenciado externamente (Identity server)
         public Usuario Usuario { get; set; }
 
-        public string CPF { get; set; }
-
         public Guid IdEndereco { get; set; }
-        public virtual Localizacao Endereco { get; set; }
+        public virtual Endereco Endereco { get; set; }
 
         public Guid? IdLocalizacaoAtual { get; set; }
         public virtual Localizacao LocalizacaoAtual { get; set; }

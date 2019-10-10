@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Corrida;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class FormaPagamentoController : BaseController
     {
-        IFormaPagamentoService _formaPagamentoService;
+        IFormaPagamentoService _FormaPagamentoService;
 
-        public FormaPagamentoController(IFormaPagamentoService formaPagamentoService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public FormaPagamentoController(IFormaPagamentoService FormaPagamentoService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _formaPagamentoService = formaPagamentoService;
+            _FormaPagamentoService = FormaPagamentoService;
         }
 
         /// <summary>
-        /// Gets all formaPagamentos.
+        /// Gets all FormaPagamentos.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<FormaPagamentoSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<FormaPagamentoSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<FormaPagamentoSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _formaPagamentoService.GetAllSummariesAsync(), _formaPagamentoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FormaPagamentoService.GetAllSummariesAsync(), _FormaPagamentoService);
         }
 
         /// <summary>
@@ -42,54 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">FormaPagamento's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(FormaPagamentoSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<FormaPagamentoSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<FormaPagamentoSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _formaPagamentoService.GetSummaryAsync(id), _formaPagamentoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FormaPagamentoService.GetSummaryAsync(id), _FormaPagamentoService);
         }
 
         /// <summary>
         /// Creates a new FormaPagamento.
         /// </summary>
-        /// <param name="formaPagamentoSummary">FormaPagamento's summary</param>
+        /// <param name="FormaPagamentoSummary">FormaPagamento's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] FormaPagamentoSummary formaPagamentoSummary)
+        public async Task<Response<Guid>> Post([FromBody] FormaPagamentoSummary FormaPagamentoSummary)
         {
-            try
+            var entity = await this._FormaPagamentoService.CreateAsync(FormaPagamentoSummary);
+            if (_FormaPagamentoService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._formaPagamentoService.CreateAsync(formaPagamentoSummary) != null, _formaPagamentoService);
+                return await base.ErrorResponseAsync<Guid>(_FormaPagamentoService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _FormaPagamentoService);
         }
 
         /// <summary>
         /// Modifies an existing FormaPagamento.
         /// </summary>
-        /// <param name="formaPagamentoSummary">Modified FormaPagamento list's properties summary</param>
+        /// <param name="FormaPagamentoSummary">Modified FormaPagamento list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] FormaPagamentoSummary formaPagamentoSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] FormaPagamentoSummary FormaPagamentoSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._formaPagamentoService.UpdateAsync(formaPagamentoSummary) != null, _formaPagamentoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FormaPagamentoService.UpdateAsync(FormaPagamentoSummary) != null, _FormaPagamentoService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._formaPagamentoService.DeleteAsync(id), _formaPagamentoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FormaPagamentoService.DeleteAsync(id), _FormaPagamentoService);
         }
     }
 }

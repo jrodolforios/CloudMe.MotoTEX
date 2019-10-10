@@ -1,0 +1,32 @@
+2019-09-28 10:41:06.778 -03:00 [ERR] User marked as not active: c6bc8d8d-12bf-40ed-92c3-a3f8457fbb81
+2019-09-28 10:41:06.862 -03:00 [ERR] Error processing end session request Invalid request
+2019-09-28 12:22:04.091 -03:00 [FTL] An error occurred stopping the application
+System.AggregateException: One or more errors occurred. (Not started. Call Start first.) ---> System.InvalidOperationException: Not started. Call Start first.
+   at IdentityServer4.EntityFramework.TokenCleanup.Stop() in C:\local\identity\server4\IdentityServer4\src\EntityFramework.Storage\src\TokenCleanup\TokenCleanup.cs:line 77
+   at Microsoft.Extensions.DependencyInjection.TokenCleanupHost.StopAsync(CancellationToken cancellationToken) in C:\local\identity\server4\IdentityServer4\src\EntityFramework\src\TokenCleanupHost.cs:line 37
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.<>c__DisplayClass4_0.<StopAsync>b__0(IHostedService service)
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.ExecuteAsync(Func`2 callback)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.ExecuteAsync(Func`2 callback)
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.StopAsync(CancellationToken token)
+---> (Inner Exception #0) System.InvalidOperationException: Not started. Call Start first.
+   at IdentityServer4.EntityFramework.TokenCleanup.Stop() in C:\local\identity\server4\IdentityServer4\src\EntityFramework.Storage\src\TokenCleanup\TokenCleanup.cs:line 77
+   at Microsoft.Extensions.DependencyInjection.TokenCleanupHost.StopAsync(CancellationToken cancellationToken) in C:\local\identity\server4\IdentityServer4\src\EntityFramework\src\TokenCleanupHost.cs:line 37
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.<>c__DisplayClass4_0.<StopAsync>b__0(IHostedService service)
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.ExecuteAsync(Func`2 callback)<---
+
+2019-09-28 12:39:03.870 -03:00 [FTL] An error occurred stopping the application
+System.AggregateException: One or more errors occurred. (Not started. Call Start first.) ---> System.InvalidOperationException: Not started. Call Start first.
+   at IdentityServer4.EntityFramework.TokenCleanup.Stop() in C:\local\identity\server4\IdentityServer4\src\EntityFramework.Storage\src\TokenCleanup\TokenCleanup.cs:line 77
+   at Microsoft.Extensions.DependencyInjection.TokenCleanupHost.StopAsync(CancellationToken cancellationToken) in C:\local\identity\server4\IdentityServer4\src\EntityFramework\src\TokenCleanupHost.cs:line 37
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.<>c__DisplayClass4_0.<StopAsync>b__0(IHostedService service)
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.ExecuteAsync(Func`2 callback)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.ExecuteAsync(Func`2 callback)
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.StopAsync(CancellationToken token)
+---> (Inner Exception #0) System.InvalidOperationException: Not started. Call Start first.
+   at IdentityServer4.EntityFramework.TokenCleanup.Stop() in C:\local\identity\server4\IdentityServer4\src\EntityFramework.Storage\src\TokenCleanup\TokenCleanup.cs:line 77
+   at Microsoft.Extensions.DependencyInjection.TokenCleanupHost.StopAsync(CancellationToken cancellationToken) in C:\local\identity\server4\IdentityServer4\src\EntityFramework\src\TokenCleanupHost.cs:line 37
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.<>c__DisplayClass4_0.<StopAsync>b__0(IHostedService service)
+   at Microsoft.AspNetCore.Hosting.Internal.HostedServiceExecutor.ExecuteAsync(Func`2 callback)<---
+

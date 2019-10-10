@@ -1,39 +1,44 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Linq;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using CloudMe.ToDeTaxi.Configuration.Library.Helpers;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
-using Swashbuckle.AspNetCore.Swagger;
+using CloudMe.ToDeTaxi.Configuration.Library.Helpers;
+using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Linq;
+using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.Identity;
+using CloudMe.ToDeTaxi.Infraestructure.Entries;
+using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Extensions;
+using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
+using System.Net;
 
-public class FileUploadOperation : IOperationFilter
+public class AuthorizeCheckOperationFilter : IOperationFilter
 {
     public void Apply(Operation operation, OperationFilterContext context)
     {
-        if (operation.Parameters.FirstOrDefault(x => x.Name.ToLower() == "arquivo") != null)
+        var hasAuthorize = context.ControllerActionDescriptor.GetControllerAndActionAttributes(true).OfType<AuthorizeAttribute>().Any();
+
+        if (hasAuthorize)
         {
-            operation.Parameters.Clear();
-            operation.Parameters.Add(new NonBodyParameter
+            operation.Responses.Add("401", new Response { Description = "Unauthorized" });
+            operation.Responses.Add("403", new Response { Description = "Forbidden" });
+
+            operation.Security = new List<IDictionary<string, IEnumerable<string>>>
             {
-                Name = "arquivo",
-                In = "formData",
-                Description = "Upload File",
-                Required = true,
-                Type = "file"
-            });
-            operation.Consumes.Add("multipart/form-data");
+                new Dictionary<string, IEnumerable<string>> {{"oauth2", new[] {"demo_api"}}}
+            };
         }
     }
 }
@@ -57,64 +62,71 @@ namespace CloudMe.ToDeTaxi.Api
             Configuration = builder.Build();
             Environment = environment;
             _loggerFactory = loggerFactory;
+
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddIdentity<Usuario, IdentityRole<Guid>>()
+                .AddEntityFrameworkStores<CloudMeToDeTaxiContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAdminAspNetIdentityServices<CloudMeToDeTaxiContext, UserDto<Guid>, Guid, RoleDto<Guid>, Guid, Guid, Guid,
+                                CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,
+                                 IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>();
+
+            var authorityBaseUrl = Configuration["Identity:Authority"];
+            //services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+            services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = IdentityServerAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = IdentityServerAuthenticationDefaults.AuthenticationScheme;
+                //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddIdentityServerAuthentication(c =>
+                {
+                    c.Authority = authorityBaseUrl;
+                    c.RequireHttpsMetadata = false;
+                    c.ApiName = "todetaxiapi";
+                });
+
             services.AddSwaggerGen(x =>
             {
                 x.SwaggerDoc("v1", new Info { Title = "CloudMe ToDeTaxi API", Version = "v1" });
-
-                x.AddSecurityDefinition("Bearer", new ApiKeyScheme()
+                
+                x.AddSecurityDefinition("oauth2", new OAuth2Scheme
                 {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-                    Name = "Authorization",
-                    In = "header",
-                    Type = "apiKey"
+                    Flow = "implicit",
+                    AuthorizationUrl = "https://auth.todetaxi.com.br/connect/authorize",
+                    Scopes = new Dictionary<string, string>
+                    {
+                        { "todetaxiapi", "TOdeTaxiAPI" } 
+                    }
                 });
+
+                x.OperationFilter<AuthorizeCheckOperationFilter>();
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 x.IncludeXmlComments(xmlPath);
-
-                x.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
-                {
-                    { "Bearer", new string[] { } }
-                });
-
-                //x.OperationFilter<FileUploadOperation>(); //Register File Upload Operation Filter
             });
-
-            services.ConfigureSwaggerGen(options => {
-                options.OperationFilter<FileUploadOperation>(); //Register File Upload Operation Filter
-            });
-
-            services.AddAuthorization();
-
-            services.AddAuthentication("Bearer")
-                .AddJwtBearer("Bearer", options =>
-                {
-                    var isDevelopment = services.BuildServiceProvider().GetService<IHostingEnvironment>().IsDevelopment();
-                    options.Authority = isDevelopment ? "https://localhost:5001" : "https://authToDeTaxi.CloudMeweb.com.br";
-                    options.RequireHttpsMetadata = false;
-                    options.Audience = "ToDeTaxiapi";
-                });
 
             services.AddDbContexts<CloudMeToDeTaxiContext>(Configuration);
             services.AddToDeTaxiServices()
                     .AddToDeTaxiRepositories();
 
-            services.AddCors(c =>
+            services.AddAuthorizationPolicies();
+
+            /*services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options =>
                 {
-                    options.WithOrigins("http://localhost:8080", "https://ToDeTaxi.CloudMeweb.com.br/", "http://ToDeTaxi.CloudMeweb.com.br/");
+                    options.WithOrigins("http://localhost:8080", "https://todetaxi.cloudme.com.br/", "http://todetaxi.cloudme.com.br/");
                     options.WithHeaders("Authorization", "content-type");
                     options.AllowAnyMethod();
                 });
-            });
+            });*/
 
             services.AddMvc()
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
@@ -123,12 +135,42 @@ namespace CloudMe.ToDeTaxi.Api
                         options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                         options.SerializerSettings.Formatting = Formatting.Indented;
                     });
+
+            // Get host name
+            string strHostName = Dns.GetHostName();
+
+            // Find host by name
+            IPHostEntry iphostentry = Dns.GetHostEntry(strHostName);
+
+            List<string> urls = new List<string>()
+            {
+                "http://localhost", "http://127.0.0.1", "http://localhost:4200"
+            };
+
+            // Enumerate IP addresses
+            foreach (IPAddress ipaddress in iphostentry.AddressList.Where(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
+            {
+                Console.WriteLine(ipaddress.ToString());
+                urls.Add($"https://{ipaddress.ToString()}");
+                urls.Add($"http://{ipaddress.ToString()}");
+            }
+
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options =>
+                {
+                    options.AllowAnyOrigin();
+                    options.AllowAnyHeader();
+                    options.AllowAnyMethod();
+                    options.AllowCredentials();
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            UpdateDatabase(app);
+            StartupHelpers.UpdateDatabase(app);
 
             var supportedCultures = new[] { new CultureInfo("pt-BR") };
             app.UseRequestLocalization(new RequestLocalizationOptions
@@ -150,32 +192,20 @@ namespace CloudMe.ToDeTaxi.Api
 
             // ===== Use Authentication ======
             app.UseAuthentication();
-
             app.UseHttpsRedirection();
-            //app.ApiAllowOrigin();
-            app.UseSwagger();
-            app.UseMvc();
 
+            app.UseSwagger();
+            app.UseCors("AllowOrigin");
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "CloudMe ToDeTaxi - V1");
+                c.RoutePrefix = string.Empty;
+                c.OAuthClientId("ToDeTaxiAPI_swagger");
+                c.OAuthAppName("TOdeTaxi API - Swagger");
             });
-            app.UseCors("AllowOrigin");
 
             app.UseMvc();
         }
 
-        private static void UpdateDatabase(IApplicationBuilder app)
-        {
-            using (var serviceScope = app.ApplicationServices
-                .GetRequiredService<IServiceScopeFactory>()
-                      .CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<CloudMeToDeTaxiContext>())
-                {
-                    context.Database.Migrate();
-                }
-            }
-        }
     }
 }

@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Taxista;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class FormaPagamentoTaxistaController : BaseController
     {
-        IFormaPagamentoTaxistaService _formaPagamentoTaxistaService;
+        IFormaPagamentoTaxistaService _FormaPagamentoTaxistaService;
 
-        public FormaPagamentoTaxistaController(IFormaPagamentoTaxistaService formaPagamentoTaxistaService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public FormaPagamentoTaxistaController(IFormaPagamentoTaxistaService FormaPagamentoTaxistaService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _formaPagamentoTaxistaService = formaPagamentoTaxistaService;
+            _FormaPagamentoTaxistaService = FormaPagamentoTaxistaService;
         }
 
         /// <summary>
-        /// Gets all formaPagamentoTaxistas.
+        /// Gets all FormaPagamentoTaxistas.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<FormaPagamentoTaxistaSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<FormaPagamentoTaxistaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<FormaPagamentoTaxistaSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _formaPagamentoTaxistaService.GetAllSummariesAsync(), _formaPagamentoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FormaPagamentoTaxistaService.GetAllSummariesAsync(), _FormaPagamentoTaxistaService);
         }
 
         /// <summary>
@@ -42,54 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">FormaPagamentoTaxista's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(FormaPagamentoTaxistaSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<FormaPagamentoTaxistaSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<FormaPagamentoTaxistaSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _formaPagamentoTaxistaService.GetSummaryAsync(id), _formaPagamentoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FormaPagamentoTaxistaService.GetSummaryAsync(id), _FormaPagamentoTaxistaService);
         }
 
         /// <summary>
         /// Creates a new FormaPagamentoTaxista.
         /// </summary>
-        /// <param name="formaPagamentoTaxistaSummary">FormaPagamentoTaxista's summary</param>
+        /// <param name="FormaPagamentoTaxistaSummary">FormaPagamentoTaxista's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] FormaPagamentoTaxistaSummary formaPagamentoTaxistaSummary)
+        public async Task<Response<Guid>> Post([FromBody] FormaPagamentoTaxistaSummary FormaPagamentoTaxistaSummary)
         {
-            try
+            var entity = await this._FormaPagamentoTaxistaService.CreateAsync(FormaPagamentoTaxistaSummary);
+            if (_FormaPagamentoTaxistaService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._formaPagamentoTaxistaService.CreateAsync(formaPagamentoTaxistaSummary) != null, _formaPagamentoTaxistaService);
+                return await base.ErrorResponseAsync<Guid>(_FormaPagamentoTaxistaService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _FormaPagamentoTaxistaService);
         }
 
         /// <summary>
         /// Modifies an existing FormaPagamentoTaxista.
         /// </summary>
-        /// <param name="formaPagamentoTaxistaSummary">Modified FormaPagamentoTaxista list's properties summary</param>
+        /// <param name="FormaPagamentoTaxistaSummary">Modified FormaPagamentoTaxista list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] FormaPagamentoTaxistaSummary formaPagamentoTaxistaSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] FormaPagamentoTaxistaSummary FormaPagamentoTaxistaSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._formaPagamentoTaxistaService.UpdateAsync(formaPagamentoTaxistaSummary) != null, _formaPagamentoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FormaPagamentoTaxistaService.UpdateAsync(FormaPagamentoTaxistaSummary) != null, _FormaPagamentoTaxistaService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._formaPagamentoTaxistaService.DeleteAsync(id), _formaPagamentoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FormaPagamentoTaxistaService.DeleteAsync(id), _FormaPagamentoTaxistaService);
         }
     }
 }

@@ -6,21 +6,30 @@ using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using CloudMe.ToDeTaxi.Api.Models;
+using System.Collections.Generic;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
-    //[Authorize, EnableCors("AllowOrigin")] 
+    [EnableCors("AllowOrigin")] 
+    [Authorize] 
     public class BaseController : Controller
     {
 
         private IUnitOfWork _unitOfWork;
+        public IUnitOfWork unitOfWork { get {return _unitOfWork;}}
 
         public BaseController(IUnitOfWork unitOfWork)
         {
             this._unitOfWork = unitOfWork;
         }
 
-        protected async Task<IActionResult> ResponseAsync(object result, INotifiable notifiable)
+        protected bool HasNotifications(INotifiable notifiable)
+        {
+            return notifiable.Notifications.Any();
+        } 
+
+        protected async Task<Response<T>> ResponseAsync<T>(T result, INotifiable notifiable)
         {
 
             if (!notifiable.Notifications.Any())
@@ -29,11 +38,19 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
                 {
                     if (await _unitOfWork.CommitAsync())
                     {
-                        return Ok(result);
+                        return new Response<T>()
+                        {
+                            data = result,
+                            success = true
+                        };
                     }
                     else
                     {
-                        return BadRequest(new { errors = _unitOfWork.Notifications });
+                        return new Response<T>()
+                        {
+                            success = false,
+                            notifications = _unitOfWork.Notifications
+                        };
                     }
 
                     //return Request.CreateResponse(HttpStatusCode.OK, result);
@@ -41,20 +58,45 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
                 catch (Exception ex)
                 {
                     // Aqui devo logar o erro
-                    return BadRequest($"Houve um problema interno com o servidor. Entre em contato com o Administrador do sistema caso o problema persista. Erro interno: {ex.Message}");
-                    //return Request.CreateResponse(HttpStatusCode.Conflict, $"Houve um problema interno com o servidor. Entre em contato com o Administrador do sistema caso o problema persista. Erro interno: {ex.Message}");
+                    return new Response<T>()
+                    {
+                        success = false,
+                        notifications = new List<Notification> 
+                        {
+                            new Notification("TransactionError", ex.Message)
+                        }
+                    };
                 }
             }
             else
             {
-                return BadRequest(new { errors = notifiable.Notifications });
-                //return Request.CreateResponse(HttpStatusCode.BadRequest, new { errors = serviceBase.Notifications });
+                return new Response<T>()
+                {
+                    success = false,
+                    notifications = notifiable.Notifications
+                };
             }
         }
-        protected async Task<IActionResult> ResponseExceptionAsync(Exception ex)
+
+        protected async Task<Response<T>> ErrorResponseAsync<T>(INotifiable notifiable)
         {
-            return await Task.FromResult(BadRequest(new { errors = ex.Message, exception = ex.ToString() }));
-            //return Request.CreateResponse(HttpStatusCode.InternalServerError, new { errors = ex.Message, exception = ex.ToString() });
+            return new Response<T>()
+            {
+                success = false,
+                notifications = notifiable.Notifications
+            };
+        }
+
+        protected async Task<Response<T>> ResponseExceptionAsync<T>(Exception ex)
+        {
+            return new Response<T>()
+            {
+                success = false,
+                notifications = new List<Notification> 
+                {
+                    new Notification("TransactionError", ex.Message)
+                }
+            };
         }
 
         protected override void Dispose(bool disposing)

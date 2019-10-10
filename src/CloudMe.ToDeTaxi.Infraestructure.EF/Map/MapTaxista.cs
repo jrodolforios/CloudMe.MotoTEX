@@ -14,10 +14,13 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 
             builder.HasKey(x => x.Id);
 
-            builder.HasOne(x => x.Usuario).WithOne().HasForeignKey<Taxista>(x => x.IdUsuario).IsRequired();
+             // relaxa o relacionamento com o usuario pois este (usuário) é gerenciado externamente (Identity server)
+            builder.HasOne(x => x.Usuario).WithOne().HasForeignKey<Taxista>(x => x.IdUsuario).IsRequired(false);
+
             builder.HasOne(x => x.Endereco).WithOne().HasForeignKey<Taxista>(x => x.IdEndereco).IsRequired();
             builder.HasOne(x => x.Foto).WithOne().HasForeignKey<Taxista>(x => x.IdFoto);
             builder.HasOne(x => x.LocalizacaoAtual).WithOne().HasForeignKey<Taxista>(x => x.IdLocalizacaoAtual);
+            builder.HasOne(x => x.PontoTaxi).WithMany(x => x.Taxistas).HasForeignKey(x => x.IdPontoTaxi);
         }
     }
 }

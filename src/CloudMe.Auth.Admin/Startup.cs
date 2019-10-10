@@ -1,23 +1,21 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Extensions;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Extensions;
-using CloudMe.Auth.Admin.Configuration.Interfaces;
-using Skoruba.IdentityServer4.Admin.EntityFramework.DbContexts;
-using Skoruba.IdentityServer4.Admin.EntityFramework.Identity.Entities.Identity;
-using CloudMe.Auth.Admin.Helpers;
-using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
-using Microsoft.AspNetCore.Identity;
-using System;
 using CloudMe.ToDeTaxi.Domain.Services;
 using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
-using CloudMe.ToDeTaxi.Infraestructure.Repositories;
+using CloudMe.Auth.Admin.Configuration.Interfaces;
+using CloudMe.Auth.Admin.Helpers;
 using CloudMe.Auth.Admin.Model;
+using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
+using System;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace CloudMe.Auth.Admin
 {
@@ -65,6 +63,10 @@ namespace CloudMe.Auth.Admin
             services.AddMvcLocalization();
             services.AddAuthorizationPolicies();
 
+            services.AddTransient<IUsuarioService, UsuarioService>();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped(p => p.GetService<IHttpContextAccessor>()?.HttpContext);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -84,6 +86,7 @@ namespace CloudMe.Auth.Admin
             app.UseStaticFiles();
             app.ConfigureAuthentificationServices(env);
             app.ConfigureLocalization();
+            //app.UseIdentityServer();
 
             app.UseMvc(routes =>
             {

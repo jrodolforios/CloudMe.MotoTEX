@@ -4,15 +4,19 @@ using CloudMe.ToDeTaxi.Domain.Model.Passageiro;
 using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CloudMe.ToDeTaxi.Domain.Model.Usuario;
+using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
+using System.Linq;
+using System.Linq.Expressions;
+using CloudMe.ToDeTaxi.Domain.Model;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class PassageiroService : ServiceBase<Passageiro, PassageiroSummary, Guid>, IPassageiroService
     {
+        private string[] defaultPaths = {"Endereco", "Usuario"};
         private readonly IPassageiroRepository _PassageiroRepository;
 
         public PassageiroService(IPassageiroRepository PassageiroRepository)
@@ -28,11 +32,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Passageiro = new Passageiro
             {
                 Id = summary.Id,
-                IdUsuario = summary.IdUsuario,
-                IdEndereco = summary.IdEndereco,
+                IdUsuario = summary.Usuario.Id,
+                IdEndereco = summary.Endereco.Id,
                 IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
                 IdFoto = summary.IdFoto,
-                CPF = summary.CPF
             };
             return Task.FromResult(Passageiro);
         }
@@ -42,11 +45,27 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Passageiro = new PassageiroSummary
             {
                 Id = entry.Id,
-                IdUsuario = entry.IdUsuario,
-                IdEndereco = entry.IdEndereco,
-                IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
                 IdFoto = entry.IdFoto,
-                CPF = entry.CPF
+                IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
+                Usuario = new UsuarioSummary()
+                {
+                    Id = entry.Usuario.Id,
+                    Nome = entry.Usuario.Nome,
+                    Email = entry.Usuario.Email,
+                    Telefone = entry.Usuario.PhoneNumber
+                },
+                Endereco = new EnderecoSummary()
+                {
+                    Id = entry.Endereco.Id,
+                    CEP = entry.Endereco.CEP,
+                    Logradouro = entry.Endereco.Logradouro,
+                    Numero = entry.Endereco.Numero,
+                    Complemento = entry.Endereco.Complemento,
+                    Bairro = entry.Endereco.Bairro,
+                    Localidade = entry.Endereco.Localidade,
+                    UF = entry.Endereco.UF,
+                    IdLocalizacao = entry.Endereco.IdLocalizacao
+                },
             };
 
             return Task.FromResult(Passageiro);
@@ -64,11 +83,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         protected override void UpdateEntry(Passageiro entry, PassageiroSummary summary)
         {
-            entry.IdUsuario = summary.IdUsuario;
-            entry.IdEndereco = summary.IdEndereco;
+            entry.IdUsuario = summary.Usuario.Id;
+            entry.IdEndereco = summary.Endereco.Id;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
             entry.IdFoto = summary.IdFoto;
-            entry.CPF = summary.CPF;
         }
 
         protected override void ValidateSummary(PassageiroSummary summary)
@@ -77,21 +95,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 this.AddNotification(new Notification("summary", "Passageiro: sumário é obrigatório"));
             }
+        }
 
-            if (string.IsNullOrEmpty(summary.CPF))
-            {
-                this.AddNotification(new Notification("CPF", "Passageiro: CPF é obrigatório"));
-            }
+        public override async Task<Passageiro> Get(Guid key, string[] paths = null)
+        {
+            return await base.Get(key, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
+        }
 
-            if (summary.IdUsuario.Equals(Guid.Empty))
-            {
-                this.AddNotification(new Notification("IdUsuario", "Passageiro: usuário inexistente ou não informado"));
-            }
+        public override async Task<IEnumerable<Passageiro>> GetAll(string[] paths = null)
+        {
+            return await base.GetAll(paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
+        }
 
-            if (summary.IdEndereco.Equals(Guid.Empty))
-            {
-                this.AddNotification(new Notification("IdEndereco", "Passageiro: endereço inexistente ou não informado"));
-            }
+        public override IEnumerable<Passageiro> Search(Expression<Func<Passageiro, bool>> where, string[] paths = null, Pagination options = null)
+        {
+            return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
         }
     }
 }

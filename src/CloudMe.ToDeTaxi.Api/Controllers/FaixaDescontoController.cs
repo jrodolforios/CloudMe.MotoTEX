@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Corrida;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class FaixaDescontoController : BaseController
     {
-        IFaixaDescontoService _faixaDescontoService;
+        IFaixaDescontoService _FaixaDescontoService;
 
-        public FaixaDescontoController(IFaixaDescontoService faixaDescontoService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public FaixaDescontoController(IFaixaDescontoService FaixaDescontoService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _faixaDescontoService = faixaDescontoService;
+            _FaixaDescontoService = FaixaDescontoService;
         }
 
         /// <summary>
-        /// Gets all faixaDescontos.
+        /// Gets all FaixaDescontos.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<FaixaDescontoSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<FaixaDescontoSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<FaixaDescontoSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _faixaDescontoService.GetAllSummariesAsync(), _faixaDescontoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FaixaDescontoService.GetAllSummariesAsync(), _FaixaDescontoService);
         }
 
         /// <summary>
@@ -42,54 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">FaixaDesconto's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(FaixaDescontoSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<FaixaDescontoSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<FaixaDescontoSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _faixaDescontoService.GetSummaryAsync(id), _faixaDescontoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FaixaDescontoService.GetSummaryAsync(id), _FaixaDescontoService);
         }
 
         /// <summary>
         /// Creates a new FaixaDesconto.
         /// </summary>
-        /// <param name="faixaDescontoSummary">FaixaDesconto's summary</param>
+        /// <param name="FaixaDescontoSummary">FaixaDesconto's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] FaixaDescontoSummary faixaDescontoSummary)
+        public async Task<Response<Guid>> Post([FromBody] FaixaDescontoSummary FaixaDescontoSummary)
         {
-            try
+            var entity = await this._FaixaDescontoService.CreateAsync(FaixaDescontoSummary);
+            if (_FaixaDescontoService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._faixaDescontoService.CreateAsync(faixaDescontoSummary) != null, _faixaDescontoService);
+                return await base.ErrorResponseAsync<Guid>(_FaixaDescontoService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _FaixaDescontoService);
         }
 
         /// <summary>
         /// Modifies an existing FaixaDesconto.
         /// </summary>
-        /// <param name="faixaDescontoSummary">Modified FaixaDesconto list's properties summary</param>
+        /// <param name="FaixaDescontoSummary">Modified FaixaDesconto list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] FaixaDescontoSummary faixaDescontoSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] FaixaDescontoSummary FaixaDescontoSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._faixaDescontoService.UpdateAsync(faixaDescontoSummary) != null, _faixaDescontoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FaixaDescontoService.UpdateAsync(FaixaDescontoSummary) != null, _FaixaDescontoService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._faixaDescontoService.DeleteAsync(id), _faixaDescontoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FaixaDescontoService.DeleteAsync(id), _FaixaDescontoService);
         }
     }
 }

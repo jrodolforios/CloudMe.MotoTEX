@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Taxista;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class FaixaDescontoTaxistaController : BaseController
     {
-        IFaixaDescontoTaxistaService _faixaDescontoTaxistaService;
+        IFaixaDescontoTaxistaService _FaixaDescontoTaxistaService;
 
-        public FaixaDescontoTaxistaController(IFaixaDescontoTaxistaService faixaDescontoTaxistaService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public FaixaDescontoTaxistaController(IFaixaDescontoTaxistaService FaixaDescontoTaxistaService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _faixaDescontoTaxistaService = faixaDescontoTaxistaService;
+            _FaixaDescontoTaxistaService = FaixaDescontoTaxistaService;
         }
 
         /// <summary>
-        /// Gets all faixaDescontoTaxistas.
+        /// Gets all FaixaDescontoTaxistas.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<FaixaDescontoTaxistaSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<FaixaDescontoTaxistaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<FaixaDescontoTaxistaSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _faixaDescontoTaxistaService.GetAllSummariesAsync(), _faixaDescontoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FaixaDescontoTaxistaService.GetAllSummariesAsync(), _FaixaDescontoTaxistaService);
         }
 
         /// <summary>
@@ -42,54 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">FaixaDescontoTaxista's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(FaixaDescontoTaxistaSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<FaixaDescontoTaxistaSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<FaixaDescontoTaxistaSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _faixaDescontoTaxistaService.GetSummaryAsync(id), _faixaDescontoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _FaixaDescontoTaxistaService.GetSummaryAsync(id), _FaixaDescontoTaxistaService);
         }
 
         /// <summary>
         /// Creates a new FaixaDescontoTaxista.
         /// </summary>
-        /// <param name="faixaDescontoTaxistaSummary">FaixaDescontoTaxista's summary</param>
+        /// <param name="FaixaDescontoTaxistaSummary">FaixaDescontoTaxista's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] FaixaDescontoTaxistaSummary faixaDescontoTaxistaSummary)
+        public async Task<Response<Guid>> Post([FromBody] FaixaDescontoTaxistaSummary FaixaDescontoTaxistaSummary)
         {
-            try
+            var entity = await this._FaixaDescontoTaxistaService.CreateAsync(FaixaDescontoTaxistaSummary);
+            if (_FaixaDescontoTaxistaService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._faixaDescontoTaxistaService.CreateAsync(faixaDescontoTaxistaSummary) != null, _faixaDescontoTaxistaService);
+                return await base.ErrorResponseAsync<Guid>(_FaixaDescontoTaxistaService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _FaixaDescontoTaxistaService);
         }
 
         /// <summary>
         /// Modifies an existing FaixaDescontoTaxista.
         /// </summary>
-        /// <param name="faixaDescontoTaxistaSummary">Modified FaixaDescontoTaxista list's properties summary</param>
+        /// <param name="FaixaDescontoTaxistaSummary">Modified FaixaDescontoTaxista list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] FaixaDescontoTaxistaSummary faixaDescontoTaxistaSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] FaixaDescontoTaxistaSummary FaixaDescontoTaxistaSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._faixaDescontoTaxistaService.UpdateAsync(faixaDescontoTaxistaSummary) != null, _faixaDescontoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FaixaDescontoTaxistaService.UpdateAsync(FaixaDescontoTaxistaSummary) != null, _FaixaDescontoTaxistaService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._faixaDescontoTaxistaService.DeleteAsync(id), _faixaDescontoTaxistaService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._FaixaDescontoTaxistaService.DeleteAsync(id), _FaixaDescontoTaxistaService);
         }
     }
 }

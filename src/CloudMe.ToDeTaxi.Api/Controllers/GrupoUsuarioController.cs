@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Usuario;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class GrupoUsuarioController : BaseController
     {
-        IGrupoUsuarioService _grupoUsuarioService;
+        IGrupoUsuarioService _GrupoUsuarioService;
 
-        public GrupoUsuarioController(IGrupoUsuarioService grupoUsuarioService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public GrupoUsuarioController(IGrupoUsuarioService GrupoUsuarioService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _grupoUsuarioService = grupoUsuarioService;
+            _GrupoUsuarioService = GrupoUsuarioService;
         }
 
         /// <summary>
-        /// Gets all grupoUsuarios.
+        /// Gets all GrupoUsuarios.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<GrupoUsuarioSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<GrupoUsuarioSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<GrupoUsuarioSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _grupoUsuarioService.GetAllSummariesAsync(), _grupoUsuarioService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _GrupoUsuarioService.GetAllSummariesAsync(), _GrupoUsuarioService);
         }
 
         /// <summary>
@@ -42,54 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">GrupoUsuario's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(GrupoUsuarioSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<GrupoUsuarioSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<GrupoUsuarioSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _grupoUsuarioService.GetSummaryAsync(id), _grupoUsuarioService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _GrupoUsuarioService.GetSummaryAsync(id), _GrupoUsuarioService);
         }
 
         /// <summary>
         /// Creates a new GrupoUsuario.
         /// </summary>
-        /// <param name="grupoUsuarioSummary">GrupoUsuario's summary</param>
+        /// <param name="GrupoUsuarioSummary">GrupoUsuario's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] GrupoUsuarioSummary grupoUsuarioSummary)
+        public async Task<Response<Guid>> Post([FromBody] GrupoUsuarioSummary GrupoUsuarioSummary)
         {
-            try
+            var entity = await this._GrupoUsuarioService.CreateAsync(GrupoUsuarioSummary);
+            if (_GrupoUsuarioService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._grupoUsuarioService.CreateAsync(grupoUsuarioSummary) != null, _grupoUsuarioService);
+                return await base.ErrorResponseAsync<Guid>(_GrupoUsuarioService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _GrupoUsuarioService);
         }
 
         /// <summary>
         /// Modifies an existing GrupoUsuario.
         /// </summary>
-        /// <param name="grupoUsuarioSummary">Modified GrupoUsuario list's properties summary</param>
+        /// <param name="GrupoUsuarioSummary">Modified GrupoUsuario list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] GrupoUsuarioSummary grupoUsuarioSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] GrupoUsuarioSummary GrupoUsuarioSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._grupoUsuarioService.UpdateAsync(grupoUsuarioSummary) != null, _grupoUsuarioService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._GrupoUsuarioService.UpdateAsync(GrupoUsuarioSummary) != null, _GrupoUsuarioService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._grupoUsuarioService.DeleteAsync(id), _grupoUsuarioService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._GrupoUsuarioService.DeleteAsync(id), _GrupoUsuarioService);
         }
     }
 }

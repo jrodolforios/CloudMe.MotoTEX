@@ -7,34 +7,28 @@ using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Api.Models;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
     [ApiController, Route("api/v1/[controller]")]
     public class LocalizacaoController : BaseController
     {
-        ILocalizacaoService _localizacaoService;
+        ILocalizacaoService _LocalizacaoService;
 
-        public LocalizacaoController(ILocalizacaoService localizacaoService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public LocalizacaoController(ILocalizacaoService LocalizacaoService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _localizacaoService = localizacaoService;
+            _LocalizacaoService = LocalizacaoService;
         }
 
         /// <summary>
-        /// Gets all localizacaos.
+        /// Gets all Localizacaos.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<LocalizacaoSummary>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(Response<IEnumerable<LocalizacaoSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<LocalizacaoSummary>>> GetAll()
         {
-            try
-            {
-                return await base.ResponseAsync(await _localizacaoService.GetAllSummariesAsync(), _localizacaoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _LocalizacaoService.GetAllSummariesAsync(), _LocalizacaoService);
         }
 
         /// <summary>
@@ -42,54 +36,39 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">Localizacao's ID</param>
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(LocalizacaoSummary), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(Guid id)
+        [ProducesResponseType(typeof(Response<LocalizacaoSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<LocalizacaoSummary>> Get(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await _localizacaoService.GetSummaryAsync(id), _localizacaoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await _LocalizacaoService.GetSummaryAsync(id), _LocalizacaoService);
         }
 
         /// <summary>
         /// Creates a new Localizacao.
         /// </summary>
-        /// <param name="localizacaoSummary">Localizacao's summary</param>
+        /// <param name="LocalizacaoSummary">Localizacao's summary</param>
         [HttpPost]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post([FromBody] LocalizacaoSummary localizacaoSummary)
+        public async Task<Response<Guid>> Post([FromBody] LocalizacaoSummary LocalizacaoSummary)
         {
-            try
+            var entity = await this._LocalizacaoService.CreateAsync(LocalizacaoSummary);
+            if (_LocalizacaoService.IsInvalid())
             {
-                return await base.ResponseAsync(await this._localizacaoService.CreateAsync(localizacaoSummary) != null, _localizacaoService);
+                return await base.ErrorResponseAsync<Guid>(_LocalizacaoService);
             }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(entity.Id, _LocalizacaoService);
         }
 
         /// <summary>
         /// Modifies an existing Localizacao.
         /// </summary>
-        /// <param name="localizacaoSummary">Modified Localizacao list's properties summary</param>
+        /// <param name="LocalizacaoSummary">Modified Localizacao list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Put([FromBody] LocalizacaoSummary localizacaoSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] LocalizacaoSummary LocalizacaoSummary)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._localizacaoService.UpdateAsync(localizacaoSummary) != null, _localizacaoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._LocalizacaoService.UpdateAsync(LocalizacaoSummary) != null, _LocalizacaoService);
         }
 
         /// <summary>
@@ -97,17 +76,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Delete(Guid id)
         {
-            try
-            {
-                return await base.ResponseAsync(await this._localizacaoService.DeleteAsync(id), _localizacaoService);
-            }
-            catch (Exception ex)
-            {
-                return await base.ResponseExceptionAsync(ex);
-            }
+            return await base.ResponseAsync(await this._LocalizacaoService.DeleteAsync(id), _LocalizacaoService);
         }
     }
 }

@@ -46,6 +46,7 @@ namespace CloudMe.Auth.Admin.Helpers
 
                 context.Database.Migrate();
                 await EnsureSeedIdentityServerData(context, rootConfiguration.AdminConfiguration);
+                await EnsureSeedIdentityData(userManager, roleManager);
             }
         }
 
@@ -55,8 +56,6 @@ namespace CloudMe.Auth.Admin.Helpers
         private static async Task EnsureSeedIdentityData(UserManager<CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario> userManager,
             RoleManager<IdentityRole<Guid>> roleManager)
         {
-            var companyId = new Guid(Users.AdminCompanyId);
-
             // Create admin role
             if (!await roleManager.RoleExistsAsync(AuthorizationConsts.AdministrationRole))
             {

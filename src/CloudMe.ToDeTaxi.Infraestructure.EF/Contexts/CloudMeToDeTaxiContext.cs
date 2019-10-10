@@ -18,6 +18,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
         public DbSet<FormaPagamentoTaxista> FormasPagamentoTaxistas { get; set; }
         public DbSet<GrupoUsuario> GruposUsuario { get; set; }
         public DbSet<Localizacao> Localizacoes { get; set; }
+        public DbSet<Localizacao> Enderecos { get; set; }
         public DbSet<Passageiro> Passageiros { get; set; }
         public DbSet<Rota> Rotas { get; set; }
         public DbSet<SolicitacaoCorrida> SolicitacoesCorrida { get; set; }
@@ -50,11 +51,13 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
             builder.ApplyConfiguration(new MapFormaPagamentoTaxista());
             builder.ApplyConfiguration(new MapGrupoUsuario());
             builder.ApplyConfiguration(new MapLocalizacao());
+            builder.ApplyConfiguration(new MapEndereco());
             builder.ApplyConfiguration(new MapPassageiro());
             builder.ApplyConfiguration(new MapRota());
             builder.ApplyConfiguration(new MapSolicitacaoCorrida());
             builder.ApplyConfiguration(new MapTarifa());
             builder.ApplyConfiguration(new MapTaxista());
+            builder.ApplyConfiguration(new MapPontoTaxi());
             builder.ApplyConfiguration(new MapUsuarioGrupoUsuario());
             builder.ApplyConfiguration(new MapVeiculo());
             builder.ApplyConfiguration(new MapVeiculoTaxista());
@@ -92,14 +95,20 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
             {
                 if (entry.Entity is EntryBase)
                 {
+                    var entryBase = (EntryBase)entry.Entity;
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                            entry.CurrentValues["IsDeleted"] = false;
+                            entryBase.IsDeleted = false;
+                            //entry.CurrentValues["IsDeleted"] = false;
                             break;
                         case EntityState.Deleted:
-                            entry.State = EntityState.Modified;
-                            entry.CurrentValues["IsDeleted"] = true;
+                            if (!entryBase.ForceDelete)
+                            {
+                                entryBase.IsDeleted = true;
+                                entry.State = EntityState.Modified;
+                                //entry.CurrentValues["IsDeleted"] = true;
+                            }
                             break;
                     }
                 }
