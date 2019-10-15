@@ -42,9 +42,14 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					ClientId = "ToDeTaxiAPI_admin",
 					ClientName = "Portal admnistrativo do sistema TOdeTaxi",
 					AllowedGrantTypes = GrantTypes.Implicit,
-					AllowedScopes = { "todetaxiapi" },
+					AllowedScopes = {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        "todetaxiapi"
+                    },
 					AllowAccessTokensViaBrowser = true,
-					RequireConsent = true,
+					//RequireConsent = true,
 					/*ClientSecrets =
 					{
 						new Secret("secret".Sha256())

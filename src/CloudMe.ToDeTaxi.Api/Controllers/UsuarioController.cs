@@ -10,6 +10,7 @@ using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using CloudMe.ToDeTaxi.Configuration.Library.Constants;
+using prmToolkit.NotificationPattern;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -86,21 +87,46 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
-        /// Altera senha do usuario.
+        /// Altera credenciais do usuario.
         /// </summary>
         /// <param name="id">DialList's ID</param>
-        [HttpPost("altera_senha/{id}")]
+        [HttpPost("altera_credenciais/{id}")]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
-        public async Task<Response<bool>> AlterarSenha(Guid id, [FromBody] CredenciaisUsuario credenciais)
+        public async Task<Response<bool>> AlterarCredenciais(Guid id, [FromBody] CredenciaisUsuario credenciais)
         {
-            return await base.ResponseAsync(
-                await this._UsuarioService.ChangePasswordAsync(id, credenciais.SenhaAnterior, credenciais.Senha), _UsuarioService);
+            var usuario= await _UsuarioService.Get(id);
+            if(usuario == null)
+            {
+                unitOfWork.AddNotification(new Notification("Alterar credenciais", "Usuário não encontrado"));
+                return await ErrorResponseAsync<bool>(unitOfWork);
+            }
+
+            if(credenciais.Senha != credenciais.ConfirmarSenha)
+            {
+                unitOfWork.AddNotification(new Notification("Alterar credenciais", "Senhas não correspondem"));
+                return await ErrorResponseAsync<bool>(unitOfWork);
+            }
+
+            if (usuario.UserName != credenciais.Login)
+            {
+                await _UsuarioService.ChangeLoginAsync(id, credenciais.Login);
+            }
+
+            await _UsuarioService.ChangePasswordAsync(id, credenciais.SenhaAnterior, credenciais.Senha);
+
+            if (_UsuarioService.IsInvalid())
+            {
+                return await ErrorResponseAsync<bool>(_UsuarioService);
+            }
+
+            return await ResponseAsync(true, _UsuarioService);
         }
 
         /// <summary>
         /// Bloqueia/desbloqueia um usuario.
         /// </summary>
-        /// <param name="id">DialList's ID</param>
+        /// <param name="id">ID do usuário</param>
+        /// <param name="bloquear">Indica se o usuário será ou não bloqueado</param>
         [HttpPost("bloquear/{id}")]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         public async Task<Response<bool>> Bloquear(Guid id, bool bloquear)

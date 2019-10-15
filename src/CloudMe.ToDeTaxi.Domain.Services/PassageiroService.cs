@@ -18,10 +18,14 @@ namespace CloudMe.ToDeTaxi.Domain.Services
     {
         private string[] defaultPaths = {"Endereco", "Usuario"};
         private readonly IPassageiroRepository _PassageiroRepository;
+        private readonly IFotoService _FotoService;
 
-        public PassageiroService(IPassageiroRepository PassageiroRepository)
+        public PassageiroService(
+            IPassageiroRepository PassageiroRepository,
+            IFotoService FotoService)
         {
             _PassageiroRepository = PassageiroRepository;
+            _FotoService = FotoService;
         }
 
         protected override Task<Passageiro> CreateEntryAsync(PassageiroSummary summary)
@@ -32,6 +36,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Passageiro = new Passageiro
             {
                 Id = summary.Id,
+                Ativo = summary.Ativo,
                 IdUsuario = summary.Usuario.Id,
                 IdEndereco = summary.Endereco.Id,
                 IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
@@ -45,6 +50,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Passageiro = new PassageiroSummary
             {
                 Id = entry.Id,
+                Ativo = entry.Ativo,
                 IdFoto = entry.IdFoto,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
                 Usuario = new UsuarioSummary()
@@ -52,7 +58,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                     Id = entry.Usuario.Id,
                     Nome = entry.Usuario.Nome,
                     Email = entry.Usuario.Email,
-                    Telefone = entry.Usuario.PhoneNumber
+                    Telefone = entry.Usuario.PhoneNumber,
+                    CPF = entry.Usuario.CPF,
+                    RG = entry.Usuario.RG
                 },
                 Endereco = new EnderecoSummary()
                 {
@@ -83,6 +91,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         protected override void UpdateEntry(Passageiro entry, PassageiroSummary summary)
         {
+            entry.Ativo = summary.Ativo;
             entry.IdUsuario = summary.Usuario.Id;
             entry.IdEndereco = summary.Endereco.Id;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
@@ -95,6 +104,27 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 this.AddNotification(new Notification("summary", "Passageiro: sumário é obrigatório"));
             }
+        }
+
+        public override async Task<Passageiro> UpdateAsync(PassageiroSummary summary)
+        {
+            Guid oldFotoID = Guid.Empty;
+
+            var entry = await GetRepository().FindByIdAsync(GetKeyFromSummary(summary));
+            if (entry != null)
+            {
+                oldFotoID = entry.IdFoto ?? Guid.Empty;
+            }
+
+            var updatedEntry = await base.UpdateAsync(summary);
+
+            if (updatedEntry != null && oldFotoID != Guid.Empty && oldFotoID != summary.IdFoto)
+            {
+                // remove permanentemente a foto anterior
+                await _FotoService.DeleteAsync(oldFotoID, false);
+            }
+
+            return updatedEntry;
         }
 
         public override async Task<Passageiro> Get(Guid key, string[] paths = null)
@@ -111,5 +141,34 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         {
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
         }
+
+        public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)
+        {
+            var summary = await GetSummaryAsync(Key);
+            if (summary.Id == null || summary.Id == Guid.Empty)
+            {
+                AddNotification(new Notification("AssociarFoto", "Usuário não encontrado"));
+                return false;
+            }
+
+            summary.IdFoto = idFoto;
+
+            return UpdateAsync(summary) != null;
+        }
+
+        public async Task<bool> Ativar(Guid Key, bool ativar)
+        {
+            var summary = await GetSummaryAsync(Key);
+            if (summary.Id == null || summary.Id == Guid.Empty)
+            {
+                AddNotification(new Notification("AssociarFoto", "Usuário não encontrado"));
+                return false;
+            }
+
+            summary.Ativo = ativar;
+
+            return UpdateAsync(summary) != null;
+        }
+
     }
 }

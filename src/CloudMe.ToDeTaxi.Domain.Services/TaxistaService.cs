@@ -38,6 +38,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Taxista = new Taxista
             {
                 Id = summary.Id,
+                Ativo = summary.Ativo,
                 IdUsuario = summary.Usuario.Id,
                 IdFoto = summary.IdFoto,
                 IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
@@ -52,6 +53,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var Taxista = new TaxistaSummary
             {
                 Id = entry.Id,
+                Ativo = entry.Ativo,
                 IdFoto = entry.IdFoto,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
                 IdPontoTaxi = entry.IdPontoTaxi,
@@ -93,6 +95,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         protected override void UpdateEntry(Taxista entry, TaxistaSummary summary)
         {
+            entry.Ativo = summary.Ativo;
             entry.IdUsuario = summary.Usuario.Id;
             entry.IdFoto = summary.IdFoto;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
@@ -142,6 +145,34 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public override IEnumerable<Taxista> Search(Expression<Func<Taxista, bool>> where, string[] paths = null, Pagination pagination = null)
         {
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, pagination);
+        }
+
+        public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)
+        {
+            var summary = await GetSummaryAsync(Key);
+            if (summary.Id == null || summary.Id == Guid.Empty)
+            {
+                AddNotification(new Notification("AssociarFoto", "Usuário não encontrado"));
+                return false;
+            }
+
+            summary.IdFoto = idFoto;
+
+            return UpdateAsync(summary) != null;
+        }
+
+        public async Task<bool> Ativar(Guid Key, bool ativar)
+        {
+            var summary = await GetSummaryAsync(Key);
+            if (summary.Id == null || summary.Id == Guid.Empty)
+            {
+                AddNotification(new Notification("AssociarFoto", "Usuário não encontrado"));
+                return false;
+            }
+
+            summary.Ativo = ativar;
+
+            return UpdateAsync(summary) != null;
         }
     }
 }

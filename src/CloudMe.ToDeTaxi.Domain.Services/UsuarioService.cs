@@ -316,5 +316,33 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 return false;
             }            
         }
+
+        public async Task<bool> ChangeLoginAsync(Guid key, string new_login)
+        {
+            try
+            {
+                var usuario = await this._userManager.FindByIdAsync(key.ToString());
+                if (usuario == null)
+                {
+                    return false;
+                }
+
+                var loginResult = await this._userManager.SetUserNameAsync(usuario, new_login);
+
+                if (loginResult.Succeeded)
+                {
+                    return true;
+                }
+                else
+                {
+                    throw new Exception(loginResult.Errors.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                this.AddNotification(new Notification("ChangeLogin", ex.Message));
+                return false;
+            }
+        }
     }
 }

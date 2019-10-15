@@ -59,9 +59,9 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="taxistaSummary">Taxista's summary</param>
         [HttpPost]
-        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<TaxistaSummary>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<Response<Guid>> Post([FromBody] TaxistaSummary taxistaSummary)
+        public async Task<Response<TaxistaSummary>> Post([FromBody] TaxistaSummary taxistaSummary)
         {
             // OBS.: A criação das entidades gerenciadas pela API é feita antes da criação do
             // usuário, pois este último é gerenciado externamente pelo AspNet Identity,
@@ -73,7 +73,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             var endereco = await this._enderecoService.CreateAsync(taxistaSummary.Endereco);
             if(_enderecoService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<Guid>(_enderecoService);
+                return await base.ErrorResponseAsync<TaxistaSummary>(_enderecoService);
             }
 
             taxistaSummary.Endereco.Id = endereco.Id;
@@ -82,14 +82,14 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             var taxista = await this._TaxistaService.CreateAsync(taxistaSummary);
             if(_TaxistaService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<Guid>(_TaxistaService);
+                return await base.ErrorResponseAsync<TaxistaSummary>(_TaxistaService);
             }
 
             // cria um usuario para o taxista
             var usuario = await this._usuarioService.CreateAsync(taxistaSummary.Usuario);
             if (_usuarioService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<Guid>(_usuarioService);
+                return await base.ErrorResponseAsync<TaxistaSummary>(_usuarioService);
             }
 
             // aplica o id de usuário
@@ -97,10 +97,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             await _TaxistaService.UpdateAsync(taxistaSummary);
             if (_TaxistaService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<Guid>(_usuarioService);
+                return await base.ErrorResponseAsync<TaxistaSummary>(_usuarioService);
             }
 
-            return await base.ResponseAsync(taxista.Id, _TaxistaService);
+            return await base.ResponseAsync(await _TaxistaService.GetSummaryAsync(taxista.Id), _TaxistaService);
         }
 
         /// <summary>
@@ -109,8 +109,8 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="taxistaSummary">Modified Taxista list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
-        public async Task<Response<bool>> Put([FromBody] TaxistaSummary taxistaSummary)
+        [ProducesResponseType(typeof(Response<TaxistaSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<TaxistaSummary>> Put([FromBody] TaxistaSummary taxistaSummary)
         {
             // OBS.: Qualquer validação nas entidades da API é feita antes da manipulação dos dados
             // de usuários para permitir o rollback (vide método POST).
@@ -121,7 +121,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             await this._TaxistaService.UpdateAsync(taxistaSummary);
             if(_TaxistaService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<bool>(_TaxistaService);
+                return await base.ErrorResponseAsync<TaxistaSummary>(_TaxistaService);
             }
 
             if (taxistaSummary.Usuario != null)
@@ -130,7 +130,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
                 await this._usuarioService.UpdateAsync(taxistaSummary.Usuario);
                 if(_usuarioService.IsInvalid())
                 {
-                    return await base.ErrorResponseAsync<bool>(_usuarioService);
+                    return await base.ErrorResponseAsync<TaxistaSummary>(_usuarioService);
                 }
             }
 
@@ -140,11 +140,11 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
                 await this._enderecoService.UpdateAsync(taxistaSummary.Endereco);
                 if(_enderecoService.IsInvalid())
                 {
-                    return await base.ErrorResponseAsync<bool>(_enderecoService);
+                    return await base.ErrorResponseAsync<TaxistaSummary>(_enderecoService);
                 }
             }
 
-            return await base.ResponseAsync(true, unitOfWork);
+            return await base.ResponseAsync(await _TaxistaService.GetSummaryAsync(taxista.Id), unitOfWork);
         }
 
         /// <summary>
@@ -182,6 +182,31 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             }
 
             return await base.ResponseAsync(true, unitOfWork);
+        }
+
+        /// <summary>
+        /// Associa uma foto ao taxista.
+        /// </summary>
+        /// <param name="id">ID do usuário</param>
+        /// <param name="idFoto">ID da foto</param>
+        [HttpPost("associar_foto/{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> AssociarFoto(Guid id, Guid idFoto)
+        {
+            return await ResponseAsync( await _TaxistaService.AssociarFoto(id, idFoto), _TaxistaService );
+        }
+
+        /// <summary>
+        /// Ativa/desativa um taxista.
+        /// </summary>
+        /// <param name="id">ID do usuário</param>
+        /// <param name="ativar">Indica se o usuário será ativado/desativado</param>
+        [HttpPost("ativar/{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Ativar(Guid id, bool ativar)
+        {
+            // ativa/desativa o taxista
+            return await ResponseAsync(await _TaxistaService.Ativar(id, ativar), _TaxistaService);
         }
     }
 }

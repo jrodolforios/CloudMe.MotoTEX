@@ -37,15 +37,18 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
         public async Task<TEntry> FindByIdAsync(object key, string[] paths)
         {
             var model = await this.Context.Set<TEntry>().FindAsync(key);
-            foreach (var path in paths)
+            if(paths != null && paths.Any())
             {
-                if (path.EndsWith("s") && !path.Contains(".")) //se for uma coleção
+                foreach (var path in paths)
                 {
-                    this.Context.Entry(model).Collection(path).Load();
-                }
-                else
-                {
-                    this.Context.Entry(model).Reference(path).Load();
+                    if (path.EndsWith("s") && !path.Contains(".")) //se for uma coleção
+                    {
+                        this.Context.Entry(model).Collection(path).Load();
+                    }
+                    else
+                    {
+                        this.Context.Entry(model).Reference(path).Load();
+                    }
                 }
             }
             return model;
@@ -100,7 +103,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
         {
             IQueryable<TEntry> qry = this.Context.Set<TEntry>();
 
-            if (paths != null)
+            if (paths != null && paths.Any())
             {
                 foreach (var path in paths)
                 {
