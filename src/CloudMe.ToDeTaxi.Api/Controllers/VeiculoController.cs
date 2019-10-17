@@ -8,6 +8,9 @@ using CloudMe.ToDeTaxi.Domain.Model.Veiculo;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
+using RestSharp;
+using Newtonsoft.Json;
+using CloudMe.ToDeTaxi.Api.Models.FIPE;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -40,6 +43,54 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         public async Task<Response<VeiculoSummary>> Get(Guid id)
         {
             return await base.ResponseAsync(await _VeiculoService.GetSummaryAsync(id), _VeiculoService);
+        }
+
+        /// <summary>
+        /// Obtém marcas de veículos.
+        /// </summary>
+        [HttpGet("marcas")]
+        [ProducesResponseType(typeof(Response<IEnumerable<MarcaVeiculo>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<MarcaVeiculo>>> GetMarcas()
+        {
+            var client = new RestClient("https://parallelum.com.br/fipe/");
+            var request = new RestRequest("api/v1/carros/marcas", Method.GET);
+
+            var result = await client.ExecuteTaskAsync(request);
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                var marcas = JsonConvert.DeserializeObject<IEnumerable<MarcaVeiculo>>(result.Content);
+
+                return await ResponseAsync(marcas, unitOfWork);
+            }
+            else
+            {
+                unitOfWork.AddNotification("Consulta marcas de veículos", result.ErrorMessage);
+                return await ErrorResponseAsync<IEnumerable<MarcaVeiculo>>(unitOfWork);
+            }
+        }
+
+        /// <summary>
+        /// Obtém os modelos de uma marca de veículo.
+        /// </summary>
+        [HttpGet("modelos/{codigo_marca}")]
+        [ProducesResponseType(typeof(Response<InfoMarca>), (int)HttpStatusCode.OK)]
+        public async Task<Response<InfoMarca>> GetModelos(string codigo_marca)
+        {
+            var client = new RestClient("https://parallelum.com.br/fipe/");
+            var request = new RestRequest(string.Format("/api/v1/carros/marcas/{0}/modelos", codigo_marca), Method.GET);
+
+            var result = await client.ExecuteTaskAsync(request);
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                var marcas = JsonConvert.DeserializeObject<InfoMarca>(result.Content);
+
+                return await ResponseAsync(marcas, unitOfWork);
+            }
+            else
+            {
+                unitOfWork.AddNotification("Consulta modelos de veículos", result.ErrorMessage);
+                return await ErrorResponseAsync<InfoMarca>(unitOfWork);
+            }
         }
 
         /// <summary>

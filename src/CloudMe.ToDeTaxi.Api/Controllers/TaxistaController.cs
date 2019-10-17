@@ -208,6 +208,19 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             // ativa/desativa o taxista
             return await ResponseAsync(await _TaxistaService.Ativar(id, ativar), _TaxistaService);
         }
+
+        /// <summary>
+        /// Obtém os veículos associados a um taxista.
+        /// </summary>
+        /// <param name="id">ID do taxista</param>
+        [HttpGet("{id}/veiculos")]
+        [ProducesResponseType(typeof(Response<IEnumerable<VeiculoTaxistaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<VeiculoTaxistaSummary>>> GetVeiculos([FromServices]IVeiculoTaxistaService veicTaxistaService, Guid id)
+        {
+            var result = await veicTaxistaService.GetAllSummariesAsync( veicTaxistaService.Search(tx => tx.IdTaxista == id) );
+
+            return await base.ResponseAsync(result, veicTaxistaService);
+        }
     }
 }
 

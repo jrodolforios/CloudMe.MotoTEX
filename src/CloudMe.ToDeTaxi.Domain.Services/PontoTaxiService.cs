@@ -44,14 +44,18 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = entry.Id,
                 Nome = entry.Nome,
-                Endereco = new LocalizacaoSummary()
+                Endereco = new EnderecoSummary()
                 {
                     Id = entry.Endereco.Id,
-                    Endereco = entry.Endereco.Endereco,
-                    NomePublico = entry.Endereco.NomePublico,
-                    Latitude = entry.Endereco.Latitude,
-                    Longitude = entry.Endereco.Longitude
-                }
+                    CEP = entry.Endereco.CEP,
+                    Logradouro = entry.Endereco.Logradouro,
+                    Numero = entry.Endereco.Numero,
+                    Complemento = entry.Endereco.Complemento,
+                    Bairro = entry.Endereco.Bairro,
+                    Localidade = entry.Endereco.Localidade,
+                    UF = entry.Endereco.UF,
+                    IdLocalizacao = entry.Endereco.IdLocalizacao
+                },
             };
 
             return Task.FromResult(PontoTaxi);

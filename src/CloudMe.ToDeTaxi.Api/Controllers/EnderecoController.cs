@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
-using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
+using CloudMe.ToDeTaxi.Api.Models.ViaCEP;
+using RestSharp;
+using System.Threading;
+using Newtonsoft.Json;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -40,6 +43,45 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         public async Task<Response<EnderecoSummary>> Get(Guid id)
         {
             return await base.ResponseAsync(await _EnderecoService.GetSummaryAsync(id), _EnderecoService);
+        }
+
+        /// <summary>
+        /// Obtém um endereço por CEP.
+        /// <param name="cep">CEP do endereco a ser consultado</param>
+        /// </summary>
+        [HttpGet("consulta_cep/{cep}")]
+        [ProducesResponseType(typeof(Response<EnderecoSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<EnderecoSummary>> ConsultaCEP(string cep)
+        {
+            var client = new RestClient("https://viacep.com.br/");
+            var request = new RestRequest(string.Format("ws/{0}/json/", cep), Method.GET);
+
+            var result = await client.ExecuteTaskAsync(request);
+            if(result.StatusCode == HttpStatusCode.OK)
+            {
+                var endViaCEP = JsonConvert.DeserializeObject<Endereco>(result.Content);
+
+                if (endViaCEP.erro.HasValue)
+                {
+                    unitOfWork.AddNotification("Consulta CEP", "CEP inexistente");
+                    return await ErrorResponseAsync<EnderecoSummary>(unitOfWork);
+                }
+
+                return await ResponseAsync(new EnderecoSummary
+                {
+                    Id = Guid.Empty,
+                    CEP = endViaCEP.cep ?? "",
+                    Bairro = endViaCEP.bairro ?? "",
+                    Localidade = endViaCEP.localidade ?? "",
+                    Logradouro = endViaCEP.logradouro ?? "",
+                    UF = endViaCEP.uf ?? ""
+                }, unitOfWork);
+            }
+            else
+            {
+                unitOfWork.AddNotification("Consulta CEP", result.ErrorMessage);
+                return await ErrorResponseAsync<EnderecoSummary>(unitOfWork);
+            }
         }
 
         /// <summary>
