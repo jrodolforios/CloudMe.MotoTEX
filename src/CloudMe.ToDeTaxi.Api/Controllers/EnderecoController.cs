@@ -11,6 +11,7 @@ using CloudMe.ToDeTaxi.Api.Models.ViaCEP;
 using RestSharp;
 using System.Threading;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -50,6 +51,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="cep">CEP do endereco a ser consultado</param>
         /// </summary>
         [HttpGet("consulta_cep/{cep}")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(Response<EnderecoSummary>), (int)HttpStatusCode.OK)]
         public async Task<Response<EnderecoSummary>> ConsultaCEP(string cep)
         {

@@ -10,6 +10,7 @@ using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -49,6 +50,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="FotoSummary">Foto's summary</param>
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
         public async Task<Response<Guid>> Post([FromBody] FotoSummary FotoSummary)
@@ -67,6 +69,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="FotoSummary">Modified Foto list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         public async Task<Response<bool>> Put([FromBody] FotoSummary FotoSummary)
         {
