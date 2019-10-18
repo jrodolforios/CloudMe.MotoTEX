@@ -59,11 +59,13 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         "http://admin.todetaxi.com.br/auth/callback",
                         "http://passenger.todetaxi.com.br/auth/callback",
                         "http://driver.todetaxi.com.br/auth/callback",
+                        "http://driver.todetaxi.com.br/#/callback/?",
 
                         "https://localhost:4200/auth/callback",
                         "https://admin.todetaxi.com.br/auth/callback",
                         "https://passenger.todetaxi.com.br/auth/callback",
-                        "https://driver.todetaxi.com.br/auth/callback"
+                        "https://driver.todetaxi.com.br/auth/callback",
+                        "https://driver.todetaxi.com.br/#/callback/?"
                     },
 					PostLogoutRedirectUris = {
 						"http://localhost:4200",
@@ -83,12 +85,16 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					AllowAccessTokensViaBrowser = true,
 					RedirectUris = {
                         "http://localhost:8100/auth/callback",
+                        "http://localhost:8100/#/callback/?",
                         "http://passenger.todetaxi.com.br/auth/callback",
                         "http://driver.todetaxi.com.br/auth/callback",
+                        "http://driver.todetaxi.com.br/#/callback/?",
 
                         "https://localhost:8100/auth/callback",
+                        "https://localhost:8100/#/callback/?",
                         "https://passenger.todetaxi.com.br/auth/callback",
-                        "https://driver.todetaxi.com.br/auth/callback"
+                        "https://driver.todetaxi.com.br/auth/callback",
+                        "https://driver.todetaxi.com.br/#/callback/?"
                     },
                     PostLogoutRedirectUris = {
                         "http://localhost:8100",
