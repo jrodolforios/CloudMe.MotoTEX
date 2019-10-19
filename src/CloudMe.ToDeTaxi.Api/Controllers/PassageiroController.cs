@@ -10,6 +10,7 @@ using CloudMe.ToDeTaxi.Domain.Model.Foto;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -60,6 +61,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="passageiroSummary">Passageiro's summary</param>
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(Response<PassageiroSummary>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
         public async Task<Response<PassageiroSummary>> Post([FromBody] PassageiroSummary passageiroSummary)

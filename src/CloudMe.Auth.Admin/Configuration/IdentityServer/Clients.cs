@@ -90,16 +90,19 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					AllowAccessTokensViaBrowser = true,
 					RedirectUris = {
                         "http://localhost:8100/auth/callback",
-                        "http://localhost:8100/auth/silent-refresh.html",
+                        "http://localhost:8100/#/callback/?",                        "http://localhost:8100/auth/silent-refresh.html",
                         "http://passenger.todetaxi.com.br/auth/callback",
                         "http://driver.todetaxi.com.br/auth/callback",
+                        "http://driver.todetaxi.com.br/#/callback/?",
                         "http://passenger.todetaxi.com.br/auth/silent-refresh.html",
                         "http://driver.todetaxi.com.br/auth/silent-refresh.html",
 
                         "https://localhost:8100/auth/callback",
+                        "https://localhost:8100/#/callback/?",
                         "https://localhost:8100/auth/silent-refresh.html",
                         "https://passenger.todetaxi.com.br/auth/callback",
                         "https://driver.todetaxi.com.br/auth/callback",
+                        "https://driver.todetaxi.com.br/#/callback/?"
                         "https://passenger.todetaxi.com.br/auth/silent-refresh.html",
                         "https://driver.todetaxi.com.br/auth/silent-refresh.html"
                     },
