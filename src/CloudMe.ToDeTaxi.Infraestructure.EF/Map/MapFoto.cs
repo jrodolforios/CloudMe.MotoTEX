@@ -13,9 +13,9 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
             builder.ToTable("Foto");
 
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Nome);
-            builder.Property(x => x.NomeArquivo).IsRequired();
-            builder.Property(x => x.Dados).IsRequired();
+            builder.Property(x => x.Nome).IsRequired(false);
+            builder.Property(x => x.NomeArquivo).IsRequired(false);
+            builder.Property(x => x.Dados).IsRequired(false);
         }
     }
 }

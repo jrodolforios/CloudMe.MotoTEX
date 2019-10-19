@@ -12,12 +12,13 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using CloudMe.ToDeTaxi.Domain.Model.Foto;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class TaxistaService : ServiceBase<Taxista, TaxistaSummary, Guid>, ITaxistaService
     {
-        private string[] defaultPaths = {"Endereco", "Usuario"};
+        private string[] defaultPaths = {"Endereco", "Usuario", "Foto"};
 
         private readonly ITaxistaRepository _TaxistaRepository;
         private readonly IFotoService _FotoService;
@@ -40,7 +41,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Id = summary.Id,
                 Ativo = summary.Ativo,
                 IdUsuario = summary.Usuario.Id,
-                IdFoto = summary.IdFoto,
+                IdFoto = summary.Foto.Id,
                 IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
                 IdPontoTaxi = summary.IdPontoTaxi,
                 IdEndereco = summary.Endereco.Id,
@@ -54,7 +55,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = entry.Id,
                 Ativo = entry.Ativo,
-                IdFoto = entry.IdFoto,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
                 IdPontoTaxi = entry.IdPontoTaxi,
                 Usuario = new UsuarioSummary()
@@ -78,6 +78,13 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                     UF = entry.Endereco.UF,
                     IdLocalizacao = entry.Endereco.IdLocalizacao
                 },
+                Foto = new FotoSummary()
+                {
+                    Id = entry.Foto.Id,
+                    Nome = entry.Foto.Nome,
+                    NomeArquivo = entry.Foto.NomeArquivo,
+                    Dados = entry.Foto.Dados
+                }
             };
 
             return Task.FromResult(Taxista);
@@ -96,11 +103,15 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         protected override void UpdateEntry(Taxista entry, TaxistaSummary summary)
         {
             entry.Ativo = summary.Ativo;
-            entry.IdUsuario = summary.Usuario.Id;
-            entry.IdFoto = summary.IdFoto;
+
+            if(!entry.IdUsuario.HasValue || entry.IdUsuario.Value == Guid.Empty)
+            {
+                entry.IdUsuario = summary.Usuario.Id;
+            }
+            //entry.IdFoto = summary.IdFoto;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
             entry.IdPontoTaxi = summary.IdPontoTaxi;
-            entry.IdEndereco = summary.Endereco.Id;
+            //entry.IdEndereco = summary.Endereco.Id;
         }
 
         protected override void ValidateSummary(TaxistaSummary summary)
@@ -111,7 +122,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             }
         }
 
-        public override async Task<Taxista> UpdateAsync(TaxistaSummary summary)
+        /*public override async Task<Taxista> UpdateAsync(TaxistaSummary summary)
         {
             Guid oldFotoID = Guid.Empty;
 
@@ -130,7 +141,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             }
 
             return updatedEntry;
-        }
+        }*/
 
         public override async Task<Taxista> Get(Guid key, string[] paths = null)
         {
@@ -147,6 +158,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, pagination);
         }
 
+        /*
         public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)
         {
             var summary = await GetSummaryAsync(Key);
@@ -166,7 +178,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var summary = await GetSummaryAsync(Key);
             if (summary.Id == null || summary.Id == Guid.Empty)
             {
-                AddNotification(new Notification("AssociarFoto", "Usuário não encontrado"));
+                AddNotification(new Notification("Ativar", "Usuário não encontrado"));
                 return false;
             }
 
@@ -174,5 +186,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             return UpdateAsync(summary) != null;
         }
+        */
     }
 }

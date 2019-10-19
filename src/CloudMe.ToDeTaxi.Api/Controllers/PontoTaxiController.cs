@@ -49,6 +49,20 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Obtém os taxistas do ponto de taxi.
+        /// <param name="id">ID do ponto de taxi</param>
+        /// </summary>
+        [HttpGet("{id}/taxistas")]
+        [ProducesResponseType(typeof(Response<IEnumerable<TaxistaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<TaxistaSummary>>> GetTaxistas([FromServices]ITaxistaService taxistaService, Guid id)
+        {
+            return await ResponseAsync(
+                await taxistaService.GetAllSummariesAsync(
+                    taxistaService.Search(tx => tx.IdPontoTaxi == id, new[] { "PontoTaxi" })),
+                    taxistaService);
+        }
+
+        /// <summary>
         /// Creates a new PontoTaxi.
         /// </summary>
         /// <param name="pontoTaxiSummary">PontoTaxi's summary</param>

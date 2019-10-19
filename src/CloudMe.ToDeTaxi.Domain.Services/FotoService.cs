@@ -28,7 +28,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Id = summary.Id,
                 Nome = summary.Nome,
                 NomeArquivo = summary.NomeArquivo,
-                Dados = summary.Dados.ToArray()
+                Dados = summary.Dados != null ? summary.Dados.ToArray() : null
             };
             return Task.FromResult(Foto);
         }
@@ -60,7 +60,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         {
             entry.Nome = summary.Nome;
             entry.NomeArquivo = summary.NomeArquivo;
-            entry.Dados = summary.Dados.ToArray();
+            entry.Dados = summary.Dados != null ? summary.Dados.ToArray() : null;
         }
 
         protected override void ValidateSummary(FotoSummary summary)
@@ -70,7 +70,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 this.AddNotification(new Notification("summary", "Foto: sumário é obrigatório"));
             }
 
-            if (string.IsNullOrEmpty(summary.NomeArquivo))
+            /*if (string.IsNullOrEmpty(summary.NomeArquivo))
             {
                 this.AddNotification(new Notification("NomeArquivo", "Foto: nome de arquivo não fornecido"));
             }
@@ -78,7 +78,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             if (summary.Dados == null || summary.Dados.Length == 0)
             {
                 this.AddNotification(new Notification("Foto", "Foto: dados não fornecidos"));
-            }
+            }*/
         }
     }
 }

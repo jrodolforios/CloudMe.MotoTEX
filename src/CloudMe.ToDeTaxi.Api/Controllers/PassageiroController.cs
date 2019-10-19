@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Passageiro;
+using CloudMe.ToDeTaxi.Domain.Model.Foto;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
@@ -78,6 +79,15 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
 
             passageiroSummary.Endereco.Id = endereco.Id;
 
+            // cria o registro de foto do passageiro
+            var foto = await _fotoService.CreateAsync(new FotoSummary());
+            if (_fotoService.IsInvalid())
+            {
+                return await ErrorResponseAsync<PassageiroSummary>(_fotoService);
+            }
+
+            passageiroSummary.IdFoto = foto.Id;
+
             // cria o registro do passageiro
             var passageiro = await this._PassageiroService.CreateAsync(passageiroSummary);
             if (_PassageiroService.IsInvalid())
@@ -112,39 +122,14 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<PassageiroSummary>), (int)HttpStatusCode.OK)]
         public async Task<Response<PassageiroSummary>> Put([FromBody] PassageiroSummary passageiroSummary)
         {
-            // OBS.: Qualquer validação nas entidades da API é feita antes da manipulação dos dados
-            // de usuários para permitir o rollback (vide método POST).
-
-            var passageiro = await this._PassageiroService.Get(passageiroSummary.Id);
-
             // atualiza o registro do passageiro
-            await this._PassageiroService.UpdateAsync(passageiroSummary);
+            await _PassageiroService.UpdateAsync(passageiroSummary);
             if (_PassageiroService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<PassageiroSummary>(_PassageiroService);
+                return await ErrorResponseAsync<PassageiroSummary>(_PassageiroService);
             }
 
-            if (passageiroSummary.Usuario != null)
-            {
-                // atualiza o registro do usuário
-                await this._usuarioService.UpdateAsync(passageiroSummary.Usuario);
-                if (_usuarioService.IsInvalid())
-                {
-                    return await base.ErrorResponseAsync<PassageiroSummary>(_usuarioService);
-                }
-            }
-
-            if (passageiroSummary.Endereco != null)
-            {
-                // atualiza o registro de endereço
-                await this._enderecoService.UpdateAsync(passageiroSummary.Endereco);
-                if (_enderecoService.IsInvalid())
-                {
-                    return await base.ErrorResponseAsync<PassageiroSummary>(_enderecoService);
-                }
-            }
-
-            return await base.ResponseAsync(await _PassageiroService.GetSummaryAsync(passageiro.Id), unitOfWork);
+            return await ResponseAsync(await _PassageiroService.GetSummaryAsync(passageiroSummary.Id), unitOfWork);
         }
 
         /// <summary>
@@ -174,6 +159,13 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
                 return await base.ErrorResponseAsync<bool>(_enderecoService);
             }
 
+            // remove o registro de foto
+            await this._fotoService.DeleteAsync(passageiroSummary.IdFoto);
+            if (_fotoService.IsInvalid())
+            {
+                return await base.ErrorResponseAsync<bool>(_fotoService);
+            }
+
             // remove o registro do usuário
             await this._usuarioService.DeleteAsync((Guid)passageiroSummary.Usuario.Id);
             if (_usuarioService.IsInvalid())
@@ -184,7 +176,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             return await base.ResponseAsync(true, unitOfWork);
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Associa uma foto ao passageiro.
         /// </summary>
         /// <param name="id">ID do usuário</param>
@@ -194,9 +186,9 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         public async Task<Response<bool>> AssociarFoto(Guid id, Guid idFoto)
         {
             return await ResponseAsync(await _PassageiroService.AssociarFoto(id, idFoto), _PassageiroService);
-        }
+        }*/
 
-        /// <summary>
+        /*/// <summary>
         /// Ativa/desativa um passageiro.
         /// </summary>
         /// <param name="id">ID do usuário</param>
@@ -207,7 +199,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         {
             // ativa/desativa o passageiro
             return await ResponseAsync(await _PassageiroService.Ativar(id, ativar), _PassageiroService);
-        }
+        }*/
     }
 }
 

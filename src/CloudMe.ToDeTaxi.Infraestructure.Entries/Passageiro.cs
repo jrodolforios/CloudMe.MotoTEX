@@ -17,7 +17,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public Guid? IdLocalizacaoAtual { get; set; }
         public virtual Localizacao LocalizacaoAtual { get; set; }
 
-        public Guid? IdFoto { get; set; }
+        public Guid IdFoto { get; set; }
         public virtual Foto Foto { get; set; }
 
         public virtual IEnumerable<Favorito> TaxistasFavoritos { get; set; }

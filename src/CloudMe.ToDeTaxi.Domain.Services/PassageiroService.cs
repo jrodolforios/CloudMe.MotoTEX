@@ -16,7 +16,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class PassageiroService : ServiceBase<Passageiro, PassageiroSummary, Guid>, IPassageiroService
     {
-        private string[] defaultPaths = {"Endereco", "Usuario"};
+        private string[] defaultPaths = {"Endereco", "Usuario", "Foto"};
         private readonly IPassageiroRepository _PassageiroRepository;
         private readonly IFotoService _FotoService;
 
@@ -92,10 +92,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         protected override void UpdateEntry(Passageiro entry, PassageiroSummary summary)
         {
             entry.Ativo = summary.Ativo;
-            entry.IdUsuario = summary.Usuario.Id;
-            entry.IdEndereco = summary.Endereco.Id;
+            //entry.IdUsuario = summary.Usuario.Id;
+            //entry.IdEndereco = summary.Endereco.Id;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
-            entry.IdFoto = summary.IdFoto;
+            //entry.IdFoto = summary.IdFoto;
         }
 
         protected override void ValidateSummary(PassageiroSummary summary)
@@ -106,7 +106,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             }
         }
 
-        public override async Task<Passageiro> UpdateAsync(PassageiroSummary summary)
+        /*public override async Task<Passageiro> UpdateAsync(PassageiroSummary summary)
         {
             Guid oldFotoID = Guid.Empty;
 
@@ -125,7 +125,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             }
 
             return updatedEntry;
-        }
+        }*/
 
         public override async Task<Passageiro> Get(Guid key, string[] paths = null)
         {
@@ -142,7 +142,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
         }
 
-        public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)
+        /*public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)
         {
             var summary = await GetSummaryAsync(Key);
             if (summary.Id == null || summary.Id == Guid.Empty)
@@ -154,9 +154,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             summary.IdFoto = idFoto;
 
             return UpdateAsync(summary) != null;
-        }
+        }*/
 
-        public async Task<bool> Ativar(Guid Key, bool ativar)
+        /*public async Task<bool> Ativar(Guid Key, bool ativar)
         {
             var summary = await GetSummaryAsync(Key);
             if (summary.Id == null || summary.Id == Guid.Empty)
@@ -168,7 +168,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             summary.Ativo = ativar;
 
             return UpdateAsync(summary) != null;
-        }
+        }*/
 
     }
 }

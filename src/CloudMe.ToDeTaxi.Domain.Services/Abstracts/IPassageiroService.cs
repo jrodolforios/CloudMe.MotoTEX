@@ -7,7 +7,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
 {
     public interface IPassageiroService : IServiceBase<Passageiro, PassageiroSummary, Guid>
     {
-        Task<bool> AssociarFoto(Guid Key, Guid idFoto);
-        Task<bool> Ativar(Guid Key, bool ativar);
+        //Task<bool> AssociarFoto(Guid Key, Guid idFoto);
+        //Task<bool> Ativar(Guid Key, bool ativar);
     }
 }

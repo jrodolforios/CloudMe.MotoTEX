@@ -18,7 +18,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
             builder.HasOne(x => x.Usuario).WithOne().HasForeignKey<Passageiro>(x => x.IdUsuario).IsRequired(false);
 
             builder.HasOne(x => x.Endereco).WithOne().HasForeignKey<Passageiro>(x => x.IdEndereco).IsRequired();
-            builder.HasOne(x => x.Foto).WithOne().HasForeignKey<Passageiro>(x => x.IdFoto);
+            builder.HasOne(x => x.Foto).WithOne().HasForeignKey<Passageiro>(x => x.IdFoto).IsRequired();
             builder.HasOne(x => x.LocalizacaoAtual).WithOne().HasForeignKey<Passageiro>(x => x.IdLocalizacaoAtual);
         }
     }

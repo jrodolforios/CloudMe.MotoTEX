@@ -6,38 +6,39 @@
     <UserSecretsId>9c91d295-54c5-4d09-9bd6-fa56fb74011b</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="JsonModelBinder" Version="1.0.1"/>
-    <PackageReference Include="Microsoft.AspNetCore.App"/>
-    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0"/>
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All"/>
-    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.5.3"/>
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="2.5.3"/>
+    <PackageReference Include="JsonModelBinder" Version="1.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.5.3" />
+    <PackageReference Include="IdentityServer4.EntityFramework" Version="2.5.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3"/>
-    <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="2.0.0"/>
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0"/>
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Design" Version="1.1.2"/>
-    <PackageReference Include="Serilog.AspNetCore" Version="2.1.1"/>
-    <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0"/>
-    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1"/>
-    <PackageReference Include="Serilog.Sinks.File" Version="4.0.0"/>
-    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.1.2"/>
-    <PackageReference Include="Skoruba.IdentityServer4.Admin.EntityFramework.DbContexts" Version="1.0.0-beta5"/>
-    <PackageReference Include="Skoruba.IdentityServer4.Admin.EntityFramework.Identity" Version="1.0.0-beta5"/>
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="4.0.1"/>
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="4.0.1"/>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.1"/>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
+    <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="2.0.0" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Design" Version="1.1.2" />
+    <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.1.2" />
+    <PackageReference Include="Skoruba.IdentityServer4.Admin.EntityFramework.DbContexts" Version="1.0.0-beta5" />
+    <PackageReference Include="Skoruba.IdentityServer4.Admin.EntityFramework.Identity" Version="1.0.0-beta5" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="4.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="4.0.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Services\CloudMe.ToDeTaxi.Domain.Services.csproj"/>
-    <ProjectReference Include="..\CloudMe.ToDeTaxi.Configuration.Library\CloudMe.ToDeTaxi.Configuration.Library.csproj"/>
-    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.EF\CloudMe.ToDeTaxi.Infraestructure.EF.csproj"/>
-    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure\CloudMe.ToDeTaxi.Infraestructure.csproj"/>
+    <ProjectReference Include="..\CloudMe.Auth.Admin\CloudMe.Auth.Admin.csproj" />
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Services\CloudMe.ToDeTaxi.Domain.Services.csproj" />
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Configuration.Library\CloudMe.ToDeTaxi.Configuration.Library.csproj" />
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.EF\CloudMe.ToDeTaxi.Infraestructure.EF.csproj" />
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure\CloudMe.ToDeTaxi.Infraestructure.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Log\"/>
+    <Folder Include="Log\" />
   </ItemGroup>
 </Project>

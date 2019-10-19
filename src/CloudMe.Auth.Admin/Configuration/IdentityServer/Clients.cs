@@ -12,9 +12,9 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 
 		public static IEnumerable<Client> GetAdminClient(IAdminConfiguration adminConfiguration)
 		{
-			return new List<Client>
-			{
-	            new Client
+            return new List<Client>
+            {
+                new Client
                 {
                     ClientId = AuthenticationConsts.OidcClientId,
                     ClientName = AuthenticationConsts.OidcClientName,
@@ -38,17 +38,22 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                 },
 				// resource owner password grant client
 				new Client
-				{
-					ClientId = "ToDeTaxiAPI_admin",
-					ClientName = "Portal admnistrativo do sistema TOdeTaxi",
-					AllowedGrantTypes = GrantTypes.Implicit,
-					AllowedScopes = {
+                {
+                    ClientId = "ToDeTaxiAPI_admin",
+                    ClientName = "Portal admnistrativo do sistema TOdeTaxi",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowedScopes = {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
+                        "nome",
                         "todetaxiapi"
                     },
+                    AlwaysSendClientClaims = true,
 					AllowAccessTokensViaBrowser = true,
+                    IdentityTokenLifetime = 100,
+                    AccessTokenLifetime = 200,
+                    //AccessTokenType = AccessTokenType.Reference,
 					//RequireConsent = true,
 					/*ClientSecrets =
 					{
@@ -56,39 +61,47 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					},*/
 					RedirectUris = {
 						"http://localhost:4200/auth/callback",
+                        "http://localhost:4200/auth/silent-refresh.html",
                         "http://admin.todetaxi.com.br/auth/callback",
-                        "http://passenger.todetaxi.com.br/auth/callback",
-                        "http://driver.todetaxi.com.br/auth/callback",
+                        "http://admin.todetaxi.com.br/auth/silent-refresh.html",
 
                         "https://localhost:4200/auth/callback",
+                        "https://localhost:4200/auth/silent-refresh.html",
                         "https://admin.todetaxi.com.br/auth/callback",
-                        "https://passenger.todetaxi.com.br/auth/callback",
-                        "https://driver.todetaxi.com.br/auth/callback"
+                        "https://admin.todetaxi.com.br/auth/silent-refresh.html",
                     },
 					PostLogoutRedirectUris = {
 						"http://localhost:4200",
 						"https://admin.todetaxi.com.br",
-                        "http://passenger.todetaxi.com.br",
-                        "http://driver.todetaxi.com.br",
-                        "https://passenger.todetaxi.com.br",
-                        "https://driver.todetaxi.com.br"
                     }
 				},
 				new Client
 				{
 					ClientId = "ToDeTaxiAPI_mobile",
 					ClientName = "Aplicativo mobile do sistema TOdeTaxi",
-					AllowedScopes = {"todetaxiapi"},
+                    AllowedScopes = {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        "todetaxiapi"
+                    },
+                    AlwaysSendClientClaims = true,
 					AllowedGrantTypes = GrantTypes.Implicit,
 					AllowAccessTokensViaBrowser = true,
 					RedirectUris = {
                         "http://localhost:8100/auth/callback",
+                        "http://localhost:8100/auth/silent-refresh.html",
                         "http://passenger.todetaxi.com.br/auth/callback",
                         "http://driver.todetaxi.com.br/auth/callback",
+                        "http://passenger.todetaxi.com.br/auth/silent-refresh.html",
+                        "http://driver.todetaxi.com.br/auth/silent-refresh.html",
 
                         "https://localhost:8100/auth/callback",
+                        "https://localhost:8100/auth/silent-refresh.html",
                         "https://passenger.todetaxi.com.br/auth/callback",
-                        "https://driver.todetaxi.com.br/auth/callback"
+                        "https://driver.todetaxi.com.br/auth/callback",
+                        "https://passenger.todetaxi.com.br/auth/silent-refresh.html",
+                        "https://driver.todetaxi.com.br/auth/silent-refresh.html"
                     },
                     PostLogoutRedirectUris = {
                         "http://localhost:8100",

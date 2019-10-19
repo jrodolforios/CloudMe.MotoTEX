@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 {
     [DbContext(typeof(CloudMeToDeTaxiContext))]
-    [Migration("20191015134134_ativacao-passageiro")]
-    partial class ativacaopassageiro
+    [Migration("20191018221247_inicial")]
+    partial class inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -222,8 +222,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<byte[]>("Dados")
-                        .IsRequired();
+                    b.Property<byte[]>("Dados");
 
                     b.Property<bool>("ForceDelete");
 
@@ -231,8 +230,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<string>("Nome");
 
-                    b.Property<string>("NomeArquivo")
-                        .IsRequired();
+                    b.Property<string>("NomeArquivo");
 
                     b.HasKey("Id");
 
@@ -294,7 +292,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<Guid>("IdEndereco");
 
-                    b.Property<Guid?>("IdFoto");
+                    b.Property<Guid>("IdFoto");
 
                     b.Property<Guid?>("IdLocalizacaoAtual");
 
@@ -444,7 +442,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<Guid>("IdEndereco");
 
-                    b.Property<Guid?>("IdFoto");
+                    b.Property<Guid>("IdFoto");
 
                     b.Property<Guid?>("IdLocalizacaoAtual");
 
@@ -1405,7 +1403,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Foto", "Foto")
                         .WithOne()
-                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Passageiro", "IdFoto");
+                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Passageiro", "IdFoto")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Localizacao", "LocalizacaoAtual")
                         .WithOne()
@@ -1418,7 +1417,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.PontoTaxi", b =>
                 {
-                    b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Localizacao", "Endereco")
+                    b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Endereco", "Endereco")
                         .WithOne()
                         .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.PontoTaxi", "IdEndereco")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -1466,7 +1465,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Foto", "Foto")
                         .WithOne()
-                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Taxista", "IdFoto");
+                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Taxista", "IdFoto")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Localizacao", "LocalizacaoAtual")
                         .WithOne()

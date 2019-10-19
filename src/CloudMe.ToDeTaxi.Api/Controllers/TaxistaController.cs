@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Model.Taxista;
+using CloudMe.ToDeTaxi.Domain.Model.Foto;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
@@ -78,6 +79,15 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
 
             taxistaSummary.Endereco.Id = endereco.Id;
 
+            // cria o registro de foto do taxista
+            var foto = await _fotoService.CreateAsync(taxistaSummary.Foto);
+            if (_fotoService.IsInvalid())
+            {
+                return await ErrorResponseAsync<TaxistaSummary>(_fotoService);
+            }
+
+            taxistaSummary.Foto.Id = foto.Id;
+
             // cria o registro do taxista
             var taxista = await this._TaxistaService.CreateAsync(taxistaSummary);
             if(_TaxistaService.IsInvalid())
@@ -112,39 +122,14 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<TaxistaSummary>), (int)HttpStatusCode.OK)]
         public async Task<Response<TaxistaSummary>> Put([FromBody] TaxistaSummary taxistaSummary)
         {
-            // OBS.: Qualquer validação nas entidades da API é feita antes da manipulação dos dados
-            // de usuários para permitir o rollback (vide método POST).
-
-            var taxista = await this._TaxistaService.Get(taxistaSummary.Id);
-
             // atualiza o registro do taxista
-            await this._TaxistaService.UpdateAsync(taxistaSummary);
+            await _TaxistaService.UpdateAsync(taxistaSummary);
             if(_TaxistaService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<TaxistaSummary>(_TaxistaService);
+                return await ErrorResponseAsync<TaxistaSummary>(_TaxistaService);
             }
 
-            if (taxistaSummary.Usuario != null)
-            {
-                // atualiza o registro do usuário
-                await this._usuarioService.UpdateAsync(taxistaSummary.Usuario);
-                if(_usuarioService.IsInvalid())
-                {
-                    return await base.ErrorResponseAsync<TaxistaSummary>(_usuarioService);
-                }
-            }
-
-            if (taxistaSummary.Endereco != null)
-            {
-                // atualiza o registro de endereço
-                await this._enderecoService.UpdateAsync(taxistaSummary.Endereco);
-                if(_enderecoService.IsInvalid())
-                {
-                    return await base.ErrorResponseAsync<TaxistaSummary>(_enderecoService);
-                }
-            }
-
-            return await base.ResponseAsync(await _TaxistaService.GetSummaryAsync(taxista.Id), unitOfWork);
+            return await ResponseAsync(await _TaxistaService.GetSummaryAsync(taxistaSummary.Id), unitOfWork);
         }
 
         /// <summary>
@@ -174,6 +159,13 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
                 return await base.ErrorResponseAsync<bool>(_enderecoService);
             }
 
+            // remove o registro de foto
+            await this._fotoService.DeleteAsync(taxistaSummary.Foto.Id);
+            if (_fotoService.IsInvalid())
+            {
+                return await base.ErrorResponseAsync<bool>(_fotoService);
+            }
+
             // remove o registro do usuário
             await this._usuarioService.DeleteAsync((Guid)taxistaSummary.Usuario.Id);
             if(_usuarioService.IsInvalid())
@@ -184,6 +176,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             return await base.ResponseAsync(true, unitOfWork);
         }
 
+        /*
         /// <summary>
         /// Associa uma foto ao taxista.
         /// </summary>
@@ -207,7 +200,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         {
             // ativa/desativa o taxista
             return await ResponseAsync(await _TaxistaService.Ativar(id, ativar), _TaxistaService);
-        }
+        }*/
 
         /// <summary>
         /// Obtém os veículos associados a um taxista.
@@ -221,6 +214,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
 
             return await base.ResponseAsync(result, veicTaxistaService);
         }
+
     }
 }
 

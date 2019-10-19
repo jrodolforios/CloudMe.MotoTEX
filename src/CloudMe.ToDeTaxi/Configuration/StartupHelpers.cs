@@ -15,6 +15,7 @@ using CloudMe.ToDeTaxi.Configuration.Library.Constants;
 using System.Globalization;
 using System.Reflection;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using CloudMe.Auth.Admin.Configuration.IdentityServer;
 
 namespace CloudMe.ToDeTaxi.Helpers
 {
@@ -91,7 +92,8 @@ namespace CloudMe.ToDeTaxi.Helpers
                 {
                     options.ConfigureDbContext = b => b.UseNpgsql(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
                     options.EnableTokenCleanup = true;
-                });
+                })
+                .AddProfileService<ProfileService>();
 
             //builder.AddCustomSigningCredential(configuration, logger);
             builder.AddDeveloperSigningCredential(false);

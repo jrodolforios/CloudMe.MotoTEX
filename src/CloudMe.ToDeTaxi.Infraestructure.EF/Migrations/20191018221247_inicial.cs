@@ -135,8 +135,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     IsDeleted = table.Column<bool>(nullable: false),
                     ForceDelete = table.Column<bool>(nullable: false),
                     Nome = table.Column<string>(nullable: true),
-                    NomeArquivo = table.Column<string>(nullable: false),
-                    Dados = table.Column<byte[]>(nullable: false)
+                    NomeArquivo = table.Column<string>(nullable: true),
+                    Dados = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -676,27 +676,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PontoTaxi",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    ForceDelete = table.Column<bool>(nullable: false),
-                    Nome = table.Column<string>(nullable: false),
-                    IdEndereco = table.Column<Guid>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PontoTaxi", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PontoTaxi_Localizacao_IdEndereco",
-                        column: x => x.IdEndereco,
-                        principalTable: "Localizacao",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "RoleClaims",
                 columns: table => new
                 {
@@ -856,10 +835,11 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     ForceDelete = table.Column<bool>(nullable: false),
+                    Ativo = table.Column<bool>(nullable: false),
                     IdUsuario = table.Column<Guid>(nullable: true),
                     IdEndereco = table.Column<Guid>(nullable: false),
                     IdLocalizacaoAtual = table.Column<Guid>(nullable: true),
-                    IdFoto = table.Column<Guid>(nullable: true)
+                    IdFoto = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -875,7 +855,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                         column: x => x.IdFoto,
                         principalTable: "Foto",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Passageiro_Localizacao_IdLocalizacaoAtual",
                         column: x => x.IdLocalizacaoAtual,
@@ -891,52 +871,24 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Taxista",
+                name: "PontoTaxi",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     ForceDelete = table.Column<bool>(nullable: false),
-                    Ativo = table.Column<bool>(nullable: false),
-                    IdUsuario = table.Column<Guid>(nullable: true),
-                    IdEndereco = table.Column<Guid>(nullable: false),
-                    IdLocalizacaoAtual = table.Column<Guid>(nullable: true),
-                    IdFoto = table.Column<Guid>(nullable: true),
-                    IdPontoTaxi = table.Column<Guid>(nullable: true)
+                    Nome = table.Column<string>(nullable: false),
+                    IdEndereco = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Taxista", x => x.Id);
+                    table.PrimaryKey("PK_PontoTaxi", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Taxista_Endereco_IdEndereco",
+                        name: "FK_PontoTaxi_Endereco_IdEndereco",
                         column: x => x.IdEndereco,
                         principalTable: "Endereco",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Taxista_Foto_IdFoto",
-                        column: x => x.IdFoto,
-                        principalTable: "Foto",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Taxista_Localizacao_IdLocalizacaoAtual",
-                        column: x => x.IdLocalizacaoAtual,
-                        principalTable: "Localizacao",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Taxista_PontoTaxi_IdPontoTaxi",
-                        column: x => x.IdPontoTaxi,
-                        principalTable: "PontoTaxi",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Taxista_Users_IdUsuario",
-                        column: x => x.IdUsuario,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -997,6 +949,109 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                         name: "FK_SolicitacaoCorrida_Rota_IdRota",
                         column: x => x.IdRota,
                         principalTable: "Rota",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Taxista",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
+                    Ativo = table.Column<bool>(nullable: false),
+                    IdUsuario = table.Column<Guid>(nullable: true),
+                    IdEndereco = table.Column<Guid>(nullable: false),
+                    IdLocalizacaoAtual = table.Column<Guid>(nullable: true),
+                    IdFoto = table.Column<Guid>(nullable: false),
+                    IdPontoTaxi = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Taxista", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Taxista_Endereco_IdEndereco",
+                        column: x => x.IdEndereco,
+                        principalTable: "Endereco",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Taxista_Foto_IdFoto",
+                        column: x => x.IdFoto,
+                        principalTable: "Foto",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Taxista_Localizacao_IdLocalizacaoAtual",
+                        column: x => x.IdLocalizacaoAtual,
+                        principalTable: "Localizacao",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Taxista_PontoTaxi_IdPontoTaxi",
+                        column: x => x.IdPontoTaxi,
+                        principalTable: "PontoTaxi",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Taxista_Users_IdUsuario",
+                        column: x => x.IdUsuario,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Corrida",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    ForceDelete = table.Column<bool>(nullable: false),
+                    IdSolicitacao = table.Column<Guid>(nullable: false),
+                    IdTaxista = table.Column<Guid>(nullable: false),
+                    IdVeiculo = table.Column<Guid>(nullable: false),
+                    IdRotaExecutada = table.Column<Guid>(nullable: false),
+                    IdTarifa = table.Column<Guid>(nullable: false),
+                    Inicio = table.Column<DateTime>(nullable: true),
+                    Fim = table.Column<DateTime>(nullable: true),
+                    AvaliacaoTaxista = table.Column<int>(nullable: true, defaultValue: 0),
+                    AvaliacaoPassageiro = table.Column<int>(nullable: true, defaultValue: 0),
+                    Status = table.Column<int>(nullable: false, defaultValue: 0),
+                    TempoEmEspera = table.Column<int>(nullable: false, defaultValue: 0)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Corrida", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Corrida_SolicitacaoCorrida_IdSolicitacao",
+                        column: x => x.IdSolicitacao,
+                        principalTable: "SolicitacaoCorrida",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Corrida_Tarifa_IdTarifa",
+                        column: x => x.IdTarifa,
+                        principalTable: "Tarifa",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Corrida_Taxista_IdTaxista",
+                        column: x => x.IdTaxista,
+                        principalTable: "Taxista",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Corrida_Rota_IdVeiculo",
+                        column: x => x.IdVeiculo,
+                        principalTable: "Rota",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Corrida_Veiculo_IdVeiculo",
+                        column: x => x.IdVeiculo,
+                        principalTable: "Veiculo",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1105,60 +1160,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_VeiculoTaxista_Veiculo_IdVeiculo",
-                        column: x => x.IdVeiculo,
-                        principalTable: "Veiculo",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Corrida",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    ForceDelete = table.Column<bool>(nullable: false),
-                    IdSolicitacao = table.Column<Guid>(nullable: false),
-                    IdTaxista = table.Column<Guid>(nullable: false),
-                    IdVeiculo = table.Column<Guid>(nullable: false),
-                    IdRotaExecutada = table.Column<Guid>(nullable: false),
-                    IdTarifa = table.Column<Guid>(nullable: false),
-                    Inicio = table.Column<DateTime>(nullable: true),
-                    Fim = table.Column<DateTime>(nullable: true),
-                    AvaliacaoTaxista = table.Column<int>(nullable: true, defaultValue: 0),
-                    AvaliacaoPassageiro = table.Column<int>(nullable: true, defaultValue: 0),
-                    Status = table.Column<int>(nullable: false, defaultValue: 0),
-                    TempoEmEspera = table.Column<int>(nullable: false, defaultValue: 0)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Corrida", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Corrida_SolicitacaoCorrida_IdSolicitacao",
-                        column: x => x.IdSolicitacao,
-                        principalTable: "SolicitacaoCorrida",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Corrida_Tarifa_IdTarifa",
-                        column: x => x.IdTarifa,
-                        principalTable: "Tarifa",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Corrida_Taxista_IdTaxista",
-                        column: x => x.IdTaxista,
-                        principalTable: "Taxista",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Corrida_Rota_IdVeiculo",
-                        column: x => x.IdVeiculo,
-                        principalTable: "Rota",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Corrida_Veiculo_IdVeiculo",
                         column: x => x.IdVeiculo,
                         principalTable: "Veiculo",
                         principalColumn: "Id",
@@ -1626,13 +1627,13 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 name: "PontoTaxi");
 
             migrationBuilder.DropTable(
-                name: "Endereco");
-
-            migrationBuilder.DropTable(
                 name: "Foto");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Endereco");
 
             migrationBuilder.DropTable(
                 name: "Localizacao");

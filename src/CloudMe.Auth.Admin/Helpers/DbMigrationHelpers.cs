@@ -71,7 +71,8 @@ namespace CloudMe.Auth.Admin.Helpers
             {
                 UserName = Users.AdminUserName,
                 Email = Users.AdminEmail,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Nome = Users.AdminNome
             };
 
             var result = await userManager.CreateAsync(user, Users.AdminPassword);
