@@ -10,8 +10,8 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
     public class Clients
     {
 
-		public static IEnumerable<Client> GetAdminClient(IAdminConfiguration adminConfiguration)
-		{
+        public static IEnumerable<Client> GetAdminClient(IAdminConfiguration adminConfiguration)
+        {
             return new List<Client>
             {
                 new Client
@@ -36,31 +36,41 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         "roles"
                     }
                 },
-				// resource owner password grant client
-				new Client
+                new Client
                 {
                     ClientId = "ToDeTaxiAPI_admin",
                     ClientName = "Portal admnistrativo do sistema TOdeTaxi",
-                    AllowedGrantTypes = GrantTypes.Implicit,
+                    Enabled = true,
+                    //AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowedGrantTypes = new List<string> { "authorization_code" },
                     AllowedScopes = {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
+                        "id",
                         "nome",
                         "todetaxiapi"
                     },
-                    AlwaysSendClientClaims = true,
-					AllowAccessTokensViaBrowser = true,
-                    IdentityTokenLifetime = 100,
-                    AccessTokenLifetime = 200,
-                    //AccessTokenType = AccessTokenType.Reference,
-					//RequireConsent = true,
-					/*ClientSecrets =
-					{
-						new Secret("secret".Sha256())
-					},*/
-					RedirectUris = {
-						"http://localhost:4200/auth/callback",
+                    AccessTokenType = AccessTokenType.Jwt,
+                    RequireConsent = false,
+                    AllowRememberConsent = false,
+					//RequireConsent = false,
+                    //AlwaysSendClientClaims = true,
+                    AllowAccessTokensViaBrowser = true,
+                    //IdentityTokenLifetime = 100,
+                    //AccessTokenLifetime = 200,
+                    AuthorizationCodeLifetime = 60,
+                    AbsoluteRefreshTokenLifetime = 120,
+                    RefreshTokenUsage = TokenUsage.OneTimeOnly,
+                    RefreshTokenExpiration = TokenExpiration.Absolute,
+                    AllowOfflineAccess = true,
+                    RequirePkce = true,
+                    ClientSecrets =
+                    {
+                        new Secret("4b80ab4c-7600-42de-991b-bb402bbf206d".Sha256())
+                    },
+                    RedirectUris = {
+                        "http://localhost:4200/auth/callback",
                         "http://localhost:4200/auth/silent-refresh.html",
                         "http://admin.todetaxi.com.br/auth/callback",
                         "http://admin.todetaxi.com.br/auth/silent-refresh.html",
@@ -70,25 +80,34 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         "https://admin.todetaxi.com.br/auth/callback",
                         "https://admin.todetaxi.com.br/auth/silent-refresh.html",
                     },
-					PostLogoutRedirectUris = {
-						"http://localhost:4200",
-						"https://admin.todetaxi.com.br",
+                    PostLogoutRedirectUris = {
+                        "http://localhost:4200",
+                        "https://admin.todetaxi.com.br",
                     }
-				},
-				new Client
-				{
-					ClientId = "ToDeTaxiAPI_mobile",
-					ClientName = "Aplicativo mobile do sistema TOdeTaxi",
+                },
+                new Client
+                {
+                    ClientId = "ToDeTaxiAPI_mobile",
+                    ClientName = "Aplicativo mobile do sistema TOdeTaxi",
                     AllowedScopes = {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "todetaxiapi"
+                        "todetaxiapi",
+                        "id",
+                        "nome"
                     },
                     AlwaysSendClientClaims = true,
-					AllowedGrantTypes = GrantTypes.Implicit,
-					AllowAccessTokensViaBrowser = true,
-					RedirectUris = {
+					//AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowedGrantTypes = new List<string> { "authorization_code" },
+                    AllowOfflineAccess = true,
+                    RequirePkce = true,
+                    AllowAccessTokensViaBrowser = true,
+                    ClientSecrets =
+                    {
+                        new Secret("9740e17e-9867-4477-8285-bb78485bdf2d".Sha256())
+                    },
+                    RedirectUris = {
                         "http://localhost:8100/auth/callback",
                         "http://localhost:8100/#/callback/?",
                         "http://localhost:8100/auth/silent-refresh.html",
@@ -117,20 +136,20 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         "https://driver.todetaxi.com.br"
                     }
                 },
-				new Client
-				{
-					ClientId = "ToDeTaxiAPI_swagger",
-					ClientName = "API swagger do sistema TOdeTaxi",
-					AllowedScopes = {"todetaxiapi"},
-					AllowedGrantTypes = GrantTypes.Implicit,
-					AllowAccessTokensViaBrowser = true,
-					RedirectUris = {
-						"http://localhost:5002/swagger/oauth2-redirect.html",
-						"http://localhost:5002/swagger/o2c.html",
-						"http://localhost:5002/swagger/signin-oidc",
-						"http://localhost:5002/oauth2-redirect.html",
-						"http://localhost:5002/o2c.html",
-						"http://localhost:5002/signin-oidc",
+                new Client
+                {
+                    ClientId = "ToDeTaxiAPI_swagger",
+                    ClientName = "API swagger do sistema TOdeTaxi",
+                    AllowedScopes = {"todetaxiapi"},
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    RedirectUris = {
+                        "http://localhost:5002/swagger/oauth2-redirect.html",
+                        "http://localhost:5002/swagger/o2c.html",
+                        "http://localhost:5002/swagger/signin-oidc",
+                        "http://localhost:5002/oauth2-redirect.html",
+                        "http://localhost:5002/o2c.html",
+                        "http://localhost:5002/signin-oidc",
 
                         "https://api.todetaxi.com.br/swagger/oauth2-redirect.html",
                         "https://api.todetaxi.com.br/swagger/o2c.html",
@@ -139,8 +158,8 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         "https://api.todetaxi.com.br/o2c.html",
                         "https://api.todetaxi.com.br/signin-oidc"
                     },
-				}
-			};
-		}
+                }
+            };
+        }
     }
 }
