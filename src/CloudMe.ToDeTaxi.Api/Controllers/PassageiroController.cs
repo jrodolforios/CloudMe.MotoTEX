@@ -81,14 +81,17 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
 
             passageiroSummary.Endereco.Id = endereco.Id;
 
-            // cria o registro de foto do passageiro
-            var foto = await _fotoService.CreateAsync(new FotoSummary());
-            if (_fotoService.IsInvalid())
+            if ((passageiroSummary.IdFoto == Guid.Empty))
             {
-                return await ErrorResponseAsync<PassageiroSummary>(_fotoService);
-            }
+                // cria o registro de foto do passageiro
+                var foto = await _fotoService.CreateAsync(new FotoSummary());
+                if (_fotoService.IsInvalid())
+                {
+                    return await ErrorResponseAsync<PassageiroSummary>(_fotoService);
+                }
 
-            passageiroSummary.IdFoto = foto.Id;
+                passageiroSummary.IdFoto = foto.Id;
+            }
 
             // cria o registro do passageiro
             var passageiro = await this._PassageiroService.CreateAsync(passageiroSummary);
