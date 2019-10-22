@@ -147,6 +147,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
         }
 
+        public async Task<PassageiroSummary> GetByUserId(Guid Key)
+        {
+            return await CreateSummaryAsync(base.Search(x => x.IdUsuario == Key, defaultPaths, null).FirstOrDefault());
+        }
+
         /*public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)
         {
             var summary = await GetSummaryAsync(Key);
