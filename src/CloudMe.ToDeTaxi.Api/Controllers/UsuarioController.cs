@@ -89,7 +89,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <summary>
         /// Altera credenciais do usuario.
         /// </summary>
-        /// <param name="id">DialList's ID</param>
+        /// <param name="id">User ID</param>
         [HttpPost("altera_credenciais/{id}")]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         public async Task<Response<bool>> AlterarCredenciais(Guid id, [FromBody] CredenciaisUsuario credenciais)

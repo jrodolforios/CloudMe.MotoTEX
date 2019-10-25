@@ -93,10 +93,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 this.AddNotification(new Notification("summary", "Usuario: sumário é obrigatório"));
             }
 
-            /*if (string.IsNullOrEmpty(summary.Credenciais.Login))
-            {
-                this.AddNotification(new Notification("Login", "Usuario: Login não informado"));
-            }*/
+            //if (string.IsNullOrEmpty(summary.Credenciais.Login))
+            //{
+            //    this.AddNotification(new Notification("Login", "Usuario: Login não informado"));
+            //}
 
             if (string.IsNullOrEmpty(summary.Nome))
             {

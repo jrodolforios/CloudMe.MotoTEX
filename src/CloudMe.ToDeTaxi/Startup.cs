@@ -65,6 +65,17 @@ namespace CloudMe.ToDeTaxi
             {
                 iisoptions.AutomaticAuthentication = true;
             });
+
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options =>
+                {
+                    options.AllowAnyOrigin();
+                    options.AllowAnyHeader();
+                    options.AllowAnyMethod();
+                    options.AllowCredentials();
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, CloudMeToDeTaxiContext CloudMeToDeTaxiContext)
@@ -83,6 +94,8 @@ namespace CloudMe.ToDeTaxi
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors("AllowOrigin");
 
             app.UseSecurityHeaders();
             app.UseStaticFiles();

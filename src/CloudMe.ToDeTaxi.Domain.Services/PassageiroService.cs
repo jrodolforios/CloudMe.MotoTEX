@@ -97,6 +97,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 entry.IdUsuario = summary.Usuario.Id;
             }
+
             //entry.IdEndereco = summary.Endereco.Id;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
             //entry.IdFoto = summary.IdFoto;
@@ -144,6 +145,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public override IEnumerable<Passageiro> Search(Expression<Func<Passageiro, bool>> where, string[] paths = null, Pagination options = null)
         {
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
+        }
+
+        public async Task<PassageiroSummary> GetByUserId(Guid Key)
+        {
+            return await CreateSummaryAsync(base.Search(x => x.IdUsuario == Key, defaultPaths, null).FirstOrDefault());
         }
 
         /*public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)

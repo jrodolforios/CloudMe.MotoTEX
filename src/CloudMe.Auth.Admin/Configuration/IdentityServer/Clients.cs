@@ -90,7 +90,7 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         "todetaxiapi",
                         "nome"
                     },
-                    //AlwaysSendClientClaims = true,
+                    AlwaysSendClientClaims = true,
 					//AllowedGrantTypes = GrantTypes.Implicit,
                     AllowedGrantTypes = new List<string> { "authorization_code" },
                     AllowOfflineAccess = true,

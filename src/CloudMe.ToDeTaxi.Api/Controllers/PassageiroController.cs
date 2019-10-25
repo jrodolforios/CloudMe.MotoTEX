@@ -57,6 +57,18 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Get by IdUser
+        /// </summary>
+        /// <param name="id">User Id from passenger</param>
+        /// <returns>passenger</returns>
+        [HttpGet("consulta_id_passageiro/{id}")]
+        [ProducesResponseType(typeof(Response<PassageiroSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<PassageiroSummary>> GetByUserId(Guid id)
+        {
+            return await base.ResponseAsync(await _PassageiroService.GetByUserId(id), _PassageiroService);
+        }
+
+        /// <summary>
         /// Creates a new Passageiro.
         /// </summary>
         /// <param name="passageiroSummary">Passageiro's summary</param>
