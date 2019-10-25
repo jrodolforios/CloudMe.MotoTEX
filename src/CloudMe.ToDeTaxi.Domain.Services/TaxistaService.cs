@@ -109,7 +109,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 entry.IdUsuario = summary.Usuario.Id;
             }
             //entry.IdFoto = summary.IdFoto;
-            entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
+            //entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
             entry.IdPontoTaxi = summary.IdPontoTaxi;
             //entry.IdEndereco = summary.Endereco.Id;
         }

@@ -69,9 +69,16 @@ namespace CloudMe.ToDeTaxi.Api
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddIdentity<Usuario, IdentityRole<Guid>>()
-                .AddEntityFrameworkStores<CloudMeToDeTaxiContext>()
-                .AddDefaultTokenProviders();
+            services.AddIdentity<Usuario, IdentityRole<Guid>>(options =>
+            {
+                options.Password.RequiredLength = 8;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = false;
+            })
+            .AddEntityFrameworkStores<CloudMeToDeTaxiContext>()
+            .AddDefaultTokenProviders();
 
             services.AddAdminAspNetIdentityServices<CloudMeToDeTaxiContext, UserDto<Guid>, Guid, RoleDto<Guid>, Guid, Guid, Guid,
                                 CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,

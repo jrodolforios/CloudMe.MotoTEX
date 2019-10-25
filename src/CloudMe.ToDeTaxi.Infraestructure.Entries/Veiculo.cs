@@ -11,7 +11,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public string Marca { get; set; }
         public string Modelo { get; set; }
         public int Capacidade { get; set; }
-        public int? Cor { get; set; }
+        public string Cor { get; set; }
 
         public Guid? IdFoto { get; set; }
         public virtual Foto Foto { get; set; }

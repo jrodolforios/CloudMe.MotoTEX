@@ -556,7 +556,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<int>("Capacidade");
 
-                    b.Property<int?>("Cor");
+                    b.Property<string>("Cor");
 
                     b.Property<bool>("ForceDelete");
 

@@ -77,8 +77,21 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
-        public async Task<Response<bool>> Delete(Guid id)
+        public async Task<Response<bool>> Delete(
+            [FromServices]IFormaPagamentoTaxistaService formaPagamentoTaxistaService,
+            Guid id)
         {
+            // remove associações com taxistas
+            var taxistasFrmPgto = formaPagamentoTaxistaService.Search(txFrmPgto => txFrmPgto.IdFormaPagamento == id);
+            foreach (var txFrmPgto in taxistasFrmPgto)
+            {
+                await formaPagamentoTaxistaService.DeleteAsync(txFrmPgto.Id);
+                if (formaPagamentoTaxistaService.IsInvalid())
+                {
+                    return await ErrorResponseAsync<bool>(formaPagamentoTaxistaService);
+                }
+            }
+
             return await base.ResponseAsync(await this._FormaPagamentoService.DeleteAsync(id), _FormaPagamentoService);
         }
     }
