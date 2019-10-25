@@ -105,7 +105,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             if (string.IsNullOrEmpty(summary.Email))
             {
-                this.AddNotification(new Notification("Nome", "Usuario: email não informado"));
+                this.AddNotification(new Notification("Email", "Usuario: email não informado"));
             }
         }
 
