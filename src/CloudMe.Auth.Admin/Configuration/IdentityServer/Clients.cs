@@ -36,12 +36,13 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         "roles"
                     }
                 },
-				// resource owner password grant client
-				new Client
+                new Client
                 {
                     ClientId = "ToDeTaxiAPI_admin",
                     ClientName = "Portal admnistrativo do sistema TOdeTaxi",
-                    AllowedGrantTypes = GrantTypes.Implicit,
+                    Enabled = true,
+                    //AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowedGrantTypes = new List<string> { "authorization_code" },
                     AllowedScopes = {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
@@ -49,16 +50,19 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         "nome",
                         "todetaxiapi"
                     },
-                    AlwaysSendClientClaims = true,
-					AllowAccessTokensViaBrowser = true,
-                    IdentityTokenLifetime = 100,
-                    AccessTokenLifetime = 200,
-                    //AccessTokenType = AccessTokenType.Reference,
-					//RequireConsent = true,
-					/*ClientSecrets =
+                    AccessTokenType = AccessTokenType.Jwt,
+                    RequireConsent = false,
+                    AllowRememberConsent = false,
+                    AllowAccessTokensViaBrowser = true,
+                    AuthorizationCodeLifetime = 60,
+                    RefreshTokenUsage = TokenUsage.OneTimeOnly,
+                    RefreshTokenExpiration = TokenExpiration.Absolute,
+                    AllowOfflineAccess = true,
+                    //RequirePkce = true,
+                    ClientSecrets =
 					{
-						new Secret("secret".Sha256())
-					},*/
+						new Secret("4b80ab4c-7600-42de-991b-bb402bbf206d".Sha256())
+					},
 					RedirectUris = {
 						"http://localhost:4200/auth/callback",
                         "http://localhost:4200/auth/silent-refresh.html",
@@ -83,11 +87,19 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "todetaxiapi"
+                        "todetaxiapi",
+                        "nome"
                     },
-                    AlwaysSendClientClaims = true,
-					AllowedGrantTypes = GrantTypes.Implicit,
-					AllowAccessTokensViaBrowser = true,
+                    //AlwaysSendClientClaims = true,
+					//AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowedGrantTypes = new List<string> { "authorization_code" },
+                    AllowOfflineAccess = true,
+                    RequirePkce = true,
+                    AllowAccessTokensViaBrowser = true,
+                    ClientSecrets =
+                    {
+                        new Secret("9740e17e-9867-4477-8285-bb78485bdf2d".Sha256())
+                    },
 					RedirectUris = {
                         "http://localhost:8100/auth/callback",
                         "http://localhost:8100/#/callback/?",

@@ -9,6 +9,7 @@ using CloudMe.ToDeTaxi.Domain.Model.Taxista;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
+using prmToolkit.NotificationPattern;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -67,15 +68,15 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="pontoTaxiSummary">PontoTaxi's summary</param>
         [HttpPost]
-        [ProducesResponseType(typeof(Response<PontoTaxiSummary>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<Response<PontoTaxiSummary>> Post([FromBody] PontoTaxiSummary pontoTaxiSummary)
+        public async Task<Response<Guid>> Post([FromBody] PontoTaxiSummary pontoTaxiSummary)
         {
             // cria o endereço do pontoTaxi
             var endereco = await this._enderecoService.CreateAsync(pontoTaxiSummary.Endereco);
             if (_enderecoService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<PontoTaxiSummary>(_enderecoService);
+                return await base.ErrorResponseAsync<Guid>(_enderecoService);
             }
 
             pontoTaxiSummary.Endereco.Id = endereco.Id;
@@ -84,10 +85,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             var pontoTaxi = await this._PontoTaxiService.CreateAsync(pontoTaxiSummary);
             if (_PontoTaxiService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<PontoTaxiSummary>(_PontoTaxiService);
+                return await base.ErrorResponseAsync<Guid>(_PontoTaxiService);
             }
 
-            return await base.ResponseAsync(await _PontoTaxiService.GetSummaryAsync(pontoTaxi.Id), _PontoTaxiService);
+            return await base.ResponseAsync(pontoTaxi.Id, _PontoTaxiService);
         }
 
         /// <summary>
@@ -96,32 +97,11 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="pontoTaxiSummary">Modified PontoTaxi list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(Response<PontoTaxiSummary>), (int)HttpStatusCode.OK)]
-        public async Task<Response<PontoTaxiSummary>> Put([FromBody] PontoTaxiSummary pontoTaxiSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] PontoTaxiSummary pontoTaxiSummary)
         {
-            // OBS.: Qualquer validação nas entidades da API é feita antes da manipulação dos dados
-            // de usuários para permitir o rollback (vide método POST).
-
-            var pontoTaxi = await this._PontoTaxiService.Get(pontoTaxiSummary.Id);
-
             // atualiza o registro do pontoTaxi
-            await this._PontoTaxiService.UpdateAsync(pontoTaxiSummary);
-            if (_PontoTaxiService.IsInvalid())
-            {
-                return await base.ErrorResponseAsync<PontoTaxiSummary>(_PontoTaxiService);
-            }
-
-            if (pontoTaxiSummary.Endereco != null)
-            {
-                // atualiza o registro de endereço
-                await this._enderecoService.UpdateAsync(pontoTaxiSummary.Endereco);
-                if (_enderecoService.IsInvalid())
-                {
-                    return await base.ErrorResponseAsync<PontoTaxiSummary>(_enderecoService);
-                }
-            }
-
-            return await base.ResponseAsync(await _PontoTaxiService.GetSummaryAsync(pontoTaxi.Id), unitOfWork);
+            return await base.ResponseAsync(await _PontoTaxiService.UpdateAsync(pontoTaxiSummary) != null, _PontoTaxiService);
         }
 
         /// <summary>
@@ -130,12 +110,33 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
-        public async Task<Response<bool>> Delete(Guid id)
+        public async Task<Response<bool>> Delete(
+            [FromServices] ITaxistaService taxistaService,
+            Guid id)
         {
             // OBS.: Qualquer validação nas entidades da API é feita antes da manipulação dos dados
             // de usuários para permitir o rollback (vide método POST).
 
             var pontoTaxiSummary = await this._PontoTaxiService.GetSummaryAsync(id);
+            if (pontoTaxiSummary.Id == Guid.Empty)
+            {
+                _PontoTaxiService.AddNotification(new Notification("Ponto de táxi", "Ponto de táxi não encontrado"));
+            }
+
+            // remove associações com os taxistas
+            var taxistasSummaries = await taxistaService.GetAllSummariesAsync(
+                    taxistaService.Search(tx => tx.IdPontoTaxi == pontoTaxiSummary.Id)
+                );
+
+            foreach (var txSummary in taxistasSummaries)
+            {
+                txSummary.IdPontoTaxi = null;
+                await taxistaService.UpdateAsync(txSummary);
+                if (taxistaService.IsInvalid())
+                {
+                    return await ErrorResponseAsync<bool>(taxistaService);
+                }
+            }
 
             // primeiro, remove o registro do pontoTaxi
             await this._PontoTaxiService.DeleteAsync(pontoTaxiSummary.Id);

@@ -79,7 +79,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         protected override void UpdateEntry(Usuario entry, UsuarioSummary summary)
         {
             entry.Nome = summary.Nome;
-            entry.UserName = summary.Credenciais.Login;
+            //entry.UserName = summary.Credenciais.Login;
             entry.Email = summary.Email;
             entry.PhoneNumber = summary.Telefone;
             entry.CPF = summary.CPF;
@@ -93,10 +93,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 this.AddNotification(new Notification("summary", "Usuario: sumário é obrigatório"));
             }
 
-            if (string.IsNullOrEmpty(summary.Credenciais.Login))
+            /*if (string.IsNullOrEmpty(summary.Credenciais.Login))
             {
                 this.AddNotification(new Notification("Login", "Usuario: Login não informado"));
-            }
+            }*/
 
             if (string.IsNullOrEmpty(summary.Nome))
             {

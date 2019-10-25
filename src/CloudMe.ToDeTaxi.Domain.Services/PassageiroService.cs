@@ -92,7 +92,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         protected override void UpdateEntry(Passageiro entry, PassageiroSummary summary)
         {
             entry.Ativo = summary.Ativo;
-            //entry.IdUsuario = summary.Usuario.Id;
+
+            if (!entry.IdUsuario.HasValue || entry.IdUsuario.Value == Guid.Empty)
+            {
+                entry.IdUsuario = summary.Usuario.Id;
+            }
             //entry.IdEndereco = summary.Endereco.Id;
             entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
             //entry.IdFoto = summary.IdFoto;

@@ -593,7 +593,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     Marca = table.Column<string>(nullable: false),
                     Modelo = table.Column<string>(nullable: false),
                     Capacidade = table.Column<int>(nullable: false),
-                    Cor = table.Column<int>(nullable: true),
+                    Cor = table.Column<string>(nullable: true),
                     IdFoto = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>

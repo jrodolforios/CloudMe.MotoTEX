@@ -62,9 +62,9 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="passageiroSummary">Passageiro's summary</param>
         [HttpPost]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(Response<PassageiroSummary>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<Response<PassageiroSummary>> Post([FromBody] PassageiroSummary passageiroSummary)
+        public async Task<Response<Guid>> Post([FromBody] PassageiroSummary passageiroSummary)
         {
             // OBS.: A criação das entidades gerenciadas pela API é feita antes da criação do
             // usuário, pois este último é gerenciado externamente pelo AspNet Identity,
@@ -76,7 +76,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             var endereco = await this._enderecoService.CreateAsync(passageiroSummary.Endereco);
             if (_enderecoService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<PassageiroSummary>(_enderecoService);
+                return await base.ErrorResponseAsync<Guid>(_enderecoService);
             }
 
             passageiroSummary.Endereco.Id = endereco.Id;
@@ -85,7 +85,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             var foto = await _fotoService.CreateAsync(new FotoSummary());
             if (_fotoService.IsInvalid())
             {
-                return await ErrorResponseAsync<PassageiroSummary>(_fotoService);
+                return await ErrorResponseAsync<Guid>(_fotoService);
             }
 
             passageiroSummary.IdFoto = foto.Id;
@@ -94,14 +94,14 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             var passageiro = await this._PassageiroService.CreateAsync(passageiroSummary);
             if (_PassageiroService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<PassageiroSummary>(_PassageiroService);
+                return await base.ErrorResponseAsync<Guid>(_PassageiroService);
             }
 
             // cria um usuario para o passageiro
             var usuario = await this._usuarioService.CreateAsync(passageiroSummary.Usuario);
             if (_usuarioService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<PassageiroSummary>(_usuarioService);
+                return await base.ErrorResponseAsync<Guid>(_usuarioService);
             }
 
             // aplica o id de usuário
@@ -109,10 +109,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             await _PassageiroService.UpdateAsync(passageiroSummary);
             if (_PassageiroService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<PassageiroSummary>(_usuarioService);
+                return await base.ErrorResponseAsync<Guid>(_usuarioService);
             }
 
-            return await base.ResponseAsync(await _PassageiroService.GetSummaryAsync(passageiro.Id), _PassageiroService);
+            return await base.ResponseAsync(passageiro.Id, _PassageiroService);
         }
 
         /// <summary>
@@ -121,17 +121,11 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="passageiroSummary">Modified Passageiro list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(Response<PassageiroSummary>), (int)HttpStatusCode.OK)]
-        public async Task<Response<PassageiroSummary>> Put([FromBody] PassageiroSummary passageiroSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] PassageiroSummary passageiroSummary)
         {
             // atualiza o registro do passageiro
-            await _PassageiroService.UpdateAsync(passageiroSummary);
-            if (_PassageiroService.IsInvalid())
-            {
-                return await ErrorResponseAsync<PassageiroSummary>(_PassageiroService);
-            }
-
-            return await ResponseAsync(await _PassageiroService.GetSummaryAsync(passageiroSummary.Id), unitOfWork);
+            return await ResponseAsync(await _PassageiroService.UpdateAsync(passageiroSummary) != null, _PassageiroService);
         }
 
         /// <summary>

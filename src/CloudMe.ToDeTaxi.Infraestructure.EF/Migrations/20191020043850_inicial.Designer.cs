@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 {
     [DbContext(typeof(CloudMeToDeTaxiContext))]
-    [Migration("20191018221247_inicial")]
+    [Migration("20191020043850_inicial")]
     partial class inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -558,7 +558,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<int>("Capacidade");
 
-                    b.Property<int?>("Cor");
+                    b.Property<string>("Cor");
 
                     b.Property<bool>("ForceDelete");
 

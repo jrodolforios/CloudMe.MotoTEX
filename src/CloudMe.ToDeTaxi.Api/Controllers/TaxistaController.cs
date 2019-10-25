@@ -10,6 +10,7 @@ using CloudMe.ToDeTaxi.Domain.Model.Foto;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
+using prmToolkit.NotificationPattern;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -60,9 +61,9 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="taxistaSummary">Taxista's summary</param>
         [HttpPost]
-        [ProducesResponseType(typeof(Response<TaxistaSummary>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<Response<TaxistaSummary>> Post([FromBody] TaxistaSummary taxistaSummary)
+        public async Task<Response<Guid>> Post([FromBody] TaxistaSummary taxistaSummary)
         {
             // OBS.: A criação das entidades gerenciadas pela API é feita antes da criação do
             // usuário, pois este último é gerenciado externamente pelo AspNet Identity,
@@ -74,7 +75,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             var endereco = await this._enderecoService.CreateAsync(taxistaSummary.Endereco);
             if(_enderecoService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<TaxistaSummary>(_enderecoService);
+                return await base.ErrorResponseAsync<Guid>(_enderecoService);
             }
 
             taxistaSummary.Endereco.Id = endereco.Id;
@@ -83,7 +84,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             var foto = await _fotoService.CreateAsync(taxistaSummary.Foto);
             if (_fotoService.IsInvalid())
             {
-                return await ErrorResponseAsync<TaxistaSummary>(_fotoService);
+                return await ErrorResponseAsync<Guid>(_fotoService);
             }
 
             taxistaSummary.Foto.Id = foto.Id;
@@ -92,14 +93,14 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             var taxista = await this._TaxistaService.CreateAsync(taxistaSummary);
             if(_TaxistaService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<TaxistaSummary>(_TaxistaService);
+                return await base.ErrorResponseAsync<Guid>(_TaxistaService);
             }
 
             // cria um usuario para o taxista
             var usuario = await this._usuarioService.CreateAsync(taxistaSummary.Usuario);
             if (_usuarioService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<TaxistaSummary>(_usuarioService);
+                return await base.ErrorResponseAsync<Guid>(_usuarioService);
             }
 
             // aplica o id de usuário
@@ -107,10 +108,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             await _TaxistaService.UpdateAsync(taxistaSummary);
             if (_TaxistaService.IsInvalid())
             {
-                return await base.ErrorResponseAsync<TaxistaSummary>(_usuarioService);
+                return await base.ErrorResponseAsync<Guid>(_usuarioService);
             }
 
-            return await base.ResponseAsync(await _TaxistaService.GetSummaryAsync(taxista.Id), _TaxistaService);
+            return await base.ResponseAsync(taxista.Id, _TaxistaService);
         }
 
         /// <summary>
@@ -119,17 +120,11 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="taxistaSummary">Modified Taxista list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]
-        [ProducesResponseType(typeof(Response<TaxistaSummary>), (int)HttpStatusCode.OK)]
-        public async Task<Response<TaxistaSummary>> Put([FromBody] TaxistaSummary taxistaSummary)
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> Put([FromBody] TaxistaSummary taxistaSummary)
         {
             // atualiza o registro do taxista
-            await _TaxistaService.UpdateAsync(taxistaSummary);
-            if(_TaxistaService.IsInvalid())
-            {
-                return await ErrorResponseAsync<TaxistaSummary>(_TaxistaService);
-            }
-
-            return await ResponseAsync(await _TaxistaService.GetSummaryAsync(taxistaSummary.Id), unitOfWork);
+            return await ResponseAsync(await _TaxistaService.UpdateAsync(taxistaSummary) != null, _TaxistaService);
         }
 
         /// <summary>
@@ -138,12 +133,53 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
-        public async Task<Response<bool>> Delete(Guid id)
+        public async Task<Response<bool>> Delete(
+            [FromServices]IVeiculoTaxistaService veiculoTaxistaService,
+            [FromServices]IFormaPagamentoTaxistaService formaPagamentoTaxistaService,
+            [FromServices]IFaixaDescontoTaxistaService faixaDescontoTaxistaService,
+            Guid id)
         {
             // OBS.: Qualquer validação nas entidades da API é feita antes da manipulação dos dados
             // de usuários para permitir o rollback (vide método POST).
 
             var taxistaSummary = await this._TaxistaService.GetSummaryAsync(id);
+            if (taxistaSummary.Id == Guid.Empty)
+            {
+                _TaxistaService.AddNotification(new Notification("Taxistas", "Taxista não encontrado"));
+            }
+
+            // remove associações com veículos
+            var veicsTaxista = veiculoTaxistaService.Search(veicTx => veicTx.IdTaxista == taxistaSummary.Id);
+            foreach (var veicTx in veicsTaxista)
+            {
+                await veiculoTaxistaService.DeleteAsync(veicTx.Id);
+                if (veiculoTaxistaService.IsInvalid())
+                {
+                    return await ErrorResponseAsync<bool>(veiculoTaxistaService);
+                }
+            }
+
+            // remove associações com formas de pagamento
+            var frmsPgtoTaxista = formaPagamentoTaxistaService.Search(frmPgtoTx => frmPgtoTx.IdTaxista == taxistaSummary.Id);
+            foreach (var frmPgtoTx in frmsPgtoTaxista)
+            {
+                await formaPagamentoTaxistaService.DeleteAsync(frmPgtoTx.Id);
+                if (formaPagamentoTaxistaService.IsInvalid())
+                {
+                    return await ErrorResponseAsync<bool>(formaPagamentoTaxistaService);
+                }
+            }
+
+            // remove associações com faixas de desconto
+            var fxDescTaxista = faixaDescontoTaxistaService.Search(fxDescTx => fxDescTx.IdTaxista == taxistaSummary.Id);
+            foreach (var fxDescTx in fxDescTaxista)
+            {
+                await faixaDescontoTaxistaService.DeleteAsync(fxDescTx.Id);
+                if (faixaDescontoTaxistaService.IsInvalid())
+                {
+                    return await ErrorResponseAsync<bool>(faixaDescontoTaxistaService);
+                }
+            }
 
             // primeiro, remove o registro do taxista
             await this._TaxistaService.DeleteAsync(taxistaSummary.Id);
