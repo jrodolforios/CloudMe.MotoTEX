@@ -50,6 +50,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">Passageiro's ID</param>
         /// </summary>
         [HttpGet("{id}")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(Response<PassageiroSummary>), (int)HttpStatusCode.OK)]
         public async Task<Response<PassageiroSummary>> Get(Guid id)
         {
