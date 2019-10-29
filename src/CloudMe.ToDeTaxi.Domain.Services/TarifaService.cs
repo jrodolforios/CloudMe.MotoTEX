@@ -7,6 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using RestSharp;
+using System.Net;
+using Newtonsoft.Json;
+using CloudMe.ToDeTaxi.Domain.Model.Taxista.Integracoes;
+using System.Linq;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
@@ -17,6 +22,46 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public TarifaService(ITarifaRepository TarifaRepository)
         {
             _TarifaRepository = TarifaRepository;
+        }
+
+        public decimal GetValorKmRodadoAtual(DateTime date)
+        {
+            var tarifa = _TarifaRepository.FindAll().FirstOrDefault();
+
+            RestClient client = new RestClient("https://api.calendario.com.br/");
+
+            RestRequest request = new RestRequest(string.Empty, Method.GET);
+            request.AddQueryParameter("ano", DateTime.Now.Year.ToString());
+            request.AddQueryParameter("cidade", "TEOFILO_OTONI");
+            request.AddQueryParameter("token", "cm9kb2xmby5yaW9zQGNsb3VkbWUuY29tLmJyJmhhc2g9NTQ5MjMxMzA");
+            request.AddQueryParameter("json", "true");
+
+            var response = client.Execute(request);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var feriados = JsonConvert.DeserializeObject<IList<Feriado>>(response.Content);
+
+                if (feriados.Any(x => x.Date == date.ToString("dd/MM/yyyy") && (x.Type.ToLower() == "feriado nacional" || x.Type.ToLower() == "feriado municipal"))
+                    || date.DayOfWeek == DayOfWeek.Sunday || HorarioNoturno(date))
+                    return (decimal)tarifa.KmRodadoBandeira2;
+                else
+                    return (decimal)tarifa.KmRodadoBandeira1;
+            }
+            else
+                return 0;
+        }
+
+        private bool HorarioNoturno (DateTime date)
+        {
+            // convert everything to TimeSpan
+            TimeSpan start = new TimeSpan(22, 0, 0);
+            TimeSpan end = new TimeSpan(06, 0, 0);
+            TimeSpan now = date.TimeOfDay;
+            // see if start comes before end
+            if (start < end)
+                return start <= now && now <= end;
+            // start is after end, so do the inverse comparison
+            return !(end <= now && now <= start);
         }
 
         protected override Task<Tarifa> CreateEntryAsync(TarifaSummary summary)
