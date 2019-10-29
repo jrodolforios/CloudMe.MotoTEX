@@ -32,6 +32,17 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Return de tax of the ride to current Time
+        /// </summary>
+        /// <returns>passenger</returns>
+        [HttpGet("GetValorKmRodadoAtual")]
+        [ProducesResponseType(typeof(Response<decimal>), (int)HttpStatusCode.OK)]
+        public async Task<Response<decimal>> IsBandeira2()
+        {
+            return await base.ResponseAsync(_TarifaService.GetValorKmRodadoAtual(DateTime.Now), _TarifaService);
+        }
+
+        /// <summary>
         /// Gets a Tarifa.
         /// <param name="id">Tarifa's ID</param>
         /// </summary>
