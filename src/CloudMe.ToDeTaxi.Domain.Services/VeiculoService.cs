@@ -25,6 +25,14 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             if (summary.Id.Equals(Guid.Empty))
                 summary.Id = Guid.NewGuid();
 
+            // verifica se existe outro veículo com a mesma placa
+            var veicPlaca = _VeiculoRepository.Search(veic => veic.Placa == summary.Placa).FirstOrDefault();
+            if (veicPlaca != null)
+            {
+                AddNotification("Veículos", string.Format("Placa '{0}' está sendo utilizada por outro veículo", summary.Placa));
+                return Task.FromResult<Veiculo>(null);
+            }
+
             var Veiculo = new Veiculo
             {
                 Id = summary.Id,
@@ -66,6 +74,14 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         protected override void UpdateEntry(Veiculo entry, VeiculoSummary summary)
         {
+            // verifica se existe outro veículo com a mesma placa
+            var veicPlaca = _VeiculoRepository.Search(veic => veic.Placa == summary.Placa && veic.Id != summary.Id).FirstOrDefault();
+            if (veicPlaca != null)
+            {
+                AddNotification("Veículos", string.Format("Placa '{0}' está sendo utilizada por outro veículo", summary.Placa));
+                return;
+            }
+
             entry.Placa = summary.Placa;
             entry.Marca = summary.Marca;
             entry.Modelo = summary.Modelo;

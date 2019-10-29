@@ -3,6 +3,7 @@ using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
 using prmToolkit.NotificationPattern;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CloudMe.ToDeTaxi.Domain.Model.Usuario;
@@ -122,6 +123,13 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public override async Task<Usuario> CreateAsync(UsuarioSummary summary)
         {
             ValidateSummary(summary);
+
+            // verifica se existe outro usuário com o mesmo CPF
+            var usrCPF = _userRepository.Search(usr => usr.CPF == summary.CPF).FirstOrDefault();
+            if (usrCPF != null)
+            {
+                AddNotification("Usuários", string.Format("CPF '{0}' está sendo utilizado por outro usuário", summary.CPF));
+            }
 
             if (IsInvalid())
             {
@@ -250,6 +258,13 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             try
             {
                 ValidateSummary(summary);
+
+                // verifica se existe outro usuário com o mesmo CPF
+                var usrCPF = _userRepository.Search(usr => usr.CPF == summary.CPF && usr.Id != summary.Id).FirstOrDefault();
+                if (usrCPF != null)
+                {
+                    AddNotification("Usuários", string.Format("CPF '{0}' está sendo utilizado por outro usuário", summary.CPF));
+                }
 
                 if (IsInvalid())
                 {
