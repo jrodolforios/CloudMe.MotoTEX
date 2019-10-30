@@ -37,9 +37,9 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <returns>passenger</returns>
         [HttpGet("GetValorKmRodadoAtual")]
         [ProducesResponseType(typeof(Response<decimal>), (int)HttpStatusCode.OK)]
-        public async Task<Response<decimal>> IsBandeira2()
+        public async Task<Response<decimal>> IsBandeira2(decimal kilometers)
         {
-            return await base.ResponseAsync(_TarifaService.GetValorKmRodadoAtual(DateTime.Now), _TarifaService);
+            return await base.ResponseAsync(_TarifaService.GetValorCorrida(DateTime.Now, kilometers), _TarifaService);
         }
 
         /// <summary>

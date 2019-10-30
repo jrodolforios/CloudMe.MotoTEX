@@ -7,6 +7,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
 {
     public interface ITarifaService : IServiceBase<Tarifa, TarifaSummary, Guid>
     {
-        decimal GetValorKmRodadoAtual(DateTime now);
+        decimal GetValorCorrida(DateTime now, decimal kilometers);
     }
 }

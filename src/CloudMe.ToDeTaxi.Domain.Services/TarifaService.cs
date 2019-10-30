@@ -24,11 +24,12 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _TarifaRepository = TarifaRepository;
         }
 
-        public decimal GetValorKmRodadoAtual(DateTime date)
+        public decimal GetValorCorrida(DateTime date, decimal kilometers)
         {
             var tarifa = _TarifaRepository.FindAll().FirstOrDefault();
 
             RestClient client = new RestClient("https://api.calendario.com.br/");
+            decimal valorAPagar = (decimal)tarifa.Bandeirada;
 
             RestRequest request = new RestRequest(string.Empty, Method.GET);
             request.AddQueryParameter("ano", DateTime.Now.Year.ToString());
@@ -43,15 +44,23 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
                 if (feriados.Any(x => x.Date == date.ToString("dd/MM/yyyy") && (x.Type.ToLower() == "feriado nacional" || x.Type.ToLower() == "feriado municipal"))
                     || date.DayOfWeek == DayOfWeek.Sunday || HorarioNoturno(date))
-                    return (decimal)tarifa.KmRodadoBandeira2;
+                {
+                    valorAPagar += kilometers * (decimal)tarifa.KmRodadoBandeira2;
+
+                    return valorAPagar;
+                }
                 else
-                    return (decimal)tarifa.KmRodadoBandeira1;
+                {
+                    valorAPagar += kilometers * (decimal)tarifa.KmRodadoBandeira1;
+
+                    return valorAPagar;
+                }
             }
             else
                 return 0;
         }
 
-        private bool HorarioNoturno (DateTime date)
+        private bool HorarioNoturno(DateTime date)
         {
             // convert everything to TimeSpan
             TimeSpan start = new TimeSpan(22, 0, 0);
