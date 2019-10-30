@@ -95,9 +95,9 @@ namespace CloudMe.ToDeTaxi.Helpers
                 })
                 .AddProfileService<ProfileService>();
 
-            //builder.AddCustomSigningCredential(configuration, logger);
-            builder.AddDeveloperSigningCredential(false);
-            //builder.AddCustomValidationKey(configuration, logger);
+            builder.AddCustomSigningCredential(configuration, logger);
+            //builder.AddDeveloperSigningCredential(false);
+            builder.AddCustomValidationKey(configuration, logger);
         }
 
         public static void UseMvcLocalizationServices(this IApplicationBuilder app)

@@ -1,7 +1,6 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29006.145
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.852
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{6973C420-6872-45E9-87E3-1BDC8B566BE1}"
 EndProject
@@ -29,11 +28,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Views", "Views", "{36370E81
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMe.ToDeTaxi.Api", "src\CloudMe.ToDeTaxi.Api\CloudMe.ToDeTaxi.Api.csproj", "{E9DEB9D5-A240-4438-99BE-DDFEEE436C8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMe.ToDeTaxi.Configuration.Library", "src\CloudMe.ToDeTaxi.Configuration.Library\CloudMe.ToDeTaxi.Configuration.Library.csproj", "{913FD67C-00E4-41EF-B0D4-95708BA6CD0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMe.ToDeTaxi.Configuration.Library", "src\CloudMe.ToDeTaxi.Configuration.Library\CloudMe.ToDeTaxi.Configuration.Library.csproj", "{913FD67C-00E4-41EF-B0D4-95708BA6CD0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMe.Auth.Admin", "src\CloudMe.Auth.Admin\CloudMe.Auth.Admin.csproj", "{8B0B136C-21BB-4BA7-AF88-4F91FFAFEC35}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMe.Auth.Admin", "src\CloudMe.Auth.Admin\CloudMe.Auth.Admin.csproj", "{8B0B136C-21BB-4BA7-AF88-4F91FFAFEC35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMe.ToDeTaxi", "src\CloudMe.ToDeTaxi\CloudMe.ToDeTaxi.csproj", "{A2254298-73A8-4341-967C-910F44D47B7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMe.ToDeTaxi", "src\CloudMe.ToDeTaxi\CloudMe.ToDeTaxi.csproj", "{A2254298-73A8-4341-967C-910F44D47B7D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Automation", "Automation", "{9FC047C2-5FE4-40AE-907C-944DFAB12BD4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -94,7 +95,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{8B0B136C-21BB-4BA7-AF88-4F91FFAFEC35} = {36370E81-4B5E-452E-94EC-1535BDF09095}
 		{6973C420-6872-45E9-87E3-1BDC8B566BE1} = {B06C8389-7023-4BA3-BB47-BD9C7E3890B7}
 		{E91D01A9-9E9E-44DB-8077-1A3434EBE105} = {B06C8389-7023-4BA3-BB47-BD9C7E3890B7}
 		{559FB8E8-5255-41D3-B7E2-60B1E6D97B1F} = {6973C420-6872-45E9-87E3-1BDC8B566BE1}
@@ -108,7 +108,9 @@ Global
 		{36370E81-4B5E-452E-94EC-1535BDF09095} = {B06C8389-7023-4BA3-BB47-BD9C7E3890B7}
 		{E9DEB9D5-A240-4438-99BE-DDFEEE436C8B} = {36370E81-4B5E-452E-94EC-1535BDF09095}
 		{913FD67C-00E4-41EF-B0D4-95708BA6CD0D} = {36370E81-4B5E-452E-94EC-1535BDF09095}
+		{8B0B136C-21BB-4BA7-AF88-4F91FFAFEC35} = {36370E81-4B5E-452E-94EC-1535BDF09095}
 		{A2254298-73A8-4341-967C-910F44D47B7D} = {36370E81-4B5E-452E-94EC-1535BDF09095}
+		{9FC047C2-5FE4-40AE-907C-944DFAB12BD4} = {B06C8389-7023-4BA3-BB47-BD9C7E3890B7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5374856F-8FF6-4408-B743-CA36BFC462E1}

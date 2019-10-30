@@ -245,7 +245,13 @@ namespace CloudMe.Auth.Admin.Helpers
                         options.Events = new OpenIdConnectEvents
                         {
                             OnMessageReceived = OnMessageReceived,
-                            OnRedirectToIdentityProvider = n => OnRedirectToIdentityProvider(n, adminConfiguration)
+                            OnRedirectToIdentityProvider = n => OnRedirectToIdentityProvider(n, adminConfiguration),
+                            OnRemoteFailure = ctx =>
+                            {
+                                ctx.Response.Redirect(ctx.Properties.GetString("returnUrl"));
+                                ctx.HandleResponse();
+                                return Task.CompletedTask;
+                            }
                         };
                     });
             }
