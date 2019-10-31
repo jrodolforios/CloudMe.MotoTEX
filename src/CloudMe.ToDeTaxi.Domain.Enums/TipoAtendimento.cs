@@ -8,6 +8,7 @@ namespace CloudMe.ToDeTaxi.Domain.Enums
     {
         Indefinido = 0,
         Normal,
+        Agendado,
         Flex
     }
 }
