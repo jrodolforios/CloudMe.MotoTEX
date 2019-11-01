@@ -7,16 +7,35 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class CorridaService : ServiceBase<Corrida, CorridaSummary, Guid>, ICorridaService
     {
         private readonly ICorridaRepository _CorridaRepository;
+        private readonly ISolicitacaoCorridaRepository _SolicitacaoCorridaRepository;
 
-        public CorridaService(ICorridaRepository CorridaRepository)
+        public CorridaService(ICorridaRepository CorridaRepository, ISolicitacaoCorridaRepository SolicitacaoCorridaRepository)
         {
             _CorridaRepository = CorridaRepository;
+            _SolicitacaoCorridaRepository = SolicitacaoCorridaRepository;
+        }
+
+        public async Task<IEnumerable<CorridaSummary>> GetAllSummariesByPassangerAsync(Guid id)
+        {
+            List<CorridaSummary> corridaSummaries = new List<CorridaSummary>();
+
+            var solicitacoes = _SolicitacaoCorridaRepository.FindAll().Where(x => x.IdPassageiro == id);
+            var corridas = _CorridaRepository.FindAll().Where(x => solicitacoes.Any(y => y.Id == x.IdSolicitacao));
+
+            corridas.ToList().ForEach(async x =>
+            {
+                var summary = await CreateSummaryAsync(x);
+                corridaSummaries.Add(summary);
+            });
+
+            return corridaSummaries;
         }
 
         protected override Task<Corrida> CreateEntryAsync(CorridaSummary summary)
