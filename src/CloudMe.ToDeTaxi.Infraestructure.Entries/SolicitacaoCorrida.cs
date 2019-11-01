@@ -22,7 +22,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public Guid IdFormaPagamento { get; set; }
         public virtual FormaPagamento FormaPagamento { get; set; }
 
-        public Guid IdFaixaDesconto { get; set; }
+        public Guid? IdFaixaDesconto { get; set; }
         public virtual FaixaDesconto FaixaDesconto { get; set; }
 
         public TipoAtendimento TipoAtendimento { get; set; }

@@ -3,15 +3,17 @@ using System;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 {
     [DbContext(typeof(CloudMeToDeTaxiContext))]
-    partial class CloudMeToDeTaxiContextModelSnapshot : ModelSnapshot
+    [Migration("20191031191054_FaixaDescontoOpcional")]
+    partial class FaixaDescontoOpcional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,8 +61,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                         .HasDefaultValue(0);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("IdRotaExecutada");
 
                     b.HasIndex("IdSolicitacao")
                         .IsUnique();
@@ -1322,11 +1322,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.Corrida", b =>
                 {
-                    b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Rota", "RotaExecutada")
-                        .WithMany()
-                        .HasForeignKey("IdRotaExecutada")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.SolicitacaoCorrida", "Solicitacao")
                         .WithOne("Corrida")
                         .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Corrida", "IdSolicitacao")
@@ -1340,6 +1335,11 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Taxista", "Taxista")
                         .WithMany("Corridas")
                         .HasForeignKey("IdTaxista")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Rota", "RotaExecutada")
+                        .WithMany()
+                        .HasForeignKey("IdVeiculo")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Veiculo", "Veiculo")

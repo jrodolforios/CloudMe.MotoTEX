@@ -25,7 +25,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
             builder.HasOne(x => x.Solicitacao).WithOne(x => x.Corrida).HasForeignKey<Corrida>(x => x.IdSolicitacao);
             builder.HasOne(x => x.Taxista).WithMany(x => x.Corridas).HasForeignKey(x => x.IdTaxista);
             builder.HasOne(x => x.Veiculo).WithMany(x => x.Corridas).HasForeignKey(x => x.IdVeiculo);
-            builder.HasOne(x => x.RotaExecutada).WithMany().HasForeignKey(x => x.IdVeiculo);
+            builder.HasOne(x => x.RotaExecutada).WithMany().HasForeignKey(x => x.IdRotaExecutada);
             builder.HasOne(x => x.Tarifa).WithMany().HasForeignKey(x => x.IdTarifa);
         }
     }
