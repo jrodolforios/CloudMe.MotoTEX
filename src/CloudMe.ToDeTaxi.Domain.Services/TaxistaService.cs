@@ -158,6 +158,16 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, pagination);
         }
 
+        public async Task<TaxistaSummary> GetByUserId(Guid id)
+        {
+            TaxistaSummary returner = null;
+            var taxista = _TaxistaRepository.FindAll().FirstOrDefault(x => x.IdUsuario == id);
+            var taxistaSummary = await this.GetSummaryAsync(taxista.Id);
+
+            return taxistaSummary;
+
+        }
+
         /*
         public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)
         {

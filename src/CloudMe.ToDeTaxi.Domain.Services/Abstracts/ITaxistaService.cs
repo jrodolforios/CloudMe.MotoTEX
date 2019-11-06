@@ -9,5 +9,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
     {
         /*Task<bool> AssociarFoto(Guid Key, Guid idFoto);
         Task<bool> Ativar(Guid Key, bool ativar);*/
+        Task<TaxistaSummary> GetByUserId(Guid id);
     }
 }
