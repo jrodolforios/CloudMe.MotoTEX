@@ -10,8 +10,9 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Veiculo
         public string Placa { get; set; }
         public string Marca { get; set; }
         public string Modelo { get; set; }
-        public int Capacidade { get; set; }
-        public string Cor { get; set; }
+        public string Ano { get; set; }
+        public string Versao { get; set; }
         public Guid? IdFoto { get; set; }
+        public Guid? IdCorVeiculo { get; set; }
     }
 }

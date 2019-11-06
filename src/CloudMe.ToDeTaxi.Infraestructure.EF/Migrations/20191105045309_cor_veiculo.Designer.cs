@@ -3,15 +3,17 @@ using System;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 {
     [DbContext(typeof(CloudMeToDeTaxiContext))]
-    partial class CloudMeToDeTaxiContextModelSnapshot : ModelSnapshot
+    [Migration("20191105045309_cor_veiculo")]
+    partial class cor_veiculo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -573,16 +575,11 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Ano")
-                        .IsRequired();
-
                     b.Property<int>("Capacidade");
 
                     b.Property<string>("Cor");
 
                     b.Property<bool>("ForceDelete");
-
-                    b.Property<Guid?>("IdCorVeiculo");
 
                     b.Property<Guid?>("IdFoto");
 
@@ -597,11 +594,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<string>("Placa")
                         .IsRequired();
 
-                    b.Property<string>("Versao");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("IdCorVeiculo");
 
                     b.HasIndex("IdFoto")
                         .IsUnique();
@@ -1521,10 +1514,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.Veiculo", b =>
                 {
-                    b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.CorVeiculo", "CorVeiculo")
-                        .WithMany()
-                        .HasForeignKey("IdCorVeiculo");
-
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Foto", "Foto")
                         .WithOne()
                         .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Veiculo", "IdFoto");

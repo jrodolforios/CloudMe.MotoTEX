@@ -3,15 +3,17 @@ using System;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 {
     [DbContext(typeof(CloudMeToDeTaxiContext))]
-    partial class CloudMeToDeTaxiContextModelSnapshot : ModelSnapshot
+    [Migration("20191105135021_alteracoes_veiculo")]
+    partial class alteracoes_veiculo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -601,7 +603,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdCorVeiculo");
+                    b.HasIndex("IdCorVeiculo")
+                        .IsUnique();
 
                     b.HasIndex("IdFoto")
                         .IsUnique();
@@ -1522,8 +1525,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.Veiculo", b =>
                 {
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.CorVeiculo", "CorVeiculo")
-                        .WithMany()
-                        .HasForeignKey("IdCorVeiculo");
+                        .WithOne()
+                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Veiculo", "IdCorVeiculo");
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Foto", "Foto")
                         .WithOne()

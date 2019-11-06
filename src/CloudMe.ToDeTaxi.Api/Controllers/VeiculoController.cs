@@ -73,8 +73,8 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// Obtém os modelos de uma marca de veículo.
         /// </summary>
         [HttpGet("modelos/{codigo_marca}")]
-        [ProducesResponseType(typeof(Response<InfoMarca>), (int)HttpStatusCode.OK)]
-        public async Task<Response<InfoMarca>> GetModelos(string codigo_marca)
+        [ProducesResponseType(typeof(Response<IEnumerable<ModeloVeiculo>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<ModeloVeiculo>>> GetModelos(string codigo_marca)
         {
             var client = new RestClient("https://parallelum.com.br/fipe/");
             var request = new RestRequest(string.Format("/api/v1/carros/marcas/{0}/modelos", codigo_marca), Method.GET);
@@ -82,14 +82,47 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             var result = await client.ExecuteTaskAsync(request);
             if (result.StatusCode == HttpStatusCode.OK)
             {
-                var marcas = JsonConvert.DeserializeObject<InfoMarca>(result.Content);
+                var info_marca = JsonConvert.DeserializeObject<InfoMarca>(result.Content);
 
-                return await ResponseAsync(marcas, unitOfWork);
+                return await ResponseAsync(info_marca.modelos, unitOfWork);
             }
             else
             {
                 unitOfWork.AddNotification("Consulta modelos de veículos", result.ErrorMessage);
-                return await ErrorResponseAsync<InfoMarca>(unitOfWork);
+                return await ErrorResponseAsync<IEnumerable<ModeloVeiculo>>(unitOfWork);
+            }
+        }
+
+        /// <summary>
+        /// Obtém os anos de fabricação e versões (combustível) de um modelo de veículo.
+        /// </summary>
+        [HttpGet("anos_versoes/{codigo_modelo}")]
+        [ProducesResponseType(typeof(Response<IEnumerable<AnoVersao>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<AnoVersao>>> GetAnosVersoes(string codigo_marca, string codigo_modelo)
+        {
+            var client = new RestClient("https://parallelum.com.br/fipe/");
+            var request = new RestRequest(string.Format("/api/v1/carros/marcas/{0}/modelos/{1}/anos", codigo_marca, codigo_modelo), Method.GET);
+
+            var result = await client.ExecuteTaskAsync(request);
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                var anos_modelos = JsonConvert.DeserializeObject<IEnumerable<AnoVersao>>(result.Content);
+
+                foreach(var ano_modelo in anos_modelos)
+                {
+                    string[] tokens = ano_modelo.nome.Split(' ');
+                    if(tokens.Length == 2)
+                    {
+                        ano_modelo.ano = tokens[0];
+                        ano_modelo.versao = tokens[1];
+                    }
+                }
+                return await ResponseAsync(anos_modelos, unitOfWork);
+            }
+            else
+            {
+                unitOfWork.AddNotification("Consulta modelos de veículos", result.ErrorMessage);
+                return await ErrorResponseAsync<IEnumerable<AnoVersao>>(unitOfWork);
             }
         }
 

@@ -16,10 +16,13 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
             builder.Property(x => x.Placa).IsRequired();
             builder.Property(x => x.Marca).IsRequired();
             builder.Property(x => x.Modelo).IsRequired();
+            builder.Property(x => x.Ano).IsRequired();
+            builder.Property(x => x.Versao);
             builder.Property(x => x.Capacidade).IsRequired();
             builder.Property(x => x.Cor);
 
             builder.HasOne(x => x.Foto).WithOne().HasForeignKey<Veiculo>(x => x.IdFoto);
+            builder.HasOne(x => x.CorVeiculo).WithMany().HasForeignKey(x => x.IdCorVeiculo);
         }
     }
 }

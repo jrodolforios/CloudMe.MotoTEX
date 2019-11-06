@@ -39,9 +39,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Placa = summary.Placa,
                 Marca = summary.Marca,
                 Modelo = summary.Modelo,
-                Capacidade = summary.Capacidade,
-                Cor = summary.Cor,
-                IdFoto = summary.IdFoto
+                Ano = summary.Ano,
+                Versao = summary.Versao,
+                IdFoto = summary.IdFoto,
+                IdCorVeiculo = summary.IdCorVeiculo
             };
             return Task.FromResult(Veiculo);
         }
@@ -54,9 +55,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Placa = entry.Placa,
                 Marca = entry.Marca,
                 Modelo = entry.Modelo,
-                Capacidade = entry.Capacidade,
-                Cor = entry.Cor,
-                IdFoto = entry.IdFoto
+                Ano = entry.Ano,
+                Versao = entry.Versao,
+                IdFoto = entry.IdFoto,
+                IdCorVeiculo = entry.IdCorVeiculo
             };
 
             return Task.FromResult(Veiculo);
@@ -85,9 +87,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             entry.Placa = summary.Placa;
             entry.Marca = summary.Marca;
             entry.Modelo = summary.Modelo;
-            entry.Capacidade = summary.Capacidade;
-            entry.Cor = summary.Cor;
+            entry.Ano = summary.Ano;
+            entry.Versao = summary.Versao;
             entry.IdFoto = summary.IdFoto;
+            entry.IdCorVeiculo = summary.IdCorVeiculo;
         }
 
         protected override void ValidateSummary(VeiculoSummary summary)
@@ -112,10 +115,15 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 this.AddNotification(new Notification("Modelo", "Veiculo: modelo não informado"));
             }
 
-            if (summary.Capacidade < 2)
+            if (string.IsNullOrEmpty(summary.Ano))
             {
-                this.AddNotification(new Notification("Modelo", "Veiculo: capacidade inconsistente"));
+                this.AddNotification(new Notification("Ano", "Veiculo: ano do veículo não informado"));
             }
+
+            /*if (string.IsNullOrEmpty(summary.Versao))
+            {
+                this.AddNotification(new Notification("Versão", "Veiculo: versão do veículo não informada"));
+            }*/
         }
     }
 }
