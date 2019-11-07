@@ -9,5 +9,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
     public interface IFormaPagamentoTaxistaService : IServiceBase<FormaPagamentoTaxista, FormaPagamentoTaxistaSummary, Guid>
     {
         Task<List<FormaPagamentoTaxistaSummary>> GetByTaxistId(Guid id);
+        Task<bool> DeleteByTaxistId(Guid id);
     }
 }

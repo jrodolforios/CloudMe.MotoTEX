@@ -20,6 +20,18 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _FormaPagamentoTaxistaRepository = FormaPagamentoTaxistaRepository;
         }
 
+        public Task<bool> DeleteByTaxistId(Guid id)
+        {
+            var list = _FormaPagamentoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id);
+
+            list.ToList().ForEach(async x =>
+            {
+                await _FormaPagamentoTaxistaRepository.DeleteAsync(x, false);
+            });
+
+            return Task.FromResult(true);
+        }
+
         public Task<List<FormaPagamentoTaxistaSummary>> GetByTaxistId(Guid id)
         {
             var list = _FormaPagamentoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id);

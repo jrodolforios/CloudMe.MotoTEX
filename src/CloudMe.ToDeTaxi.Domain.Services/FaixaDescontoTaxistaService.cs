@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
@@ -17,6 +18,33 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public FaixaDescontoTaxistaService(IFaixaDescontoTaxistaRepository FaixaDescontoTaxistaRepository)
         {
             _FaixaDescontoTaxistaRepository = FaixaDescontoTaxistaRepository;
+        }
+
+        public Task<bool> DeleteByTaxistId(Guid id)
+        {
+            var list = _FaixaDescontoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id);
+
+            list.ToList().ForEach(async x =>
+            {
+                await _FaixaDescontoTaxistaRepository.DeleteAsync(x, false);
+            });
+
+            return Task.FromResult(true);
+        }
+
+        public Task<List<FaixaDescontoTaxistaSummary>> GetByTaxistId(Guid id)
+        {
+            var list = _FaixaDescontoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id);
+
+            var listaRetorno = new List<FaixaDescontoTaxistaSummary>();
+
+            list.ToList().ForEach(async x =>
+            {
+                var summary = await CreateSummaryAsync(x);
+                listaRetorno.Add(summary);
+            });
+
+            return Task.FromResult(listaRetorno);
         }
 
         protected override Task<FaixaDescontoTaxista> CreateEntryAsync(FaixaDescontoTaxistaSummary summary)

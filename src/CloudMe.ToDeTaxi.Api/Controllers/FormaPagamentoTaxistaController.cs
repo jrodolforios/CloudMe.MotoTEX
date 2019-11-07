@@ -55,6 +55,18 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Get by IdTaxista
+        /// </summary>
+        /// <param name="id">Id from taxist</param>
+        /// <returns>passenger</returns>
+        [HttpDelete("Deletar_por_taxista/{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> DeletePorTaxista(Guid id)
+        {
+            return await base.ResponseAsync(await _FormaPagamentoTaxistaService.DeleteByTaxistId(id), _FormaPagamentoTaxistaService);
+        }
+
+        /// <summary>
         /// Creates a new FormaPagamentoTaxista.
         /// </summary>
         /// <param name="FormaPagamentoTaxistaSummary">FormaPagamentoTaxista's summary</param>
