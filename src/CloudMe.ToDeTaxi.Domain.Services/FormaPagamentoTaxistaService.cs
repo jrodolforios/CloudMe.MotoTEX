@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
@@ -17,6 +18,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public FormaPagamentoTaxistaService(IFormaPagamentoTaxistaRepository FormaPagamentoTaxistaRepository)
         {
             _FormaPagamentoTaxistaRepository = FormaPagamentoTaxistaRepository;
+        }
+
+        public Task<List<FormaPagamentoTaxistaSummary>> GetByTaxistId(Guid id)
+        {
+            var list = _FormaPagamentoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id);
+
+            var listaRetorno = new List<FormaPagamentoTaxistaSummary>();
+
+            list.ToList().ForEach(async x =>
+            {
+                var summary = await CreateSummaryAsync(x);
+                listaRetorno.Add(summary);
+            });
+
+            return Task.FromResult(listaRetorno);
         }
 
         protected override Task<FormaPagamentoTaxista> CreateEntryAsync(FormaPagamentoTaxistaSummary summary)

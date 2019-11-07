@@ -43,6 +43,18 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Get by IdTaxista
+        /// </summary>
+        /// <param name="id">Id from taxist</param>
+        /// <returns>passenger</returns>
+        [HttpGet("consulta_id_taxista/{id}")]
+        [ProducesResponseType(typeof(Response<List<FormaPagamentoTaxistaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<List<FormaPagamentoTaxistaSummary>>> GetByUserId(Guid id)
+        {
+            return await base.ResponseAsync(await _FormaPagamentoTaxistaService.GetByTaxistId(id), _FormaPagamentoTaxistaService);
+        }
+
+        /// <summary>
         /// Creates a new FormaPagamentoTaxista.
         /// </summary>
         /// <param name="FormaPagamentoTaxistaSummary">FormaPagamentoTaxista's summary</param>
