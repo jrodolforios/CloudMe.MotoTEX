@@ -7,6 +7,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
     {
         public Guid Id { get; set; }
         public bool Ativo { get; set; }
+        
+        public bool Disponivel { get; set; }
 
         public Guid? IdUsuario { get; set; } // relaxa o relacionamento com o usuario pois este (usuário) é gerenciado externamente (Identity server)
         public Usuario Usuario { get; set; }

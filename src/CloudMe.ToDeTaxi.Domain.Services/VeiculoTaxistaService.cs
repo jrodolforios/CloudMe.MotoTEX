@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
@@ -17,6 +18,13 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public VeiculoTaxistaService(IVeiculoTaxistaRepository VeiculoTaxistaRepository)
         {
             _VeiculoTaxistaRepository = VeiculoTaxistaRepository;
+        }
+
+        public bool IsTaxiAtivoEmUsoPorOutroTaxista(Guid id)
+        {
+            var veiculosTaxista = _VeiculoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id && x.Ativo).ToList();
+
+            return _VeiculoTaxistaRepository.FindAll().Any(x => veiculosTaxista.Any(y => y.IdVeiculo == x.IdVeiculo && y.IdTaxista != id && y.Ativo));
         }
 
         protected override Task<VeiculoTaxista> CreateEntryAsync(VeiculoTaxistaSummary summary)

@@ -6,5 +6,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
 {
     public interface IVeiculoTaxistaService : IServiceBase<VeiculoTaxista, VeiculoTaxistaSummary, Guid>
     {
+        bool IsTaxiAtivoEmUsoPorOutroTaxista(Guid id);
     }
 }

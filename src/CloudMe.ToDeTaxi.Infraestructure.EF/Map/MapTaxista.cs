@@ -13,6 +13,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
             builder.ToTable("Taxista");
 
             builder.HasKey(x => x.Id);
+            builder.Property(x => x.Disponivel).IsRequired().HasDefaultValue(false);
 
              // relaxa o relacionamento com o usuario pois este (usuário) é gerenciado externamente (Identity server)
             builder.HasOne(x => x.Usuario).WithOne().HasForeignKey<Taxista>(x => x.IdUsuario).IsRequired(false);

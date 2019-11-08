@@ -18,17 +18,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class TaxistaService : ServiceBase<Taxista, TaxistaSummary, Guid>, ITaxistaService
     {
-        private string[] defaultPaths = {"Endereco", "Usuario", "Foto"};
+        private string[] defaultPaths = { "Endereco", "Usuario", "Foto" };
 
         private readonly ITaxistaRepository _TaxistaRepository;
         private readonly IFotoService _FotoService;
+        private readonly IVeiculoTaxistaService _veiculoTaxistaService;
 
         public TaxistaService(
             ITaxistaRepository TaxistaRepository,
-            IFotoService FotoService)
+            IFotoService FotoService,
+            IVeiculoTaxistaService veiculoTaxistaService
+            )
         {
             _TaxistaRepository = TaxistaRepository;
             _FotoService = FotoService;
+            _veiculoTaxistaService = veiculoTaxistaService;
         }
 
         protected override Task<Taxista> CreateEntryAsync(TaxistaSummary summary)
@@ -104,7 +108,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         {
             entry.Ativo = summary.Ativo;
 
-            if(!entry.IdUsuario.HasValue || entry.IdUsuario.Value == Guid.Empty)
+            if (!entry.IdUsuario.HasValue || entry.IdUsuario.Value == Guid.Empty)
             {
                 entry.IdUsuario = summary.Usuario.Id;
             }
@@ -166,6 +170,25 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             return taxistaSummary;
 
+        }
+
+        public async Task<bool> MakeTaxistOnlineAsync(Guid id, bool disponivel)
+        {
+            bool sucesso = false;
+
+            var taxista = await _TaxistaRepository.FindByIdAsync(id);
+
+            if (!_veiculoTaxistaService.IsTaxiAtivoEmUsoPorOutroTaxista(id) && disponivel)
+                taxista.Disponivel = true;
+            else
+                taxista.Disponivel = false;
+
+            sucesso = (!_veiculoTaxistaService.IsTaxiAtivoEmUsoPorOutroTaxista(id) && disponivel) || !disponivel;
+
+            if (sucesso)
+                sucesso = await _TaxistaRepository.ModifyAsync(taxista);
+
+            return sucesso;
         }
 
         /*
