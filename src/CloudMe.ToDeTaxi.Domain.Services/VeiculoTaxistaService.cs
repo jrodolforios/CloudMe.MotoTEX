@@ -50,7 +50,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = summary.Id,
                 IdVeiculo = summary.IdVeiculo,
-                IdTaxista = summary.IdTaxista
+                IdTaxista = summary.IdTaxista,
+                Ativo = summary.Ativo
             };
             return Task.FromResult(VeiculoTaxista);
         }
@@ -61,7 +62,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = entry.Id,
                 IdVeiculo = entry.IdVeiculo,
-                IdTaxista = entry.IdTaxista
+                IdTaxista = entry.IdTaxista,
+                Ativo = entry.Ativo
             };
 
             return Task.FromResult(VeiculoTaxista);
@@ -81,6 +83,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         {
             entry.IdVeiculo = summary.IdVeiculo;
             entry.IdTaxista = summary.IdTaxista;
+            entry.Ativo = summary.Ativo;
         }
 
         protected override void ValidateSummary(VeiculoTaxistaSummary summary)
