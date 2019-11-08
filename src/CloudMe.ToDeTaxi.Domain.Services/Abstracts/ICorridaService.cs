@@ -9,5 +9,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
     public interface ICorridaService : IServiceBase<Corrida, CorridaSummary, Guid>
     {
         Task<IEnumerable<CorridaSummary>> GetAllSummariesByPassangerAsync(Guid id);
+        Task<IEnumerable<CorridaSummary>> GetAllSummariesByTaxistAsync(Guid id);
     }
 }

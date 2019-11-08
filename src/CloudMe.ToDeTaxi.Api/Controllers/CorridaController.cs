@@ -43,6 +43,16 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Gets all corridas by passageiro.
+        /// </summary>
+        [HttpGet("consulta_id_taxista/{id}")]
+        [ProducesResponseType(typeof(Response<IEnumerable<CorridaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<CorridaSummary>>> GetAllByTaxist(Guid id)
+        {
+            return await base.ResponseAsync(await _corridaService.GetAllSummariesByTaxistAsync(id), _corridaService);
+        }
+
+        /// <summary>
         /// Gets a Corrida.
         /// <param name="id">Corrida's ID</param>
         /// </summary>
