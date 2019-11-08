@@ -20,6 +20,20 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _VeiculoTaxistaRepository = VeiculoTaxistaRepository;
         }
 
+        public Task<List<VeiculoTaxistaSummary>> ConsultaVeiculosDeTaxista(Guid id)
+        {
+            var veiculosTaxistas = _VeiculoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id).ToList();
+            var veiculosTaxistasSummaries = new List<VeiculoTaxistaSummary>();
+
+
+            veiculosTaxistas.ForEach(async x =>
+            {
+                veiculosTaxistasSummaries.Add(await CreateSummaryAsync(x));
+            });
+
+            return Task.FromResult(veiculosTaxistasSummaries);
+        }
+
         public bool IsTaxiAtivoEmUsoPorOutroTaxista(Guid id)
         {
             var veiculosTaxista = _VeiculoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id && x.Ativo).ToList();
