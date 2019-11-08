@@ -9,6 +9,7 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Taxista
     {
         public Guid Id { get; set; }
         public bool Ativo { get; set; }
+        public bool Disponivel { get; set; }
 
         public Guid? IdLocalizacaoAtual { get; set; }
         public Guid? IdPontoTaxi { get; set; }

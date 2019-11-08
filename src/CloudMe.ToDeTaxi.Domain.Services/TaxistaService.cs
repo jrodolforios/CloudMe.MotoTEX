@@ -61,6 +61,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Ativo = entry.Ativo,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
                 IdPontoTaxi = entry.IdPontoTaxi,
+                Disponivel = entry.Disponivel,
                 Usuario = new UsuarioSummary()
                 {
                     Id = entry.Usuario.Id,
