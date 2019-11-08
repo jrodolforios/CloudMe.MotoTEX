@@ -1,10 +1,11 @@
 ﻿using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 {
-    class MapTarifa : MapBase<Tarifa>
+    class MapTarifa : MapBase<Tarifa, Guid>
     {
         public override void Configure(EntityTypeBuilder<Tarifa> builder)
         {
@@ -12,7 +13,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 
             builder.ToTable("Tarifa");
 
-            builder.HasKey(x => x.Id);
             builder.Property(x => x.Bandeirada).IsRequired();
             builder.Property(x => x.KmRodadoBandeira1).IsRequired();
             builder.Property(x => x.KmRodadoBandeira2).IsRequired();

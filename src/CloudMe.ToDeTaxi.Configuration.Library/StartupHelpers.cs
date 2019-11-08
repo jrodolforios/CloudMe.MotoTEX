@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using CloudMe.ToDeTaxi.Domain.Services;
-using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
 using CloudMe.ToDeTaxi.Configuration.Library.Constants;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
@@ -14,6 +12,18 @@ using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using CloudMe.ToDeTaxi.Infraestructure.Repositories;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
+using CloudMe.ToDeTaxi.Infraestructure.Entries;
+using System;
+using CloudMe.ToDeTaxi.Domain.Services;
+using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
+using CloudMe.ToDeTaxi.Domain.Notifications;
+using CloudMe.ToDeTaxi.Domain.Model.Corrida;
+using CloudMe.ToDeTaxi.Domain.Model.Veiculo;
+using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
+using CloudMe.ToDeTaxi.Domain.Model.Taxista;
+using CloudMe.ToDeTaxi.Domain.Model.Passageiro;
+using CloudMe.ToDeTaxi.Domain.Model.Foto;
+using CloudMe.ToDeTaxi.Domain.Model.Usuario;
 
 namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 {
@@ -109,6 +119,34 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
                 options.AddPolicy(AuthorizationConsts.AdministrationPolicy,
                     policy => policy.RequireRole(AuthorizationConsts.AdministrationRole));
             });*/
+        }
+
+        public static void AddNotifiers(IApplicationBuilder app)
+        {
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<UsuarioNotifier<ICorridaService, Corrida, CorridaSummary, Guid>>("/notifications/corrida");
+                routes.MapHub<UsuarioNotifier<ICorVeiculoService, CorVeiculo, CorVeiculoSummary, Guid>>("/notifications/cor_veiculo");
+                routes.MapHub<UsuarioNotifier<IEnderecoService, Endereco, EnderecoSummary, Guid>>("/notifications/endereco");
+                routes.MapHub<UsuarioNotifier<IFaixaDescontoService, FaixaDesconto, FaixaDescontoSummary, Guid>>("/notifications/faixa_desconto");
+                routes.MapHub<UsuarioNotifier<IFaixaDescontoTaxistaService, FaixaDescontoTaxista, FaixaDescontoTaxistaSummary, Guid>>("/notifications/faixa_desconto_taxista");
+                routes.MapHub<UsuarioNotifier<IFavoritoService, Favorito, FavoritoSummary, Guid>>("/notifications/favorito");
+                routes.MapHub<UsuarioNotifier<IFormaPagamentoService, FormaPagamento, FormaPagamentoSummary, Guid>>("/notifications/forma_pagamento");
+                routes.MapHub<UsuarioNotifier<IFormaPagamentoTaxistaService, FormaPagamentoTaxista, FormaPagamentoTaxistaSummary, Guid>>("/notifications/forma_pagamento_taxista");
+                routes.MapHub<UsuarioNotifier<IFotoService, Foto, FotoSummary, Guid>>("/notifications/foto");
+                routes.MapHub<UsuarioNotifier>("/notifications/usuario");
+                routes.MapHub<UsuarioNotifier<IGrupoUsuarioService, GrupoUsuario, GrupoUsuarioSummary, Guid>>("/notifications/grupo_usuario");
+                routes.MapHub<UsuarioNotifier<ILocalizacaoService, Localizacao, LocalizacaoSummary, Guid>>("/notifications/localizacao");
+                routes.MapHub<UsuarioNotifier<IPassageiroService, Passageiro, PassageiroSummary, Guid>>("/notifications/passageiro");
+                routes.MapHub<UsuarioNotifier<IPontoTaxiService, PontoTaxi, PontoTaxiSummary, Guid>>("/notifications/ponto_taxi");
+                routes.MapHub<UsuarioNotifier<IRotaService, Rota, RotaSummary, Guid>>("/notifications/rota");
+                routes.MapHub<UsuarioNotifier<ISolicitacaoCorridaService, SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>>("/notifications/solicitacao_corrida");
+                routes.MapHub<UsuarioNotifier<ITarifaService, Tarifa, TarifaSummary, Guid>>("/notifications/tarifa");
+                routes.MapHub<UsuarioNotifier<ITaxistaService, Taxista, TaxistaSummary, Guid>>("/notifications/taxista");
+                routes.MapHub<UsuarioNotifier<IUsuarioGrupoUsuarioService, UsuarioGrupoUsuario, UsuarioGrupoUsuarioSummary, Guid>>("/notifications/usuario_grupo_usuario");
+                routes.MapHub<UsuarioNotifier<IVeiculoService, Veiculo, VeiculoSummary, Guid>>("/notifications/veiculo");
+                routes.MapHub<UsuarioNotifier<IVeiculoTaxistaService, VeiculoTaxista, VeiculoTaxistaSummary, Guid>>("/notifications/veiculo_taxista");
+            });
         }
     }
 }

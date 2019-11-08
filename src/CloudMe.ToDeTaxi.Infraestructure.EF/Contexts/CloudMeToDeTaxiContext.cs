@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System;
 using CloudMe.ToDeTaxi.Infraestructure.Entries;
+using EntityFrameworkCore.Triggers;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
 {
@@ -69,29 +70,33 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
 
         public override int SaveChanges()
         {
-            UpdateSoftDeleteStatuses();
-            return base.SaveChanges();
+            //UpdateSoftDeleteStatuses();
+            //return base.SaveChanges();
+            return this.SaveChangesWithTriggers(base.SaveChanges, acceptAllChangesOnSuccess: true);
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            UpdateSoftDeleteStatuses();
-            return base.SaveChanges(acceptAllChangesOnSuccess);
+            //UpdateSoftDeleteStatuses();
+            //return base.SaveChanges(acceptAllChangesOnSuccess);
+            return this.SaveChangesWithTriggers(base.SaveChanges, acceptAllChangesOnSuccess);
         }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
-            UpdateSoftDeleteStatuses();
-            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            //UpdateSoftDeleteStatuses();
+            //return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            return this.SaveChangesWithTriggersAsync(base.SaveChangesAsync, acceptAllChangesOnSuccess, cancellationToken);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            UpdateSoftDeleteStatuses();
-            return base.SaveChangesAsync(cancellationToken);
+            //UpdateSoftDeleteStatuses();
+            //return base.SaveChangesAsync(cancellationToken);
+            return this.SaveChangesWithTriggersAsync(base.SaveChangesAsync, acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
         }
 
-        private void UpdateSoftDeleteStatuses()
+        /*private void UpdateSoftDeleteStatuses()
         {
             foreach (var entry in ChangeTracker.Entries())
             {
@@ -115,6 +120,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
                     }
                 }
             }
-        }
+        }*/
     }
 }

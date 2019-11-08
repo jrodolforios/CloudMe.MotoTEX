@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 {
-    public class Taxista : EntryBase
+    public class Taxista : EntryBase<Guid>
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
         public bool Ativo { get; set; }
 
         public Guid? IdUsuario { get; set; } // relaxa o relacionamento com o usuario pois este (usuário) é gerenciado externamente (Identity server)

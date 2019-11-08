@@ -19,6 +19,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _UsuarioGrupoUsuarioRepository = UsuarioGrupoUsuarioRepository;
         }
 
+        public override string GetTag()
+        {
+            return "usuario_grupo_usuario";
+        }
+
         protected override Task<UsuarioGrupoUsuario> CreateEntryAsync(UsuarioGrupoUsuarioSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

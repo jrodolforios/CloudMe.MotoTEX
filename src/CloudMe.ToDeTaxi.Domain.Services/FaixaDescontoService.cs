@@ -19,6 +19,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _FaixaDescontoRepository = FaixaDescontoRepository;
         }
 
+        public override string GetTag()
+        {
+            return "faixa_desconto";
+        }
+
         protected override Task<FaixaDesconto> CreateEntryAsync(FaixaDescontoSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

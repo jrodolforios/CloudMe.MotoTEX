@@ -214,6 +214,8 @@ namespace CloudMe.ToDeTaxi.Api
                 c.OAuthAppName("TOdeTaxi API - Swagger");
             });
 
+            StartupHelpers.AddNotifiers(app);
+
             app.UseMvc();
         }
 

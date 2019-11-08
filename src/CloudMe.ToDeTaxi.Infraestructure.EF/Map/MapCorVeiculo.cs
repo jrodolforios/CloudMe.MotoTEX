@@ -1,10 +1,11 @@
 ﻿using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 {
-    public class MapCorVeiculo : MapBase<CorVeiculo>
+    public class MapCorVeiculo : MapBase<CorVeiculo, Guid>
     {
         public override void Configure(EntityTypeBuilder<CorVeiculo> builder)
         {
@@ -12,7 +13,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 
             builder.ToTable("CorVeiculo");
 
-            builder.HasKey(x => x.Id);
             builder.Property(x => x.Nome).IsRequired();
         }
     }

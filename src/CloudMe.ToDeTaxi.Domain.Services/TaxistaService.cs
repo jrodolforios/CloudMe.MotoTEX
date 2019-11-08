@@ -31,6 +31,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _FotoService = FotoService;
         }
 
+        public override string GetTag()
+        {
+            return "taxista";
+        }
+
         protected override Task<Taxista> CreateEntryAsync(TaxistaSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

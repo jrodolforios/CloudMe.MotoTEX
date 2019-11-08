@@ -4,9 +4,9 @@ using System.Text;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 {
-    public class FaixaDesconto : EntryBase
+    public class FaixaDesconto : EntryBase<Guid>
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
 
         public float Valor { get; set; }
 

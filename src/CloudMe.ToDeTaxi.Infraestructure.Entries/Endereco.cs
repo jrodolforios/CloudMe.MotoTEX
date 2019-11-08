@@ -4,9 +4,9 @@ using System.Text;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 {
-    public class Endereco : EntryBase
+    public class Endereco : EntryBase<Guid>
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
         public string CEP { get; set; }
         public string Logradouro { get; set; }
         public string Numero { get; set; }

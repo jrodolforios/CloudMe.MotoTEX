@@ -3,9 +3,9 @@ using CloudMe.ToDeTaxi.Domain.Enums;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 {
-    public class Corrida : EntryBase
+    public class Corrida : EntryBase<Guid>
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
 
         public Guid IdSolicitacao { get; set; }
         public virtual SolicitacaoCorrida Solicitacao { get; set; }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using prmToolkit.NotificationPattern;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
 using CloudMe.ToDeTaxi.Domain.Model;
+using CloudMe.ToDeTaxi.Infraestructure.Entries;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
@@ -19,6 +20,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         protected abstract void UpdateEntry(TEntry entry, TEntrySummary summary);
         protected abstract TEntryKey GetKeyFromSummary(TEntrySummary summary);
 
+        public abstract string GetTag();
 
         public async Task<int> GetCount()
         {
@@ -47,7 +49,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             return rawItens;
         }
-
 
         public async Task<TEntrySummary> GetSummaryAsync(TEntryKey key)
         {

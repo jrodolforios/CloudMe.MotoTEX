@@ -6,6 +6,7 @@
     <Compile Remove="Migrations\20191008223617_force_delete.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="EntityFrameworkCore.Triggers" Version="1.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.2.6" />

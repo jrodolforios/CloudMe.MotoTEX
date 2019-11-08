@@ -30,6 +30,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _userManager = userManager;
         }
 
+        public override string GetTag()
+        {
+            return "usuario";
+        }
+
         protected override Task<Usuario> CreateEntryAsync(UsuarioSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

@@ -24,6 +24,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _PontoTaxiRepository = PontoTaxiRepository;
         }
 
+        public override string GetTag()
+        {
+            return "ponto_taxi";
+        }
+
         protected override Task<PontoTaxi> CreateEntryAsync(PontoTaxiSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

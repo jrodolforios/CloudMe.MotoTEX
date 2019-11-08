@@ -19,6 +19,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _LocalizacaoRepository = LocalizacaoRepository;
         }
 
+        public override string GetTag()
+        {
+            return "localizacao";
+        }
+
         protected override Task<Localizacao> CreateEntryAsync(LocalizacaoSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

@@ -20,6 +20,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _VeiculoRepository = VeiculoRepository;
         }
 
+        public override string GetTag()
+        {
+            return "veiculo";
+        }
+
         protected override Task<Veiculo> CreateEntryAsync(VeiculoSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

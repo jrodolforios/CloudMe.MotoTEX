@@ -4,9 +4,9 @@ using System.Text;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 {
-    public class VeiculoTaxista : EntryBase
+    public class VeiculoTaxista : EntryBase<Guid>
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
 
         public Guid IdVeiculo { get; set; }
         public virtual Veiculo Veiculo { get; set; }

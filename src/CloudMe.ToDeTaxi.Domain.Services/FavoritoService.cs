@@ -19,6 +19,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _FavoritoRepository = FavoritoRepository;
         }
 
+        public override string GetTag()
+        {
+            return "favorito";
+        }
+
         protected override Task<Favorito> CreateEntryAsync(FavoritoSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

@@ -2,18 +2,17 @@
 using CloudMe.ToDeTaxi.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 {
-    class MapCorrida : MapBase<Corrida>
+    class MapCorrida : MapBase<Corrida, Guid>
     {
         public override void Configure(EntityTypeBuilder<Corrida> builder)
         {
             base.Configure(builder);
 
             builder.ToTable("Corrida");
-
-            builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Inicio).IsRequired(false);
             builder.Property(x => x.Fim).IsRequired(false);

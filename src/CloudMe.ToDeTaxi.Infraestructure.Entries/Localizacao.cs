@@ -2,9 +2,9 @@
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 {
-    public class Localizacao : EntryBase
+    public class Localizacao : EntryBase<Guid>
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
 
         public string Endereco { get; set; }
 

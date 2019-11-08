@@ -19,6 +19,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _CorVeiculoRepository = CorVeiculoRepository;
         }
 
+        public override string GetTag()
+        {
+            return "cor_veiculo";
+        }
+
         protected override Task<CorVeiculo> CreateEntryAsync(CorVeiculoSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

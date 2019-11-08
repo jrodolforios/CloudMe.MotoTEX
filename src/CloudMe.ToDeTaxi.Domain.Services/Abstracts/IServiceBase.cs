@@ -10,6 +10,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
     // Basic CRUD and accessories
     public interface IServiceBase<TEntry, TEntrySummary, TEntryKey> : INotifiable
     {
+        string GetTag();
+
         Task<int> GetCount();
 
         Task<TEntry> Get(TEntryKey key, string[] paths = null);

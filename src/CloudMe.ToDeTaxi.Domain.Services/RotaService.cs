@@ -19,6 +19,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _RotaRepository = RotaRepository;
         }
 
+        public override string GetTag()
+        {
+            return "rota";
+        }
+
         protected override Task<Rota> CreateEntryAsync(RotaSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

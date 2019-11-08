@@ -19,6 +19,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _FormaPagamentoTaxistaRepository = FormaPagamentoTaxistaRepository;
         }
 
+        public override string GetTag()
+        {
+            return "forma_pagamento_taxista";
+        }
+
         protected override Task<FormaPagamentoTaxista> CreateEntryAsync(FormaPagamentoTaxistaSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

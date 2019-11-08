@@ -19,6 +19,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _EnderecoRepository = EnderecoRepository;
         }
 
+        public override string GetTag()
+        {
+            return "endereco";
+        }
+
         protected override Task<Endereco> CreateEntryAsync(EnderecoSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

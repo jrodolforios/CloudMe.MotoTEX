@@ -22,6 +22,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _SolicitacaoCorridaRepository = SolicitacaoCorridaRepository;
         }
 
+        public override string GetTag()
+        {
+            return "corrida";
+        }
+
         public async Task<IEnumerable<CorridaSummary>> GetAllSummariesByPassangerAsync(Guid id)
         {
             List<CorridaSummary> corridaSummaries = new List<CorridaSummary>();

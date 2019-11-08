@@ -1,18 +1,17 @@
 ﻿using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 {
-    class MapTaxista : MapBase<Taxista>
+    class MapTaxista : MapBase<Taxista, Guid>
     {
         public override void Configure(EntityTypeBuilder<Taxista> builder)
         {
             base.Configure(builder);
 
             builder.ToTable("Taxista");
-
-            builder.HasKey(x => x.Id);
 
              // relaxa o relacionamento com o usuario pois este (usuário) é gerenciado externamente (Identity server)
             builder.HasOne(x => x.Usuario).WithOne().HasForeignKey<Taxista>(x => x.IdUsuario).IsRequired(false);

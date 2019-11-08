@@ -1,10 +1,11 @@
 ﻿using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 {
-    class MapFormaPagamento : MapBase<FormaPagamento>
+    class MapFormaPagamento : MapBase<FormaPagamento, Guid>
     {
         public override void Configure(EntityTypeBuilder<FormaPagamento> builder)
         {
@@ -12,7 +13,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 
             builder.ToTable("FormaPagamento");
 
-            builder.HasKey(x => x.Id);
             builder.Property(x => x.Descricao).IsRequired();
         }
     }

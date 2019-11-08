@@ -18,6 +18,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _FotoRepository = FotoRepository;
         }
 
+        public override string GetTag()
+        {
+            return "foto";
+        }
+
         protected override Task<Foto> CreateEntryAsync(FotoSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

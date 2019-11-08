@@ -24,6 +24,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _TarifaRepository = TarifaRepository;
         }
 
+        public override string GetTag()
+        {
+            return "tarifa";
+        }
+
         public decimal GetValorCorrida(DateTime date, decimal kilometers)
         {
             var tarifa = _TarifaRepository.FindAll().FirstOrDefault();

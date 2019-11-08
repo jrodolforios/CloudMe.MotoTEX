@@ -1,10 +1,11 @@
 ﻿using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 {
-    class MapFavorito : MapBase<Favorito>
+    class MapFavorito : MapBase<Favorito, Guid>
     {
         public override void Configure(EntityTypeBuilder<Favorito> builder)
         {
@@ -12,7 +13,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 
             builder.ToTable("Favorito");
 
-            builder.HasKey(x => x.Id);
             builder.Property(x => x.Preferencia).IsRequired();
 
             builder.HasOne(x => x.Passageiro).WithMany(x => x.TaxistasFavoritos).HasForeignKey(x => x.IdPassageiro).IsRequired();

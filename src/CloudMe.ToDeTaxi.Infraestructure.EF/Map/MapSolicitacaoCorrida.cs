@@ -2,18 +2,17 @@
 using CloudMe.ToDeTaxi.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
 {
-    class MapSolicitacaoCorrida : MapBase<SolicitacaoCorrida>
+    class MapSolicitacaoCorrida : MapBase<SolicitacaoCorrida, Guid>
     {
         public override void Configure(EntityTypeBuilder<SolicitacaoCorrida> builder)
         {
             base.Configure(builder);
 
             builder.ToTable("SolicitacaoCorrida");
-
-            builder.HasKey(x => x.Id);
 
             builder.Property(x => x.TipoAtendimento).IsRequired().HasDefaultValue(TipoAtendimento.Indefinido);
             builder.Property(x => x.Data).IsRequired();

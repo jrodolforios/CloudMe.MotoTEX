@@ -19,6 +19,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             _SolicitacaoCorridaRepository = SolicitacaoCorridaRepository;
         }
 
+        public override string GetTag()
+        {
+            return "solicitacao_corrida";
+        }
+
         protected override Task<SolicitacaoCorrida> CreateEntryAsync(SolicitacaoCorridaSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

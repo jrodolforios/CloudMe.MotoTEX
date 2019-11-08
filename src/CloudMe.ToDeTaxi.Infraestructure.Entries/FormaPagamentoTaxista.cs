@@ -4,9 +4,9 @@ using System.Text;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 {
-    public class FormaPagamentoTaxista : EntryBase
+    public class FormaPagamentoTaxista : EntryBase<Guid>
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
 
         public Guid IdFormaPagamento { get; set; }
         public virtual FormaPagamento FormaPagamento { get; set; }

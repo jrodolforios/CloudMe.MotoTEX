@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 {
-    public class Veiculo : EntryBase
+    public class Veiculo : EntryBase<Guid>
     {
-        public Guid Id { get; set; }
+        //public Guid Id { get; set; }
 
         public string Placa { get; set; }
         public string Marca { get; set; }
