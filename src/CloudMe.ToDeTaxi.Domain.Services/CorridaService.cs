@@ -43,6 +43,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return corridaSummaries;
         }
 
+        public async Task<IEnumerable<CorridaSummary>> GetAllSummariesByTaxistAsync(Guid id)
+        {
+            List<CorridaSummary> corridaSummaries = new List<CorridaSummary>();
+
+            var corridas = _CorridaRepository.FindAll().Where(x => x.IdTaxista == id);
+
+            corridas.ToList().ForEach(async x =>
+            {
+                var summary = await CreateSummaryAsync(x);
+                corridaSummaries.Add(summary);
+            });
+
+            return corridaSummaries;
+        }
+
         protected override Task<Corrida> CreateEntryAsync(CorridaSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))

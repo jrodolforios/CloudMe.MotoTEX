@@ -94,5 +94,29 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
 
             return await base.ResponseAsync(await this._FaixaDescontoTaxistaService.DeleteAsync(id), _FaixaDescontoTaxistaService);
         }
+
+        /// <summary>
+        /// Get by IdTaxista
+        /// </summary>
+        /// <param name="id">Id from taxist</param>
+        /// <returns>passenger</returns>
+        [HttpGet("consulta_id_taxista/{id}")]
+        [ProducesResponseType(typeof(Response<List<FaixaDescontoTaxistaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<List<FaixaDescontoTaxistaSummary>>> GetByUserId(Guid id)
+        {
+            return await base.ResponseAsync(await _FaixaDescontoTaxistaService.GetByTaxistId(id), _FaixaDescontoTaxistaService);
+        }
+
+        /// <summary>
+        /// Get by IdTaxista
+        /// </summary>
+        /// <param name="id">Id from taxist</param>
+        /// <returns>passenger</returns>
+        [HttpDelete("Deletar_por_taxista/{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> DeletePorTaxista(Guid id)
+        {
+            return await base.ResponseAsync(await _FaixaDescontoTaxistaService.DeleteByTaxistId(id), _FaixaDescontoTaxistaService);
+        }
     }
 }

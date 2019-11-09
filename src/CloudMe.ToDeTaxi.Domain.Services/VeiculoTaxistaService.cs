@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
@@ -18,10 +19,31 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         {
             _VeiculoTaxistaRepository = VeiculoTaxistaRepository;
         }
-
-        public override string GetTag()
+		
+		public override string GetTag()
         {
             return "veiculo_taxista";
+        }
+        
+        public Task<List<VeiculoTaxistaSummary>> ConsultaVeiculosDeTaxista(Guid id)
+        {
+            var veiculosTaxistas = _VeiculoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id).ToList();
+            var veiculosTaxistasSummaries = new List<VeiculoTaxistaSummary>();
+
+
+            veiculosTaxistas.ForEach(async x =>
+            {
+                veiculosTaxistasSummaries.Add(await CreateSummaryAsync(x));
+            });
+
+            return Task.FromResult(veiculosTaxistasSummaries);
+        }
+
+        public bool IsTaxiAtivoEmUsoPorOutroTaxista(Guid id)
+        {
+            var veiculosTaxista = _VeiculoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id && x.Ativo).ToList();
+
+            return _VeiculoTaxistaRepository.FindAll().Any(x => veiculosTaxista.Any(y => y.IdVeiculo == x.IdVeiculo && y.IdTaxista != id && y.Ativo));
         }
 
         protected override Task<VeiculoTaxista> CreateEntryAsync(VeiculoTaxistaSummary summary)
@@ -33,7 +55,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = summary.Id,
                 IdVeiculo = summary.IdVeiculo,
-                IdTaxista = summary.IdTaxista
+                IdTaxista = summary.IdTaxista,
+                Ativo = summary.Ativo
             };
             return Task.FromResult(VeiculoTaxista);
         }
@@ -44,7 +67,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = entry.Id,
                 IdVeiculo = entry.IdVeiculo,
-                IdTaxista = entry.IdTaxista
+                IdTaxista = entry.IdTaxista,
+                Ativo = entry.Ativo
             };
 
             return Task.FromResult(VeiculoTaxista);
@@ -64,6 +88,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         {
             entry.IdVeiculo = summary.IdVeiculo;
             entry.IdTaxista = summary.IdTaxista;
+            entry.Ativo = summary.Ativo;
         }
 
         protected override void ValidateSummary(VeiculoTaxistaSummary summary)

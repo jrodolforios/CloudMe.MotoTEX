@@ -57,6 +57,30 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Get by IdUser
+        /// </summary>
+        /// <param name="id">User Id from taxist</param>
+        /// <returns>passenger</returns>
+        [HttpGet("consulta_id_taxista/{id}")]
+        [ProducesResponseType(typeof(Response<TaxistaSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<TaxistaSummary>> GetByUserId(Guid id)
+        {
+            return await base.ResponseAsync(await _TaxistaService.GetByUserId(id), _TaxistaService);
+        }
+
+        /// <summary>
+        /// Get by IdUser
+        /// </summary>
+        /// <param name="id">User Id from taxist</param>
+        /// <returns>passenger</returns>
+        [HttpGet("marcar_taxista_disponivel/{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> MarcarTaxistaDisponivel(Guid id, bool disponivel)
+        {
+            return await base.ResponseAsync(await _TaxistaService.MakeTaxistOnlineAsync(id, disponivel), _TaxistaService);
+        }
+
+        /// <summary>
         /// Creates a new Taxista.
         /// </summary>
         /// <param name="taxistaSummary">Taxista's summary</param>
