@@ -12,7 +12,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries {
         public delegate void OnUpdateCallback(EntryBase<TEntryKey> entry);
         public delegate void OnDeleteCallback(EntryBase<TEntryKey> entry);
 
-        public bool IsDeleted { get; set; } // logical deletion flag
         public bool ForceDelete { get; set; } = false; // forces 'physical' deletion
 
         public virtual DateTime Inserted { get; private set; }

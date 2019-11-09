@@ -3,15 +3,17 @@ using System;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 {
     [DbContext(typeof(CloudMeToDeTaxiContext))]
-    partial class CloudMeToDeTaxiContextModelSnapshot : ModelSnapshot
+    [Migration("20191109021303_RastreamentoEntidadeBase")]
+    partial class RastreamentoEntidadeBase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,6 +31,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<bool>("ForceDelete");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<string>("Nome")
                         .IsRequired();
@@ -72,6 +76,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<DateTime?>("Inicio");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
@@ -120,6 +126,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<DateTime>("Inserted");
 
+                    b.Property<bool>("IsDeleted");
+
                     b.Property<string>("Localidade")
                         .IsRequired();
 
@@ -155,6 +163,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<DateTime>("Inserted");
 
+                    b.Property<bool>("IsDeleted");
+
                     b.Property<DateTime>("Updated");
 
                     b.Property<float>("Valor");
@@ -178,6 +188,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("IdTaxista");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<DateTime>("Updated");
 
@@ -204,6 +216,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("IdTaxista");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<int>("Preferencia");
 
@@ -233,6 +247,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<DateTime>("Inserted");
 
+                    b.Property<bool>("IsDeleted");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
@@ -254,6 +270,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("IdTaxista");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<DateTime>("Updated");
 
@@ -278,6 +296,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<bool>("ForceDelete");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<string>("Nome");
 
@@ -304,6 +324,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<DateTime>("Inserted");
 
+                    b.Property<bool>("IsDeleted");
+
                     b.Property<string>("Nome")
                         .IsRequired();
 
@@ -326,6 +348,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<bool>("ForceDelete");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<string>("Latitude")
                         .IsRequired();
@@ -363,6 +387,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<DateTime>("Inserted");
 
+                    b.Property<bool>("IsDeleted");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
@@ -395,6 +421,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<DateTime>("Inserted");
 
+                    b.Property<bool>("IsDeleted");
+
                     b.Property<string>("Nome")
                         .IsRequired();
 
@@ -418,6 +446,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<bool>("ForceDelete");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<DateTime>("Updated");
 
@@ -452,6 +482,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("IdRota");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<int>("Situacao")
                         .ValueGeneratedOnAdd()
@@ -501,6 +533,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<DateTime>("Inserted");
 
+                    b.Property<bool>("IsDeleted");
+
                     b.Property<float>("KmRodadoBandeira1");
 
                     b.Property<float>("KmRodadoBandeira2");
@@ -538,6 +572,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid?>("IdUsuario");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<DateTime>("Updated");
 
@@ -633,6 +669,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<DateTime>("Inserted");
 
+                    b.Property<bool>("IsDeleted");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
@@ -665,6 +703,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid?>("IdFoto");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<string>("Marca")
                         .IsRequired();
@@ -705,6 +745,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                     b.Property<Guid>("IdVeiculo");
 
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<DateTime>("Updated");
 

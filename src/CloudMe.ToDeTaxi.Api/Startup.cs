@@ -105,8 +105,7 @@ namespace CloudMe.ToDeTaxi.Api
                 x.AddSecurityDefinition("oauth2", new OAuth2Scheme
                 {
                     Flow = "implicit",
-                    AuthorizationUrl = "https://auth.todetaxi.com.br/connect/authorize",
-                    //AuthorizationUrl = "http://localhost:5000/connect/authorize",
+                    AuthorizationUrl = authorityBaseUrl + "/connect/authorize",
                     Scopes = new Dictionary<string, string>
                     {
                         { "todetaxiapi", "TOdeTaxiAPI" } 
@@ -174,7 +173,10 @@ namespace CloudMe.ToDeTaxi.Api
                 });
             });
 
-            services.AddSignalR();
+            services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -209,7 +211,7 @@ namespace CloudMe.ToDeTaxi.Api
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "CloudMe ToDeTaxi - V1");
-                c.RoutePrefix = string.Empty;
+                c.RoutePrefix = "swagger";
                 c.OAuthClientId("ToDeTaxiAPI_swagger");
                 c.OAuthAppName("TOdeTaxi API - Swagger");
             });

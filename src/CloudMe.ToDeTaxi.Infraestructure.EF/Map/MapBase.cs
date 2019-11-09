@@ -11,9 +11,10 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
         {
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.IsDeleted);
-            //builder.Property(x => x.ForceDelete);
-            //builder.HasQueryFilter(x => x.IsDeleted == false);
+            builder.Property(x => x.Inserted).IsRequired(true);
+            builder.Property(x => x.Updated).IsRequired(true);
+            builder.Property(x => x.Deleted).IsRequired(false);
+
             builder.HasQueryFilter(x => x.IsSoftDeleted == false);
         }
     }
