@@ -22,9 +22,9 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries {
         public void SoftDelete() => Deleted = DateTime.UtcNow;
         public void SoftRestore() => Deleted = null;
 
-        public event OnInsertCallback OnInsert;
-        public event OnUpdateCallback OnUpdate;
-        public event OnDeleteCallback OnDelete;
+        //public event OnInsertCallback OnInsert;
+        //public event OnUpdateCallback OnUpdate;
+        //public event OnDeleteCallback OnDelete;
 
         static EntryBase()
         {
@@ -33,20 +33,20 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries {
                 entry.Entity.Inserted = entry.Entity.Updated = DateTime.UtcNow;
             };
 
-            Triggers<EntryBase<TEntryKey>>.Inserted += entry =>
+            /*Triggers<EntryBase<TEntryKey>>.Inserted += entry =>
             {
                 entry.Entity.OnInsert(entry.Entity);
-            };
+            };*/
 
             Triggers<EntryBase<TEntryKey>>.Updating += entry =>
             {
                 entry.Entity.Updated = DateTime.UtcNow;
             };
 
-            Triggers<EntryBase<TEntryKey>>.Updated += entry =>
+            /*Triggers<EntryBase<TEntryKey>>.Updated += entry =>
             {
                 entry.Entity.OnUpdate(entry.Entity);
-            };
+            };*/
 
             Triggers<EntryBase<TEntryKey>>.Deleting += entry =>
             {
@@ -57,10 +57,10 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries {
                 }
             };
 
-            Triggers<EntryBase<TEntryKey>>.Deleted += entry =>
+            /*Triggers<EntryBase<TEntryKey>>.Deleted += entry =>
             {
                 entry.Entity.OnDelete(entry.Entity);
-            };
+            };*/
 
         }
     }
