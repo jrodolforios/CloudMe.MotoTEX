@@ -48,8 +48,12 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var PontoTaxi = new PontoTaxiSummary
             {
                 Id = entry.Id,
-                Nome = entry.Nome,
-                Endereco = new EnderecoSummary()
+                Nome = entry.Nome
+            };
+
+            if (entry.Endereco != null)
+            {
+                PontoTaxi.Endereco = new EnderecoSummary()
                 {
                     Id = entry.Endereco.Id,
                     CEP = entry.Endereco.CEP,
@@ -60,8 +64,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                     Localidade = entry.Endereco.Localidade,
                     UF = entry.Endereco.UF,
                     IdLocalizacao = entry.Endereco.IdLocalizacao
-                },
-            };
+                };
+            }
 
             return Task.FromResult(PontoTaxi);
         }

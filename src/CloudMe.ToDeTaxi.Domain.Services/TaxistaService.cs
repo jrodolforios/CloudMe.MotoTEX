@@ -71,16 +71,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
                 IdPontoTaxi = entry.IdPontoTaxi,
                 Disponivel = entry.Disponivel,
-                Usuario = new UsuarioSummary()
-                {
-                    Id = entry.Usuario.Id,
-                    Nome = entry.Usuario.Nome,
-                    Email = entry.Usuario.Email,
-                    Telefone = entry.Usuario.PhoneNumber,
-                    CPF = entry.Usuario.CPF,
-                    RG = entry.Usuario.RG
-                },
-                Endereco = new EnderecoSummary()
+            };
+
+            if (entry.Endereco != null)
+            {
+                Taxista.Endereco = new EnderecoSummary()
                 {
                     Id = entry.Endereco.Id,
                     CEP = entry.Endereco.CEP,
@@ -91,8 +86,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                     Localidade = entry.Endereco.Localidade,
                     UF = entry.Endereco.UF,
                     IdLocalizacao = entry.Endereco.IdLocalizacao
-                },
-            };
+                };
+            }
+
+            if (entry.Usuario != null)
+            {
+                Taxista.Usuario = new UsuarioSummary()
+                {
+                    Id = entry.Usuario.Id,
+                    Nome = entry.Usuario.Nome,
+                    Email = entry.Usuario.Email,
+                    Telefone = entry.Usuario.PhoneNumber,
+                    CPF = entry.Usuario.CPF,
+                    RG = entry.Usuario.RG
+                };
+            }
 
             return Task.FromResult(Taxista);
         }
