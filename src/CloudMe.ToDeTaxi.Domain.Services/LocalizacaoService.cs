@@ -35,7 +35,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Latitude = summary.Latitude,
                 Longitude = summary.Longitude,
                 Endereco = summary.Endereco,
-                NomePublico = summary.NomePublico
+                NomePublico = summary.NomePublico,
+                IdUsuario = summary.IdUsuario
             };
             return Task.FromResult(Localizacao);
         }
@@ -48,7 +49,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Latitude = entry.Latitude,
                 Longitude = entry.Longitude,
                 Endereco = entry.Endereco,
-                NomePublico = entry.NomePublico
+                NomePublico = entry.NomePublico,
+                IdUsuario = entry.IdUsuario
             };
 
             return Task.FromResult(Localizacao);
@@ -70,6 +72,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             entry.Longitude = summary.Longitude;
             entry.Endereco = summary.Endereco;
             entry.NomePublico = summary.NomePublico;
+            entry.IdUsuario = summary.IdUsuario;
         }
 
         protected override void ValidateSummary(LocalizacaoSummary summary)

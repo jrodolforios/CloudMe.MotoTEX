@@ -2,6 +2,7 @@
 using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using CloudMe.ToDeTaxi.Domain.Model.Taxista;
 using System.Threading.Tasks;
+using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
 
 namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
 {
@@ -11,5 +12,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
         Task<bool> Ativar(Guid Key, bool ativar);*/
         Task<TaxistaSummary> GetByUserId(Guid id);
         Task<bool> MakeTaxistOnlineAsync(Guid id, bool disponivel);
+        Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao);
     }
 }

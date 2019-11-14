@@ -23,16 +23,19 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         private readonly ITaxistaRepository _TaxistaRepository;
         private readonly IFotoService _FotoService;
         private readonly IVeiculoTaxistaService _veiculoTaxistaService;
+        private readonly ILocalizacaoService _LocalizacaoService;
 
         public TaxistaService(
             ITaxistaRepository TaxistaRepository,
             IFotoService FotoService,
-            IVeiculoTaxistaService veiculoTaxistaService
+            IVeiculoTaxistaService veiculoTaxistaService,
+            ILocalizacaoService LocalizacaoService
             )
         {
             _TaxistaRepository = TaxistaRepository;
             _FotoService = FotoService;
             _veiculoTaxistaService = veiculoTaxistaService;
+            _LocalizacaoService = LocalizacaoService;
         }
 
         public override string GetTag()
@@ -50,7 +53,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Id = summary.Id,
                 Ativo = summary.Ativo,
                 IdUsuario = summary.Usuario.Id,
-                IdFoto = summary.Foto.Id,
+                IdFoto = summary.IdFoto,
                 IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
                 IdPontoTaxi = summary.IdPontoTaxi,
                 IdEndereco = summary.Endereco.Id,
@@ -64,6 +67,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 Id = entry.Id,
                 Ativo = entry.Ativo,
+                IdFoto = entry.IdFoto,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
                 IdPontoTaxi = entry.IdPontoTaxi,
                 Disponivel = entry.Disponivel,
@@ -88,13 +92,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                     UF = entry.Endereco.UF,
                     IdLocalizacao = entry.Endereco.IdLocalizacao
                 },
-                Foto = new FotoSummary()
-                {
-                    Id = entry.Foto.Id,
-                    Nome = entry.Foto.Nome,
-                    NomeArquivo = entry.Foto.NomeArquivo,
-                    Dados = entry.Foto.Dados
-                }
             };
 
             return Task.FromResult(Taxista);
@@ -195,6 +192,23 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 sucesso = await _TaxistaRepository.ModifyAsync(taxista);
 
             return sucesso;
+        }
+
+        public async Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao)
+        {
+            var passageiro = Search(x => x.Id == Key).FirstOrDefault();
+            if (passageiro is null)
+            {
+                AddNotification(new Notification("Taxistas", "Informar localização: taxista não localizado"));
+                return false;
+            }
+
+            var localizacaoSummmary = await _LocalizacaoService.GetSummaryAsync(passageiro.LocalizacaoAtual);
+
+            localizacaoSummmary.Latitude = localizacao.Latitude;
+            localizacaoSummmary.Longitude = localizacao.Longitude;
+
+            return (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
         }
 
         /*

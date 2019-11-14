@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
 using Microsoft.AspNetCore.Authorization;
+using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -21,17 +22,20 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         IUsuarioService _usuarioService;
         IEnderecoService _enderecoService;
         IFotoService _fotoService;
+        ILocalizacaoService _localizacaoService;
 
         public PassageiroController(
             IPassageiroService passageiroService,
             IUsuarioService usuarioService,
-            IEnderecoService localizacaoService,
+            IEnderecoService enderecoService,
             IFotoService fotoService,
+            ILocalizacaoService localizacaoService,
             IUnitOfWork unitOfWork) : base(unitOfWork)
         {
             _PassageiroService = passageiroService;
             _usuarioService = usuarioService;
-            _enderecoService = localizacaoService;
+            _enderecoService = enderecoService;
+            _localizacaoService = localizacaoService;
             _fotoService = fotoService;
         }
 
@@ -103,6 +107,16 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
 
             passageiroSummary.IdFoto = foto.Id;
 
+            // cria o registro de localização atual do passageiro
+            var localizacaoSummary = new LocalizacaoSummary();
+            var localizacao = await this._localizacaoService.CreateAsync(localizacaoSummary);
+            if (_localizacaoService.IsInvalid())
+            {
+                return await base.ErrorResponseAsync<Guid>(_localizacaoService);
+            }
+
+            passageiroSummary.IdLocalizacaoAtual = localizacaoSummary.Id = localizacao.Id;
+
             // cria o registro do passageiro
             var passageiro = await this._PassageiroService.CreateAsync(passageiroSummary);
             if (_PassageiroService.IsInvalid())
@@ -111,6 +125,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             }
 
             // cria um usuario para o passageiro
+            passageiroSummary.Usuario.Tipo = Domain.Enums.TipoUsuario.Passageiro;
             var usuario = await this._usuarioService.CreateAsync(passageiroSummary.Usuario);
             if (_usuarioService.IsInvalid())
             {
@@ -123,6 +138,14 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             if (_PassageiroService.IsInvalid())
             {
                 return await base.ErrorResponseAsync<Guid>(_usuarioService);
+            }
+
+            // associa o registro de localização ao usuário
+            localizacaoSummary.IdUsuario = usuario.Id;
+            await _localizacaoService.UpdateAsync(localizacaoSummary);
+            if (_localizacaoService.IsInvalid())
+            {
+                return await base.ErrorResponseAsync<Guid>(_localizacaoService);
             }
 
             return await base.ResponseAsync(passageiro.Id, _PassageiroService);
@@ -175,6 +198,16 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
                 return await base.ErrorResponseAsync<bool>(_fotoService);
             }
 
+            // remove o registro de localização
+            if (passageiroSummary.IdLocalizacaoAtual.HasValue)
+            {
+                await this._localizacaoService.DeleteAsync(passageiroSummary.IdLocalizacaoAtual.Value);
+                if (_localizacaoService.IsInvalid())
+                {
+                    return await base.ErrorResponseAsync<bool>(_localizacaoService);
+                }
+            }
+
             // remove o registro do usuário
             await this._usuarioService.DeleteAsync((Guid)passageiroSummary.Usuario.Id);
             if (_usuarioService.IsInvalid())
@@ -183,6 +216,19 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             }
 
             return await base.ResponseAsync(true, unitOfWork);
+        }
+
+        /// <summary>
+        /// Informa a localização de um Passageiro.
+        /// </summary>
+        /// <param name="localizacao">Sumário da nova localização do passageiro (necessário apenas latitude e longitude)</param>
+        [HttpPost("informar_localizacao/{id}")]
+        //[ValidateAntiForgeryToken]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> InformarLocalizacao(Guid id, [FromBody] LocalizacaoSummary localizacao)
+        {
+            // atualiza o registro do passageiro
+            return await ResponseAsync(await _PassageiroService.InformarLocalizacao(id, localizacao), _PassageiroService);
         }
 
         /*/// <summary>

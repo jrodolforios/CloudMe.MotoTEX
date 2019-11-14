@@ -23,6 +23,7 @@ using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Extensions;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
 using System.Net;
+using EntityFrameworkCore.Triggers;
 
 public class AuthorizeCheckOperationFilter : IOperationFilter
 {
@@ -165,18 +166,20 @@ namespace CloudMe.ToDeTaxi.Api
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options =>
-                {
-                    options.AllowAnyOrigin();
-                    options.AllowAnyHeader();
-                    options.AllowAnyMethod();
-                    options.AllowCredentials();
-                });
+                    options
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    //.AllowCredentials();
+                );
             });
 
             services.AddSignalR(options =>
             {
                 options.EnableDetailedErrors = true;
             });
+
+            services.AddTriggers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -216,7 +219,8 @@ namespace CloudMe.ToDeTaxi.Api
                 c.OAuthAppName("TOdeTaxi API - Swagger");
             });
 
-            StartupHelpers.AddNotifiers(app);
+
+            StartupHelpers.ConfigureSignalR(app);
 
             app.UseMvc();
         }

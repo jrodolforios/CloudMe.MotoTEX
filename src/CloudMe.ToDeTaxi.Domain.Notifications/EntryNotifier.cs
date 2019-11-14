@@ -19,19 +19,22 @@ namespace CloudMe.ToDeTaxi.Domain.Notifications
             _entryService = entryService;
             _hubContext = hubContext;
 
-            Triggers<TEntry>.Inserted += async entry =>
+            //Triggers<TEntry>.Inserted += async entry =>
+            Triggers<TEntry>.Inserting += async entry =>
             {
                 var summary = await _entryService.GetSummaryAsync(entry.Entity);
                 await _hubContext.Clients.All.SendAsync("inserted", _entryService.GetTag(), summary);
             };
 
-            Triggers<TEntry>.Updated += async entry =>
+            //Triggers<TEntry>.Updated += async entry =>
+            Triggers<TEntry>.Updating += async entry =>
             {
                 var summary = await _entryService.GetSummaryAsync(entry.Entity);
                 await _hubContext.Clients.All.SendAsync("updated", _entryService.GetTag(), summary);
             };
 
-            Triggers<TEntry>.Deleted += async entry =>
+            //Triggers<TEntry>.Deleted += async entry =>
+            Triggers<TEntry>.Deleting += async entry =>
             {
                 await _hubContext.Clients.All.SendAsync("deleted", _entryService.GetTag(), entry.Entity.Id);
             };

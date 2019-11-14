@@ -24,6 +24,14 @@ using CloudMe.ToDeTaxi.Domain.Model.Taxista;
 using CloudMe.ToDeTaxi.Domain.Model.Passageiro;
 using CloudMe.ToDeTaxi.Domain.Model.Foto;
 using CloudMe.ToDeTaxi.Domain.Model.Usuario;
+using Microsoft.AspNetCore.SignalR;
+using CloudMe.ToDeTaxi.Configuration.Library.SignalR;
+using EntityFrameworkCore.Triggers;
+using EntityFrameworkCore.Triggers.AspNetCore;
+using CloudMe.ToDeTaxi.Domain.Services.Abstracts.Background;
+using CloudMe.ToDeTaxi.Domain.Services.Background;
+using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
+using CloudMe.ToDeTaxi.Domain.Notifications.Abstracts;
 
 namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 {
@@ -69,6 +77,13 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped(p => p.GetService<IHttpContextAccessor>()?.HttpContext);
 
+            services.AddSingleton<IUserIdProvider, UserIdProvider>();
+
+            services.AddTriggers();
+
+            services.AddSingleton<IPoolLocalizacaoTaxista, PoolLocalizacaoTaxista>();
+            services.AddSingleton<IPoolLocalizacaoPassageiro, PoolLocalizacaoPassageiro>();
+
             return services;
         }
         public static IServiceCollection AddToDeTaxiRepositories(this IServiceCollection services)
@@ -107,6 +122,41 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
                 using (var context = serviceScope.ServiceProvider.GetService<CloudMeToDeTaxiContext>())
                 {
                     context.Database.Migrate();
+
+                    // DEBUB - REMOVER APÓS PRIMEIRA MIGRAÇÃO
+                    const string latitude = "-17.8588";
+                    const string longitude = "-41.509";
+                    await context.Taxistas.ForEachAsync(taxista =>
+                    {
+                        if (!taxista.IdLocalizacaoAtual.HasValue)
+                        {
+                            Localizacao localizacao = new Localizacao();
+                            localizacao.IdUsuario = taxista.IdUsuario;
+                            localizacao.Latitude = latitude;
+                            localizacao.Longitude = longitude;
+                            context.Entry(localizacao).State = EntityState.Added;
+
+                            taxista.IdLocalizacaoAtual = localizacao.Id;
+                            context.Entry(taxista).State = EntityState.Modified;
+                        }
+                    });
+
+                    await context.Passageiros.ForEachAsync(passageiro =>
+                    {
+                        if (!passageiro.IdLocalizacaoAtual.HasValue)
+                        {
+                            Localizacao localizacao = new Localizacao();
+                            localizacao.IdUsuario = passageiro.IdUsuario;
+                            localizacao.Latitude = latitude;
+                            localizacao.Longitude = longitude;
+                            context.Entry(localizacao).State = EntityState.Added;
+
+                            passageiro.IdLocalizacaoAtual = localizacao.Id;
+                            context.Entry(passageiro).State = EntityState.Modified;
+                        }
+                    });
+
+                    context.SaveChanges();
                 }
             }
         }
@@ -121,7 +171,7 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             });*/
         }
 
-        public static void AddNotifiers(IApplicationBuilder app)
+        public static void ConfigureSignalR(IApplicationBuilder app)
         {
             app.UseSignalR(routes =>
             {
@@ -146,6 +196,17 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
                 routes.MapHub<EntityNotifier<IUsuarioGrupoUsuarioService, UsuarioGrupoUsuario, UsuarioGrupoUsuarioSummary, Guid>>("/notifications/usuario_grupo_usuario");
                 routes.MapHub<EntityNotifier<IVeiculoService, Veiculo, VeiculoSummary, Guid>>("/notifications/veiculo");
                 routes.MapHub<EntityNotifier<IVeiculoTaxistaService, VeiculoTaxista, VeiculoTaxistaSummary, Guid>>("/notifications/veiculo_taxista");
+
+                routes.MapHub<HubLocalizacaoTaxista>("/notifications/localizacao_taxista");
+                routes.MapHub<HubLocalizacaoPassageiro>("/notifications/localizacao_passageiro");
+            });
+        }
+
+        public static void BuildDBTriggers(IApplicationBuilder app)
+        {
+            app.UseTriggers(builder =>
+            {
+
             });
         }
 

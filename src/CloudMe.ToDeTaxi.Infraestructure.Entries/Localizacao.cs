@@ -12,5 +12,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public string Latitude { get; set; }
 
         public string NomePublico { get; set; }
+
+        public Guid? IdUsuario { get; set; }
+        public virtual Usuario Usuario { get; set; }
     }
 }

@@ -19,13 +19,16 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         private string[] defaultPaths = {"Endereco", "Usuario", "Foto"};
         private readonly IPassageiroRepository _PassageiroRepository;
         private readonly IFotoService _FotoService;
+        private readonly ILocalizacaoService _LocalizacaoService;
 
         public PassageiroService(
             IPassageiroRepository PassageiroRepository,
-            IFotoService FotoService)
+            IFotoService FotoService,
+            ILocalizacaoService LocalizacaoService)
         {
             _PassageiroRepository = PassageiroRepository;
             _FotoService = FotoService;
+            _LocalizacaoService = LocalizacaoService;
         }
 
         public override string GetTag()
@@ -104,7 +107,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             }
 
             //entry.IdEndereco = summary.Endereco.Id;
-            entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
+            //entry.IdLocalizacaoAtual = summary.IdLocalizacaoAtual;
             //entry.IdFoto = summary.IdFoto;
         }
 
@@ -155,6 +158,23 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public async Task<PassageiroSummary> GetByUserId(Guid Key)
         {
             return await CreateSummaryAsync(base.Search(x => x.IdUsuario == Key, defaultPaths, null).FirstOrDefault());
+        }
+
+        public async Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao)
+        {
+            var passageiro = Search(x => x.Id == Key).FirstOrDefault();
+            if (passageiro is null)
+            {
+                AddNotification(new Notification("Passageiros", "Informar localização: passageiro não localizado"));
+                return false;
+            }
+
+            var localizacaoSummmary = await _LocalizacaoService.GetSummaryAsync(passageiro.LocalizacaoAtual);
+
+            localizacaoSummmary.Latitude = localizacao.Latitude;
+            localizacaoSummmary.Longitude = localizacao.Longitude;
+
+            return (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
         }
 
         /*public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)

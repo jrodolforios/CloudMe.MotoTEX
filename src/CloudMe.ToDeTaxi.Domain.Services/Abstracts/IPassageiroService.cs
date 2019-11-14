@@ -2,6 +2,7 @@
 using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using CloudMe.ToDeTaxi.Domain.Model.Passageiro;
 using System.Threading.Tasks;
+using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
 
 namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
 {
@@ -9,5 +10,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
     {
         //Task<bool> AssociarFoto(Guid Key, Guid idFoto);
         Task<PassageiroSummary> GetByUserId(Guid Key);
+        Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao);
     }
 }

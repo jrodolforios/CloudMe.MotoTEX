@@ -11,11 +11,11 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Taxista
         public bool Ativo { get; set; }
         public bool Disponivel { get; set; }
 
+        public Guid IdFoto { get; set; }
         public Guid? IdLocalizacaoAtual { get; set; }
         public Guid? IdPontoTaxi { get; set; }
 
         public UsuarioSummary Usuario { get; set; } 
         public EnderecoSummary Endereco { get; set; }
-        public FotoSummary Foto { get; set; }
     }
 }

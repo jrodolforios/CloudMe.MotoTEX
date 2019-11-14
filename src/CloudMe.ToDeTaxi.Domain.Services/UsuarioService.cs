@@ -48,7 +48,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Email = summary.Email,
                 PhoneNumber = summary.Telefone,
                 CPF = summary.CPF,
-                RG = summary.RG
+                RG = summary.RG,
+                tipo = summary.Tipo
             };
             return Task.FromResult(Usuario);
         }
@@ -66,7 +67,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Credenciais = new CredenciaisUsuario()
                 {
                     Login = entry.UserName,
-                }
+                },
+                Tipo = entry.tipo
             };
 
             return Task.FromResult(Usuario);
@@ -90,6 +92,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             entry.PhoneNumber = summary.Telefone;
             entry.CPF = summary.CPF;
             entry.RG = summary.RG;
+            //entry.tipo = summary.Tipo;
         }
 
         protected override void ValidateSummary(UsuarioSummary summary)
@@ -149,7 +152,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 EmailConfirmed = true,
                 PhoneNumber = summary.Telefone,
                 CPF = summary.CPF,
-                RG = summary.RG
+                RG = summary.RG,
+                tipo = summary.Tipo
             };
 
             try

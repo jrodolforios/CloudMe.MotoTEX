@@ -1,3 +1,4 @@
+using CloudMe.ToDeTaxi.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,5 +14,6 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Usuario
         public string Telefone { get; set; }
         public string Email { get; set; }
         public CredenciaisUsuario Credenciais { get; set; }
+        public TipoUsuario Tipo { get; set; }
     }
 }

@@ -28,9 +28,7 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 
             var claims = new List<Claim>
                 {
-                    new Claim("id", user.Id.ToString()),
                     new Claim("nome", user.Nome),
-                    new Claim("email", user.Email),
                 };
 
             context.IssuedClaims.AddRange(claims);

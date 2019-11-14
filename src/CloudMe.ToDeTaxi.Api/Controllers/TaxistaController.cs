@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
 using prmToolkit.NotificationPattern;
+using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -21,17 +22,20 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         IUsuarioService _usuarioService;
         IEnderecoService _enderecoService;
         IFotoService _fotoService;
+        ILocalizacaoService _localizacaoService;
 
         public TaxistaController(
             ITaxistaService taxistaService,
             IUsuarioService usuarioService,
-            IEnderecoService localizacaoService,
+            IEnderecoService enderecoService,
             IFotoService fotoService,
+            ILocalizacaoService localizacaoService,
             IUnitOfWork unitOfWork) : base(unitOfWork)
         {
             _TaxistaService = taxistaService;
             _usuarioService = usuarioService;
-            _enderecoService = localizacaoService;
+            _enderecoService = enderecoService;
+            _localizacaoService = localizacaoService;
             _fotoService = fotoService;
         }
 
@@ -105,13 +109,23 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             taxistaSummary.Endereco.Id = endereco.Id;
 
             // cria o registro de foto do taxista
-            var foto = await _fotoService.CreateAsync(taxistaSummary.Foto);
+            var foto = await _fotoService.CreateAsync(new FotoSummary());
             if (_fotoService.IsInvalid())
             {
                 return await ErrorResponseAsync<Guid>(_fotoService);
             }
 
-            taxistaSummary.Foto.Id = foto.Id;
+            taxistaSummary.IdFoto = foto.Id;
+
+            // cria o registro de localização atual do taxista
+            var localizacaoSummary = new LocalizacaoSummary();
+            var localizacao = await this._localizacaoService.CreateAsync(localizacaoSummary);
+            if (_localizacaoService.IsInvalid())
+            {
+                return await base.ErrorResponseAsync<Guid>(_localizacaoService);
+            }
+
+            taxistaSummary.IdLocalizacaoAtual = localizacaoSummary.Id = localizacao.Id;
 
             // cria o registro do taxista
             var taxista = await this._TaxistaService.CreateAsync(taxistaSummary);
@@ -121,6 +135,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             }
 
             // cria um usuario para o taxista
+            taxistaSummary.Usuario.Tipo = Domain.Enums.TipoUsuario.Taxista;
             var usuario = await this._usuarioService.CreateAsync(taxistaSummary.Usuario);
             if (_usuarioService.IsInvalid())
             {
@@ -133,6 +148,14 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             if (_TaxistaService.IsInvalid())
             {
                 return await base.ErrorResponseAsync<Guid>(_usuarioService);
+            }
+
+            // associa o registro de localização ao usuário
+            localizacaoSummary.IdUsuario = usuario.Id;
+            await _localizacaoService.UpdateAsync(localizacaoSummary);
+            if (_localizacaoService.IsInvalid())
+            {
+                return await base.ErrorResponseAsync<Guid>(_localizacaoService);
             }
 
             return await base.ResponseAsync(taxista.Id, _TaxistaService);
@@ -220,10 +243,20 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             }
 
             // remove o registro de foto
-            await this._fotoService.DeleteAsync(taxistaSummary.Foto.Id);
+            await this._fotoService.DeleteAsync(taxistaSummary.IdFoto);
             if (_fotoService.IsInvalid())
             {
                 return await base.ErrorResponseAsync<bool>(_fotoService);
+            }
+
+            // remove o registro de localização
+            if (taxistaSummary.IdLocalizacaoAtual.HasValue)
+            {
+                await this._localizacaoService.DeleteAsync(taxistaSummary.IdLocalizacaoAtual.Value);
+                if (_localizacaoService.IsInvalid())
+                {
+                    return await base.ErrorResponseAsync<bool>(_localizacaoService);
+                }
             }
 
             // remove o registro do usuário
@@ -234,6 +267,19 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             }
 
             return await base.ResponseAsync(true, unitOfWork);
+        }
+
+        /// <summary>
+        /// Informa a localização de um Taxista.
+        /// </summary>
+        /// <param name="localizacao">Sumário da nova localização do taxista (necessário apenas latitude e longitude)</param>
+        [HttpPost("informar_localizacao/{id}")]
+        //[ValidateAntiForgeryToken]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> InformarLocalizacao(Guid id, [FromBody] LocalizacaoSummary localizacao)
+        {
+            // atualiza o registro do passageiro
+            return await ResponseAsync(await _TaxistaService.InformarLocalizacao(id, localizacao), _TaxistaService);
         }
 
         /*
