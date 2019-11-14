@@ -171,31 +171,31 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             });*/
         }
 
-        public static void ConfigureSignalR(IApplicationBuilder app)
+        public static void ConfigureSignalR<TContext>(IApplicationBuilder app) where TContext: DbContext
         {
             app.UseSignalR(routes =>
             {
-                routes.MapHub<EntityNotifier<ICorridaService, Corrida, CorridaSummary, Guid>>("/notifications/corrida");
-                routes.MapHub<EntityNotifier<ICorVeiculoService, CorVeiculo, CorVeiculoSummary, Guid>>("/notifications/cor_veiculo");
-                routes.MapHub<EntityNotifier<IEnderecoService, Endereco, EnderecoSummary, Guid>>("/notifications/endereco");
-                routes.MapHub<EntityNotifier<IFaixaDescontoService, FaixaDesconto, FaixaDescontoSummary, Guid>>("/notifications/faixa_desconto");
-                routes.MapHub<EntityNotifier<IFaixaDescontoTaxistaService, FaixaDescontoTaxista, FaixaDescontoTaxistaSummary, Guid>>("/notifications/faixa_desconto_taxista");
-                routes.MapHub<EntityNotifier<IFavoritoService, Favorito, FavoritoSummary, Guid>>("/notifications/favorito");
-                routes.MapHub<EntityNotifier<IFormaPagamentoService, FormaPagamento, FormaPagamentoSummary, Guid>>("/notifications/forma_pagamento");
-                routes.MapHub<EntityNotifier<IFormaPagamentoTaxistaService, FormaPagamentoTaxista, FormaPagamentoTaxistaSummary, Guid>>("/notifications/forma_pagamento_taxista");
-                routes.MapHub<EntityNotifier<IFotoService, Foto, FotoSummary, Guid>>("/notifications/foto");
-                routes.MapHub<UsuarioNotifier>("/notifications/usuario");
-                routes.MapHub<EntityNotifier<IGrupoUsuarioService, GrupoUsuario, GrupoUsuarioSummary, Guid>>("/notifications/grupo_usuario");
-                routes.MapHub<EntityNotifier<ILocalizacaoService, Localizacao, LocalizacaoSummary, Guid>>("/notifications/localizacao");
-                routes.MapHub<EntityNotifier<IPassageiroService, Passageiro, PassageiroSummary, Guid>>("/notifications/passageiro");
-                routes.MapHub<EntityNotifier<IPontoTaxiService, PontoTaxi, PontoTaxiSummary, Guid>>("/notifications/ponto_taxi");
-                routes.MapHub<EntityNotifier<IRotaService, Rota, RotaSummary, Guid>>("/notifications/rota");
-                routes.MapHub<EntityNotifier<ISolicitacaoCorridaService, SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>>("/notifications/solicitacao_corrida");
-                routes.MapHub<EntityNotifier<ITarifaService, Tarifa, TarifaSummary, Guid>>("/notifications/tarifa");
-                routes.MapHub<EntityNotifier<ITaxistaService, Taxista, TaxistaSummary, Guid>>("/notifications/taxista");
-                routes.MapHub<EntityNotifier<IUsuarioGrupoUsuarioService, UsuarioGrupoUsuario, UsuarioGrupoUsuarioSummary, Guid>>("/notifications/usuario_grupo_usuario");
-                routes.MapHub<EntityNotifier<IVeiculoService, Veiculo, VeiculoSummary, Guid>>("/notifications/veiculo");
-                routes.MapHub<EntityNotifier<IVeiculoTaxistaService, VeiculoTaxista, VeiculoTaxistaSummary, Guid>>("/notifications/veiculo_taxista");
+                routes.MapHub<EntityNotifier<TContext, ICorridaService, Corrida, CorridaSummary, Guid>>("/notifications/corrida");
+                routes.MapHub<EntityNotifier<TContext, ICorVeiculoService, CorVeiculo, CorVeiculoSummary, Guid>>("/notifications/cor_veiculo");
+                routes.MapHub<EntityNotifier<TContext, IEnderecoService, Endereco, EnderecoSummary, Guid>>("/notifications/endereco");
+                routes.MapHub<EntityNotifier<TContext, IFaixaDescontoService, FaixaDesconto, FaixaDescontoSummary, Guid>>("/notifications/faixa_desconto");
+                routes.MapHub<EntityNotifier<TContext, IFaixaDescontoTaxistaService, FaixaDescontoTaxista, FaixaDescontoTaxistaSummary, Guid>>("/notifications/faixa_desconto_taxista");
+                routes.MapHub<EntityNotifier<TContext, IFavoritoService, Favorito, FavoritoSummary, Guid>>("/notifications/favorito");
+                routes.MapHub<EntityNotifier<TContext, IFormaPagamentoService, FormaPagamento, FormaPagamentoSummary, Guid>>("/notifications/forma_pagamento");
+                routes.MapHub<EntityNotifier<TContext, IFormaPagamentoTaxistaService, FormaPagamentoTaxista, FormaPagamentoTaxistaSummary, Guid>>("/notifications/forma_pagamento_taxista");
+                routes.MapHub<EntityNotifier<TContext, IFotoService, Foto, FotoSummary, Guid>>("/notifications/foto");
+                routes.MapHub<UsuarioNotifier<TContext>>("/notifications/usuario");
+                routes.MapHub<EntityNotifier<TContext, IGrupoUsuarioService, GrupoUsuario, GrupoUsuarioSummary, Guid>>("/notifications/grupo_usuario");
+                routes.MapHub<EntityNotifier<TContext, ILocalizacaoService, Localizacao, LocalizacaoSummary, Guid>>("/notifications/localizacao");
+                routes.MapHub<EntityNotifier<TContext, IPassageiroService, Passageiro, PassageiroSummary, Guid>>("/notifications/passageiro");
+                routes.MapHub<EntityNotifier<TContext, IPontoTaxiService, PontoTaxi, PontoTaxiSummary, Guid>>("/notifications/ponto_taxi");
+                routes.MapHub<EntityNotifier<TContext, IRotaService, Rota, RotaSummary, Guid>>("/notifications/rota");
+                routes.MapHub<EntityNotifier<TContext, ISolicitacaoCorridaService, SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>>("/notifications/solicitacao_corrida");
+                routes.MapHub<EntityNotifier<TContext, ITarifaService, Tarifa, TarifaSummary, Guid>>("/notifications/tarifa");
+                routes.MapHub<EntityNotifier<TContext, ITaxistaService, Taxista, TaxistaSummary, Guid>>("/notifications/taxista");
+                routes.MapHub<EntityNotifier<TContext, IUsuarioGrupoUsuarioService, UsuarioGrupoUsuario, UsuarioGrupoUsuarioSummary, Guid>>("/notifications/usuario_grupo_usuario");
+                routes.MapHub<EntityNotifier<TContext, IVeiculoService, Veiculo, VeiculoSummary, Guid>>("/notifications/veiculo");
+                routes.MapHub<EntityNotifier<TContext, IVeiculoTaxistaService, VeiculoTaxista, VeiculoTaxistaSummary, Guid>>("/notifications/veiculo_taxista");
 
                 routes.MapHub<HubLocalizacaoTaxista>("/notifications/localizacao_taxista");
                 routes.MapHub<HubLocalizacaoPassageiro>("/notifications/localizacao_passageiro");

@@ -220,7 +220,7 @@ namespace CloudMe.ToDeTaxi.Api
             });
 
 
-            StartupHelpers.ConfigureSignalR(app);
+            StartupHelpers.ConfigureSignalR<CloudMeToDeTaxiContext>(app);
 
             app.UseMvc();
         }
