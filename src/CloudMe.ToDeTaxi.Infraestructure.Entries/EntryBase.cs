@@ -18,7 +18,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries {
         public virtual DateTime Updated { get; private set; }
         public virtual DateTime? Deleted { get; private set; }
 
-        public bool IsSoftDeleted => Deleted != null;
+        public bool IsSoftDeleted => Deleted.HasValue;
         public void SoftDelete() => Deleted = DateTime.UtcNow;
         public void SoftRestore() => Deleted = null;
 

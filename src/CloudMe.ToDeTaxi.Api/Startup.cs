@@ -24,6 +24,9 @@ using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Extensions;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
 using System.Net;
 using EntityFrameworkCore.Triggers;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNet.Cors.Infrastructure;
 
 public class AuthorizeCheckOperationFilter : IOperationFilter
 {
@@ -69,6 +72,8 @@ namespace CloudMe.ToDeTaxi.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            CORSConfig corsConfig = new CORSConfig();
+            Configuration.GetSection("CORSConfig").Bind(corsConfig);
 
             services.AddIdentity<Usuario, IdentityRole<Guid>>(options =>
             {
@@ -166,13 +171,94 @@ namespace CloudMe.ToDeTaxi.Api
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options =>
-                    options
-                    .AllowAnyOrigin()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    //.AllowCredentials();
-                );
+                {
+                    if (corsConfig.headers.allowAny)
+                    {
+                        options.AllowAnyHeader();
+                    }
+                    else
+                    {
+                        options.WithHeaders(corsConfig.headers.allowed);
+                    }
+
+                    if (corsConfig.methods.allowAny)
+                    {
+                        options.AllowAnyMethod();
+                    }
+                    else
+                    {
+                        options.WithMethods(corsConfig.methods.allowed);
+                    }
+
+                    if (corsConfig.origins.allowAny)
+                    {
+                        options.AllowAnyOrigin();
+                    }
+                    else
+                    {
+                        options.WithOrigins(corsConfig.origins.allowed);
+                    }
+
+                    if (corsConfig.credentials)
+                    {
+                        options.AllowCredentials();
+                    }
+                    else
+                    {
+                        options.DisallowCredentials();
+                    }
+                });
             });
+
+            /*services.TryAdd(ServiceDescriptor.Transient<ICorsService, WildCardCorsService>());
+            services.AddCors
+            (
+                options =>
+                {
+                    options.AddPolicy
+                    (
+                        "AllowOrigin",
+                        builder =>
+                        {
+                            if (corsConfig.headers.allowAny)
+                            {
+                                builder.AllowAnyHeader();
+                            }
+                            else
+                            {
+                                builder.WithHeaders(corsConfig.headers.allowed);
+                            }
+
+                            if (corsConfig.methods.allowAny)
+                            {
+                                builder.AllowAnyMethod();
+                            }
+                            else
+                            {
+                                builder.WithMethods(corsConfig.methods.allowed);
+                            }
+
+                            if (corsConfig.origins.allowAny)
+                            {
+                                builder.AllowAnyOrigin();
+                            }
+                            else
+                            {
+                                builder.WithOrigins(corsConfig.origins.allowed);
+                            }
+
+                            if (corsConfig.credentials)
+                            {
+                                builder.AllowCredentials();
+                            }
+                            else
+                            {
+                                builder.DisallowCredentials();
+                            }
+                        }
+                    );
+                }
+            );*/
 
             services.AddSignalR(options =>
             {

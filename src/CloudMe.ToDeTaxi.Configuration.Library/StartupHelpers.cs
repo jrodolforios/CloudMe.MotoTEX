@@ -31,12 +31,14 @@ using EntityFrameworkCore.Triggers.AspNetCore;
 using CloudMe.ToDeTaxi.Domain.Services.Abstracts.Background;
 using CloudMe.ToDeTaxi.Domain.Services.Background;
 using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
-using CloudMe.ToDeTaxi.Domain.Notifications.Abstracts;
+using Microsoft.Extensions.Hosting;
 
 namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 {
     public static class StartupHelpers
     {
+        public static object CORSDefaults { get; private set; }
+
         public static IServiceCollection AddDbContexts<TContext>(this IServiceCollection services, IConfiguration configuration)
             where TContext : DbContext
         {
@@ -81,8 +83,11 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 
             services.AddTriggers();
 
-            services.AddSingleton<IPoolLocalizacaoTaxista, PoolLocalizacaoTaxista>();
-            services.AddSingleton<IPoolLocalizacaoPassageiro, PoolLocalizacaoPassageiro>();
+            services.AddSingleton<PoolLocalizacaoTaxista>();
+            services.AddSingleton<IHostedService, PoolLocalizacaoTaxista>(serviceProvider =>serviceProvider.GetService<PoolLocalizacaoTaxista>());
+
+            services.AddSingleton<PoolLocalizacaoPassageiro>();
+            services.AddSingleton<IHostedService, PoolLocalizacaoPassageiro>(serviceProvider => serviceProvider.GetService<PoolLocalizacaoPassageiro>());
 
             return services;
         }

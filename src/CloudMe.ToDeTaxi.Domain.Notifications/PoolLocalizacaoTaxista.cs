@@ -16,7 +16,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
 
         private IHubContext<HubLocalizacaoTaxista> _hubContext;
 
-        PoolLocalizacaoTaxista(IHubContext<HubLocalizacaoTaxista> hubContext) : base()
+        public PoolLocalizacaoTaxista(IHubContext<HubLocalizacaoTaxista> hubContext) : base()
         {
             _hubContext = hubContext;
         }

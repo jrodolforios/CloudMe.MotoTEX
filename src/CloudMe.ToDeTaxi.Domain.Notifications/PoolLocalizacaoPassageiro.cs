@@ -15,9 +15,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
     {
         public int Timeout { get; set; } = 5000;
 
-        private IHubContext<HubLocalizacaoTaxista> _hubContext;
+        private IHubContext<HubLocalizacaoPassageiro> _hubContext;
 
-        PoolLocalizacaoPassageiro(IHubContext<HubLocalizacaoTaxista> hubContext) : base()
+        public PoolLocalizacaoPassageiro(IHubContext<HubLocalizacaoPassageiro> hubContext) : base()
         {
             _hubContext = hubContext;
         }

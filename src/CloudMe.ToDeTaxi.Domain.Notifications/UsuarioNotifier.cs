@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudMe.ToDeTaxi.Domain.Notifications
 {
-    //[Authorize]
+    [Authorize]
     public class UsuarioNotifier<TContext> : BaseNotifier where TContext: DbContext
     {
         IUsuarioService _usuarioService;
