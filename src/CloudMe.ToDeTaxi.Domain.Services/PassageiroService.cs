@@ -16,7 +16,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class PassageiroService : ServiceBase<Passageiro, PassageiroSummary, Guid>, IPassageiroService
     {
-        private string[] defaultPaths = {"Endereco", "Usuario", "Foto"};
+        private string[] defaultPaths = { "Endereco", "Usuario", "Foto" };
         private readonly IPassageiroRepository _PassageiroRepository;
         private readonly IFotoService _FotoService;
         private readonly ILocalizacaoService _LocalizacaoService;
@@ -62,7 +62,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 IdFoto = entry.IdFoto,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual
             };
-            
+
             if (entry.Endereco != null)
             {
                 Passageiro.Endereco = new EnderecoSummary()
@@ -182,7 +182,15 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             localizacaoSummmary.Latitude = localizacao.Latitude;
             localizacaoSummmary.Longitude = localizacao.Longitude;
 
-            return (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
+            if (localizacaoSummmary.Id == Guid.Empty)
+            {
+                var loc = await _LocalizacaoService.CreateAsync(localizacaoSummmary);
+                passageiro.IdLocalizacaoAtual = loc.Id;
+                await _PassageiroRepository.ModifyAsync(passageiro);
+                return true;
+            }
+            else
+                return (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
         }
 
         /*public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)

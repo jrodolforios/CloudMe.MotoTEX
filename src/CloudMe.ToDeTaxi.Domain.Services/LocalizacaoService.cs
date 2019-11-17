@@ -43,15 +43,17 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         protected override Task<LocalizacaoSummary> CreateSummaryAsync(Localizacao entry)
         {
-            var Localizacao = new LocalizacaoSummary
-            {
-                Id = entry.Id,
-                Latitude = entry.Latitude,
-                Longitude = entry.Longitude,
-                Endereco = entry.Endereco,
-                NomePublico = entry.NomePublico,
-                IdUsuario = entry.IdUsuario
-            };
+            LocalizacaoSummary Localizacao = new LocalizacaoSummary();
+            if (entry != null)
+                Localizacao = new LocalizacaoSummary
+                {
+                    Id = entry.Id,
+                    Latitude = entry.Latitude,
+                    Longitude = entry.Longitude,
+                    Endereco = entry.Endereco,
+                    NomePublico = entry.NomePublico,
+                    IdUsuario = entry.IdUsuario
+                };
 
             return Task.FromResult(Localizacao);
         }
