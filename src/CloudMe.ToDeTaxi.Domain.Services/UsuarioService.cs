@@ -270,7 +270,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
                 // verifica se existe outro usuário com o mesmo CPF
                 var usrCPF = _userRepository.Search(usr => usr.CPF == summary.CPF && usr.Id != summary.Id).FirstOrDefault();
-                if (usrCPF != null && !string.IsNullOrEmpty(summary.CPF))
+                if (usrCPF != null)
                 {
                     AddNotification("Usuários", string.Format("CPF '{0}' está sendo utilizado por outro usuário", summary.CPF));
                 }
