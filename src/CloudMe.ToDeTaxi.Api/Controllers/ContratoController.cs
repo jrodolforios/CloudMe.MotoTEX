@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
 using CloudMe.ToDeTaxi.Domain.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -88,6 +89,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="localizacao">Sumário da nova localização do passageiro (necessário apenas latitude e longitude)</param>
         [HttpPost("Ultimo_contrato_valido")]
+        [AllowAnonymous]
         //[ValidateAntiForgeryToken]
         [ProducesResponseType(typeof(Response<ContratoSummary>), (int)HttpStatusCode.OK)]
         public async Task<Response<ContratoSummary>> UltimoContratoValido()
