@@ -79,7 +79,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         public async Task<Response<bool>> Delete(Guid id)
         {
-            return await base.ResponseAsync(await this._FavoritoService.DeleteAsync(id), _FavoritoService);
+            return await base.ResponseAsync(await this._FavoritoService.DeleteAsync(id, false), _FavoritoService);
         }
     }
 }
