@@ -45,7 +45,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 Id = entry.Id,
                 Nome = entry.Nome,
                 NomeArquivo = entry.NomeArquivo,
-                Dados = entry.Dados.ToArray()
+                Dados = entry.Dados?.ToArray()
             };
 
             return Task.FromResult(Foto);

@@ -96,7 +96,7 @@ namespace CloudMe.ToDeTaxi.Helpers
                 .AddProfileService<ProfileService>();
 
             builder.AddCustomSigningCredential(configuration, logger);
-            //builder.AddDeveloperSigningCredential(false);
+            builder.AddDeveloperSigningCredential();
             builder.AddCustomValidationKey(configuration, logger);
         }
 

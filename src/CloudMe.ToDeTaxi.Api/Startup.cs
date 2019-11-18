@@ -27,6 +27,9 @@ using EntityFrameworkCore.Triggers;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNet.Cors.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading.Tasks;
+using IdentityModel.AspNetCore.OAuth2Introspection;
 
 public class AuthorizeCheckOperationFilter : IOperationFilter
 {
@@ -97,11 +100,29 @@ namespace CloudMe.ToDeTaxi.Api
                 options.DefaultChallengeScheme = IdentityServerAuthenticationDefaults.AuthenticationScheme;
                 //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddIdentityServerAuthentication(c =>
+                .AddIdentityServerAuthentication(options =>
                 {
-                    c.Authority = authorityBaseUrl;
-                    c.RequireHttpsMetadata = false;
-                    c.ApiName = "todetaxiapi";
+                    options.Authority = authorityBaseUrl;
+                    options.RequireHttpsMetadata = false;
+                    options.ApiName = "todetaxiapi";
+
+                    options.TokenRetriever = request =>
+                    {
+                        var accessToken = request.Query["access_token"];
+
+                        // If the request is for our hubs...
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (request.Path.StartsWithSegments("/notifications")))
+                        {
+                            // Read the token out of the query string
+                            return TokenRetrieval.FromQueryString().Invoke(request);
+                        }
+                        else
+                        {
+                            // Read the token out of the request headers
+                            return TokenRetrieval.FromAuthorizationHeader().Invoke(request);
+                        }
+                    };
                 });
 
             services.AddSwaggerGen(x =>

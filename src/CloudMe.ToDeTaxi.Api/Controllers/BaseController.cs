@@ -31,7 +31,6 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
 
         protected async Task<Response<T>> ResponseAsync<T>(T result, INotifiable notifiable)
         {
-
             if (!notifiable.Notifications.Any())
             {
                 try

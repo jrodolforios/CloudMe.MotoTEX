@@ -65,22 +65,26 @@ namespace CloudMe.Auth.Admin.Helpers
             }
 
             // Create admin user
-            if (await userManager.FindByNameAsync(Users.AdminUserName) != null) return;
-
-            var user = new CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario
+            var user = await userManager.FindByNameAsync(Users.AdminUserName);
+            if (user == null)
             {
-                UserName = Users.AdminUserName,
-                Email = Users.AdminEmail,
-                EmailConfirmed = true,
-                Nome = Users.AdminNome
-            };
+                user = new ToDeTaxi.Infraestructure.Entries.Usuario
+                {
+                    UserName = Users.AdminUserName,
+                    Email = Users.AdminEmail,
+                    EmailConfirmed = true,
+                    Nome = Users.AdminNome
+                };
 
-            var result = await userManager.CreateAsync(user, Users.AdminPassword);
+                var result = await userManager.CreateAsync(user, Users.AdminPassword);
 
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(user, AuthorizationConsts.AdministrationRole);
+                if(!result.Succeeded)
+                {
+                    return;
+                }
             }
+
+            await userManager.AddToRoleAsync(user, AuthorizationConsts.AdministrationRole);
         }
 
         /// <summary>
