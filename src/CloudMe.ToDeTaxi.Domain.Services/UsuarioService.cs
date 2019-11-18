@@ -368,5 +368,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 return false;
             }
         }
+
+        public Task<bool> CheckLogin(string login)
+        {
+            return Task.FromResult(_userRepository.FindAll().Any(x => x.UserName == login));
+        }
     }
 }

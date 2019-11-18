@@ -12,5 +12,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
         Task<bool> BloquearAsync(Guid key, bool bloquear);
         Task<bool> ChangeLoginAsync(Guid key, string new_login);
         Task<bool> ChangePasswordAsync(Guid key, string old_password, string new_password);
+        Task<bool> CheckLogin(string login);
     }
 }
