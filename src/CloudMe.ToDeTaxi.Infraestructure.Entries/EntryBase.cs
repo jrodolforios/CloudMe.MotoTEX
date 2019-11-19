@@ -22,15 +22,16 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries {
         public void SoftDelete() => Deleted = DateTime.UtcNow;
         public void SoftRestore() => Deleted = null;
 
-        //public event OnInsertCallback OnInsert;
-        //public event OnUpdateCallback OnUpdate;
-        //public event OnDeleteCallback OnDelete;
+        public static event OnInsertCallback OnInsert;
+        public static event OnUpdateCallback OnUpdate;
+        public static event OnDeleteCallback OnDelete;
 
         static EntryBase()
         {
             Triggers<EntryBase<TEntryKey>>.Inserting += entry =>
             {
                 entry.Entity.Inserted = entry.Entity.Updated = DateTime.UtcNow;
+                OnInsert?.Invoke(entry.Entity);
             };
 
             /*Triggers<EntryBase<TEntryKey>>.Inserted += entry =>
@@ -41,6 +42,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries {
             Triggers<EntryBase<TEntryKey>>.Updating += entry =>
             {
                 entry.Entity.Updated = DateTime.UtcNow;
+                OnUpdate?.Invoke(entry.Entity);
             };
 
             /*Triggers<EntryBase<TEntryKey>>.Updated += entry =>
@@ -55,6 +57,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries {
                     entry.Entity.SoftDelete();
                     entry.Cancel = true; // Cancels the deletion, but will persist changes with the same effects as EntityState.Modified
                 }
+
+                OnDelete?.Invoke(entry.Entity);
             };
 
             /*Triggers<EntryBase<TEntryKey>>.Deleted += entry =>

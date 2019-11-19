@@ -8,38 +8,64 @@ using Microsoft.EntityFrameworkCore;
 namespace CloudMe.ToDeTaxi.Domain.Notifications
 {
     [Authorize]
-    public class EntityNotifier<TContext, TEntryService, TEntry, TEntrySummary, TEntryKey> : BaseNotifier
-        where TContext: DbContext
+    public class EntityNotifier<TEntryService, TEntry, TEntrySummary, TEntryKey> : BaseNotifier
         where TEntry: EntryBase<TEntryKey>
         where TEntryService : IServiceBase<TEntry, TEntrySummary, TEntryKey>
     {
         TEntryService _entryService;
-        IHubContext<EntityNotifier<TContext, TEntryService, TEntry, TEntrySummary, TEntryKey>> _hubContext = null;
+        IHubContext<EntityNotifier<TEntryService, TEntry, TEntrySummary, TEntryKey>> _hubContext = null;
+        private static bool eventsRegistered = false;
 
-        public EntityNotifier(TEntryService entryService, IHubContext<EntityNotifier<TContext, TEntryService, TEntry, TEntrySummary, TEntryKey>> hubContext)
+        public EntityNotifier(TEntryService entryService, IHubContext<EntityNotifier<TEntryService, TEntry, TEntrySummary, TEntryKey>> hubContext)
         {
             _entryService = entryService;
             _hubContext = hubContext;
 
-            //Triggers<TEntry>.Inserted += async entry =>
-            Triggers<TEntry, TContext>.Inserting += async entry =>
+            if (!eventsRegistered)
             {
-                var summary = await _entryService.GetSummaryAsync(entry.Entity);
-                await _hubContext.Clients.All.SendAsync("inserted", _entryService.GetTag(), summary);
-            };
+                /*EntryBase<TEntryKey>.OnInsert += entry =>
+                {
+                    if (entry.GetType() == typeof(TEntry))
+                    {
+                        ItemAdded(entry as TEntry);
+                    }
+                };
 
-            //Triggers<TEntry>.Updated += async entry =>
-            Triggers<TEntry, TContext>.Updating += async entry =>
-            {
-                var summary = await _entryService.GetSummaryAsync(entry.Entity);
-                await _hubContext.Clients.All.SendAsync("updated", _entryService.GetTag(), summary);
-            };
+                EntryBase<TEntryKey>.OnUpdate += entry =>
+                {
+                    if (entry.GetType() == typeof(TEntry))
+                    {
+                        ItemUpdated(entry as TEntry);
+                    }
+                };
 
-            //Triggers<TEntry>.Deleted += async entry =>
-            Triggers<TEntry, TContext>.Deleting += async entry =>
-            {
-                await _hubContext.Clients.All.SendAsync("deleted", _entryService.GetTag(), entry.Entity.Id);
-            };
+                EntryBase<TEntryKey>.OnDelete += entry =>
+                {
+                    if (entry.GetType() == typeof(TEntry))
+                    {
+                        ItemDeleted(entry as TEntry);
+                    }
+                };*/
+
+                Triggers<TEntry>.Inserted += async insertingEntry =>
+                {
+                    var summary = await _entryService.GetSummaryAsync(insertingEntry.Entity);
+                    await _hubContext.Clients.All.SendAsync("inserted", _entryService.GetTag(), summary);
+                };
+
+                Triggers<TEntry>.Updated += async updatingEntry =>
+                {
+                    var summary = await _entryService.GetSummaryAsync(updatingEntry.Entity);
+                    await _hubContext.Clients.All.SendAsync("updated", _entryService.GetTag(), summary);
+                };
+
+                Triggers<TEntry>.Deleting += async deletingEntry =>
+                {
+                    await _hubContext.Clients.All.SendAsync("deleted", _entryService.GetTag(), deletingEntry.Entity.Id);
+                };
+
+                eventsRegistered = true;
+            }
         }
     }
 }
