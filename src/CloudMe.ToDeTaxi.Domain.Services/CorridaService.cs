@@ -134,10 +134,19 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 this.AddNotification(new Notification("summary", "Corrida: sumário é obrigatório"));
             }
 
-            if(summary.IdSolicitacao.Equals(Guid.Empty))
+            if (summary.IdSolicitacao.Equals(Guid.Empty))
             {
                 this.AddNotification(new Notification("IdSolicitacao", "Corrida: solicitação da corrida inexistente ou não informada"));
             }
+        }
+
+        public async Task<CorridaSummary> GetBySolicitacaoCorrida(Guid id)
+        {
+            CorridaSummary corrida = null;
+            if (_CorridaRepository.FindAll().Any(x => x.IdSolicitacao == id))
+                corrida = await CreateSummaryAsync(_CorridaRepository.FindAll().FirstOrDefault(x => x.IdSolicitacao == id));
+
+            return corrida;
         }
     }
 }
