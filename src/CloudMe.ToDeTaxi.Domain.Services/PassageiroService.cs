@@ -16,7 +16,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class PassageiroService : ServiceBase<Passageiro, PassageiroSummary, Guid>, IPassageiroService
     {
-        private string[] defaultPaths = {"Endereco", "Usuario", "Foto"};
+        private string[] defaultPaths = {"Endereco", "Usuario", "Foto", "LocalizacaoAtual" };
         private readonly IPassageiroRepository _PassageiroRepository;
         private readonly IFotoService _FotoService;
         private readonly ILocalizacaoService _LocalizacaoService;
