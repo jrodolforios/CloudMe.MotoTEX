@@ -13,5 +13,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
         Task<TaxistaSummary> GetByUserId(Guid id);
         Task<bool> MakeTaxistOnlineAsync(Guid id, bool disponivel);
         Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao);
+        Task<int> ClassificacaoTaxista(Guid id);
     }
 }

@@ -24,18 +24,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         private readonly IFotoService _FotoService;
         private readonly IVeiculoTaxistaService _veiculoTaxistaService;
         private readonly ILocalizacaoService _LocalizacaoService;
+        private readonly ICorridaRepository _corridaRepository;
 
         public TaxistaService(
             ITaxistaRepository TaxistaRepository,
             IFotoService FotoService,
             IVeiculoTaxistaService veiculoTaxistaService,
-            ILocalizacaoService LocalizacaoService
+            ILocalizacaoService LocalizacaoService,
+            ICorridaRepository corridaRepository
             )
         {
             _TaxistaRepository = TaxistaRepository;
             _FotoService = FotoService;
             _veiculoTaxistaService = veiculoTaxistaService;
             _LocalizacaoService = LocalizacaoService;
+            _corridaRepository = corridaRepository;
         }
 
         public override string GetTag()
@@ -219,34 +222,28 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
         }
 
-        /*
-        public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)
+        public Task<int> ClassificacaoTaxista(Guid id)
         {
-            var summary = await GetSummaryAsync(Key);
-            if (summary.Id == null || summary.Id == Guid.Empty)
+            int soma = 0;
+            int media = 0;
+
+            if (_corridaRepository.FindAll().Any(x => x.IdTaxista == id && x.Inserted >= DateTime.Now.AddMonths(-1) && x.AvaliacaoPassageiro != null && x.AvaliacaoPassageiro != Enums.AvaliacaoUsuario.Indefinido))
             {
-                AddNotification(new Notification("AssociarFoto", "Usuário não encontrado"));
-                return false;
+                var avaliacoes = _corridaRepository.FindAll().Where(x => x.IdTaxista == id && x.Inserted >= DateTime.Now.AddMonths(-1) && x.AvaliacaoPassageiro != null && x.AvaliacaoPassageiro != Enums.AvaliacaoUsuario.Indefinido).Select(x => (int)(x.AvaliacaoTaxista ?? Enums.AvaliacaoUsuario.Indefinido)).ToList();
+
+                if (avaliacoes.Count > 0)
+                {
+                    avaliacoes.ForEach(x =>
+                    {
+                        soma += x;
+                    });
+
+                    media = soma / avaliacoes.Count;
+                }
             }
 
-            summary.IdFoto = idFoto;
-
-            return UpdateAsync(summary) != null;
+            return Task.FromResult(media);
         }
 
-        public async Task<bool> Ativar(Guid Key, bool ativar)
-        {
-            var summary = await GetSummaryAsync(Key);
-            if (summary.Id == null || summary.Id == Guid.Empty)
-            {
-                AddNotification(new Notification("Ativar", "Usuário não encontrado"));
-                return false;
-            }
-
-            summary.Ativo = ativar;
-
-            return UpdateAsync(summary) != null;
-        }
-        */
     }
 }

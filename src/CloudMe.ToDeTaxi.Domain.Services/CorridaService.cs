@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Linq;
+using CloudMe.ToDeTaxi.Domain.Enums;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
@@ -147,6 +148,35 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 corrida = await CreateSummaryAsync(_CorridaRepository.FindAll().FirstOrDefault(x => x.IdSolicitacao == id));
 
             return corrida;
+        }
+
+        public async Task<bool> ClassificaTaxista(Guid id, int classificacao)
+        {
+            var corrida = await _CorridaRepository.FindByIdAsync(id);
+
+            if (corrida != null) { 
+                corrida.AvaliacaoTaxista = (AvaliacaoUsuario)classificacao;
+
+                await _CorridaRepository.ModifyAsync(corrida);
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public async Task<bool> ClassificaPassageiro(Guid id, int classificacao)
+        {
+            var corrida = await _CorridaRepository.FindByIdAsync(id);
+
+            if (corrida != null)
+            {
+                corrida.AvaliacaoPassageiro = (AvaliacaoUsuario)classificacao;
+
+                await _CorridaRepository.ModifyAsync(corrida);
+                return true;
+            }
+            else
+                return false;
         }
     }
 }

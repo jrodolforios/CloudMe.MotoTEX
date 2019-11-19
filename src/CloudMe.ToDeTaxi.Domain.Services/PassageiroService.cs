@@ -16,24 +16,58 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class PassageiroService : ServiceBase<Passageiro, PassageiroSummary, Guid>, IPassageiroService
     {
-        private string[] defaultPaths = {"Endereco", "Usuario", "Foto", "LocalizacaoAtual" };
+        private string[] defaultPaths = { "Endereco", "Usuario", "Foto", "LocalizacaoAtual" };
         private readonly IPassageiroRepository _PassageiroRepository;
         private readonly IFotoService _FotoService;
         private readonly ILocalizacaoService _LocalizacaoService;
+        private readonly ICorridaRepository _corridaRepository;
+        private readonly ISolicitacaoCorridaRepository _solicitacaoCorridaRepository;
 
         public PassageiroService(
             IPassageiroRepository PassageiroRepository,
             IFotoService FotoService,
-            ILocalizacaoService LocalizacaoService)
+            ILocalizacaoService LocalizacaoService,
+            ICorridaRepository corridaRepository,
+            ISolicitacaoCorridaRepository solicitacaoCorridaRepository)
         {
             _PassageiroRepository = PassageiroRepository;
             _FotoService = FotoService;
             _LocalizacaoService = LocalizacaoService;
+            _corridaRepository = corridaRepository;
+            _solicitacaoCorridaRepository = solicitacaoCorridaRepository;
         }
 
         public override string GetTag()
         {
             return "passageiro";
+        }
+
+        public Task<int> ClassificacaoPassageiro(Guid id)
+        {
+            int soma = 0;
+            int media = 0;
+
+            if (_solicitacaoCorridaRepository.FindAll().Any(x => x.IdPassageiro == id && x.Inserted >= DateTime.Now.AddMonths(-1)))
+            {
+                var solicitacoes = _solicitacaoCorridaRepository.FindAll().Where(x => x.IdPassageiro == id && x.Inserted >= DateTime.Now.AddMonths(-1)).Select(x => x.Id).ToList();
+
+                if (_corridaRepository.FindAll().Any(x => solicitacoes.Any(y => y == x.IdSolicitacao) && x.Inserted >= DateTime.Now.AddMonths(-1) && x.AvaliacaoPassageiro != null && x.AvaliacaoPassageiro != Enums.AvaliacaoUsuario.Indefinido))
+                {
+                    var avaliacoes = _corridaRepository.FindAll().Where(x => solicitacoes.Any(y => y == x.IdSolicitacao) && x.Inserted >= DateTime.Now.AddMonths(-1) && x.AvaliacaoPassageiro != null && x.AvaliacaoPassageiro != Enums.AvaliacaoUsuario.Indefinido).Select(x => (int)(x.AvaliacaoPassageiro)).ToList();
+
+                    if (avaliacoes.Count > 0)
+                    {
+                        avaliacoes.ForEach(x =>
+                        {
+                            soma += x;
+                        });
+
+                        media = soma / avaliacoes.Count;
+                    }
+                }
+            }
+
+            return Task.FromResult(media);
         }
 
         protected override Task<Passageiro> CreateEntryAsync(PassageiroSummary summary)
@@ -62,7 +96,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 IdFoto = entry.IdFoto,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual
             };
-            
+
             if (entry.Endereco != null)
             {
                 Passageiro.Endereco = new EnderecoSummary()
@@ -181,6 +215,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             localizacaoSummmary.Latitude = localizacao.Latitude;
             localizacaoSummmary.Longitude = localizacao.Longitude;
+            localizacaoSummmary.IdUsuario = passageiro.IdUsuario;
 
             return (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
         }

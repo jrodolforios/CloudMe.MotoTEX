@@ -244,6 +244,18 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             return await ResponseAsync(await _PassageiroService.InformarLocalizacao(id, localizacao), _PassageiroService);
         }
 
+        /// <summary>
+        /// Get by IdUser
+        /// </summary>
+        /// <param name="id">User Id from taxist</param>
+        /// <returns>passenger</returns>
+        [HttpGet("classificacao_passageiro/{id}")]
+        [ProducesResponseType(typeof(Response<int>), (int)HttpStatusCode.OK)]
+        public async Task<Response<int>> ClassificacaoPassageiro(Guid id)
+        {
+            return await base.ResponseAsync(await _PassageiroService.ClassificacaoPassageiro(id), _PassageiroService);
+        }
+
         /*/// <summary>
         /// Associa uma foto ao passageiro.
         /// </summary>

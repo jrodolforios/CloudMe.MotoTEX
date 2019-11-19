@@ -11,5 +11,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
         Task<IEnumerable<CorridaSummary>> GetAllSummariesByPassangerAsync(Guid id);
         Task<IEnumerable<CorridaSummary>> GetAllSummariesByTaxistAsync(Guid id);
         Task<CorridaSummary> GetBySolicitacaoCorrida(Guid id);
+        Task<bool> ClassificaTaxista(Guid id, int classificacao);
+        Task<bool> ClassificaPassageiro(Guid id, int classificacao);
     }
 }

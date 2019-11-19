@@ -63,6 +63,26 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Classifica Taxista
+        /// </summary>
+        [HttpGet("classifica_taxista/{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> ClassificaTaxista(Guid id,int classificacao)
+        {
+            return await base.ResponseAsync(await _corridaService.ClassificaTaxista(id, classificacao), _corridaService);
+        }
+
+        /// <summary>
+        /// Classifica passageiro
+        /// </summary>
+        [HttpGet("classificar_passageiro/{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> ClassificaPassageiro(Guid id, int classificacao)
+        {
+            return await base.ResponseAsync(await _corridaService.ClassificaPassageiro(id, classificacao), _corridaService);
+        }
+
+        /// <summary>
         /// Gets a Corrida.
         /// <param name="id">Corrida's ID</param>
         /// </summary>

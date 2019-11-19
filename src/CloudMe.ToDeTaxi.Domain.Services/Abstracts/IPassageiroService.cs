@@ -11,5 +11,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
         //Task<bool> AssociarFoto(Guid Key, Guid idFoto);
         Task<PassageiroSummary> GetByUserId(Guid Key);
         Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao);
+        Task<int> ClassificacaoPassageiro(Guid id);
     }
 }
