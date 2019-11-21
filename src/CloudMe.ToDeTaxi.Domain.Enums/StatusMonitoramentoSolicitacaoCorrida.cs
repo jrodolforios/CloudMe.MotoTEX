@@ -4,12 +4,12 @@ using System.Text;
 
 namespace CloudMe.ToDeTaxi.Domain.Enums
 {
-    public enum SituacaoSolicitacaoCorrida
+    public enum StatusMonitoramentoSolicitacaoCorrida
     {
         Indefinido = 0,
-        EmAvaliacao,
-        Aceita,
-        Rejeitada,
-        NaoAtendida
+        Acumulacao,
+        Disponibilidade,
+        Conclusao,
+        Encerramento
     }
 }

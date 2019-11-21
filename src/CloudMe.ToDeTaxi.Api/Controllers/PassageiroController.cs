@@ -221,6 +221,12 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
                 }
             }
 
+            // necessita do commit das alterações acumuladas pra evitar erro de violação de integridade entre localização e usuário
+            if (!await unitOfWork.CommitAsync())
+            {
+                return await base.ErrorResponseAsync<bool>(unitOfWork);
+            }
+
             // remove o registro do usuário
             await this._usuarioService.DeleteAsync((Guid)passageiroSummary.Usuario.Id);
             if (_usuarioService.IsInvalid())

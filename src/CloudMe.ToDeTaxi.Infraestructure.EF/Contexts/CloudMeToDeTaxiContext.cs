@@ -31,6 +31,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
         public DbSet<Foto> Fotos { get; set; }
         public DbSet<CorVeiculo> CoresVeiculos { get; set; }
         public DbSet<Contrato> Contratos { get; set; }
+        public DbSet<SolicitacaoCorridaTaxista> SolicitacoesCorridaTaxistas { get; set; }
 
 
         public CloudMeToDeTaxiContext(
@@ -67,6 +68,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
             builder.ApplyConfiguration(new MapFoto());
             builder.ApplyConfiguration(new MapCorVeiculo());
             builder.ApplyConfiguration(new MapContrato());
+            builder.ApplyConfiguration(new MapSolicitacaoCorridaTaxista());
             base.OnModelCreating(builder);
         }
 

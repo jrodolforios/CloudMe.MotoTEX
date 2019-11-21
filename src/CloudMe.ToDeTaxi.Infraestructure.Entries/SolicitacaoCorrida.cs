@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using CloudMe.ToDeTaxi.Domain.Enums;
+using GeoCoordinatePortable;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 {
@@ -37,6 +39,18 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 
         public SituacaoSolicitacaoCorrida Situacao { get; set; }
 
+        public StatusMonitoramentoSolicitacaoCorrida StatusMonitoramento { get; set; }
+
         public virtual Corrida Corrida { get; set; }
+
+        public virtual IEnumerable<SolicitacaoCorridaTaxista> Taxistas { get; set; } // taxistas que responderam à solicitação
+
+        public static double ObterDistancia(Localizacao origem, Localizacao destino)
+        {
+            GeoCoordinate pin1 = new GeoCoordinate(Convert.ToDouble(origem.Latitude), Convert.ToDouble(origem.Longitude));
+            GeoCoordinate pin2 = new GeoCoordinate(Convert.ToDouble(destino.Latitude), Convert.ToDouble(destino.Longitude));
+
+            return pin1.GetDistanceTo(pin2);
+        }
     }
 }
