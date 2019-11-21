@@ -3,15 +3,17 @@ using System;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 {
     [DbContext(typeof(CloudMeToDeTaxiContext))]
-    partial class CloudMeToDeTaxiContextModelSnapshot : ModelSnapshot
+    [Migration("20191121112022_RotaNaoObrigatoriaSolicitacaoCorrida")]
+    partial class RotaNaoObrigatoriaSolicitacaoCorrida
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -84,7 +86,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<bool>("ForceDelete");
 
-                    b.Property<Guid?>("IdRotaExecutada");
+                    b.Property<Guid>("IdRotaExecutada");
 
                     b.Property<Guid>("IdSolicitacao");
 
@@ -238,7 +240,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.HasIndex("IdPassageiro");
 
-                    b.HasIndex("IdTaxista");
+                    b.HasIndex("IdTaxista")
+                        .IsUnique();
 
                     b.ToTable("Favorito");
                 });
@@ -1497,7 +1500,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Rota", "RotaExecutada")
                         .WithMany()
-                        .HasForeignKey("IdRotaExecutada");
+                        .HasForeignKey("IdRotaExecutada")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.SolicitacaoCorrida", "Solicitacao")
                         .WithOne("Corrida")
@@ -1548,8 +1552,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Taxista", "Taxista")
-                        .WithMany("Favoritos")
-                        .HasForeignKey("IdTaxista")
+                        .WithOne()
+                        .HasForeignKey("CloudMe.ToDeTaxi.Infraestructure.Entries.Favorito", "IdTaxista")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

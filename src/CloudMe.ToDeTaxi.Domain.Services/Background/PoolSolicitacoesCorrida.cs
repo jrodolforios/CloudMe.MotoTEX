@@ -13,6 +13,8 @@ using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using CloudMe.ToDeTaxi.Domain.Model.Corrida;
 using Microsoft.Extensions.Configuration;
+using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
+using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 
 namespace CloudMe.ToDeTaxi.Domain.Services.Background
 {
@@ -57,24 +59,26 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
             {
                 using (var scope = parametros.ScopeFactory.CreateScope())
                 {
+                    var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                     var corridaService = scope.ServiceProvider.GetRequiredService<ICorridaService>();
                     var tarifaService = scope.ServiceProvider.GetRequiredService<ITarifaService>();
                     var veiculoTaxistaService = scope.ServiceProvider.GetRequiredService<IVeiculoTaxistaService>();
 
                     var tarifaVigente = (await tarifaService.GetAll()).FirstOrDefault();
 
-                    var veiculoTaxista = veiculoTaxistaService.Search(veicTx => veicTx.IdTaxista == taxista.Id).FirstOrDefault();
+                    var veiculoTaxista = veiculoTaxistaService.Search(veicTx => veicTx.IdTaxista == taxista.Id && veicTx.Ativo).FirstOrDefault();
 
                     var corrida = await corridaService.CreateAsync(new CorridaSummary()
                     {
                         IdSolicitacao = solicitacao.Id,
                         IdTaxista = taxista.Id,
-                        Status = StatusCorrida.Solicitada,
+                        Status = solicitacao.TipoAtendimento == TipoAtendimento.Agendado ? StatusCorrida.Agendada : StatusCorrida.Solicitada,
                         IdTarifa = tarifaVigente.Id,
-                        IdVeiculo = veiculoTaxista.Id
+                        IdVeiculo = veiculoTaxista.IdVeiculo,
+                        Inicio = solicitacao.TipoAtendimento == TipoAtendimento.Agendado ? solicitacao.Data : (DateTime?)null
                     });
 
-                    return corrida != null;
+                    return await unitOfWork.CommitAsync();
                 }
             }
 
@@ -116,13 +120,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                 using (var scope = parametros.ScopeFactory.CreateScope())
                 {
                     var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
-                    solicitacao = await solicitacaoCorridaRepo.FindByIdAsync(parametros.IdSolicitacaoCorrida);
+                    solicitacao = await solicitacaoCorridaRepo.FindByIdAsync(parametros.IdSolicitacaoCorrida, new[] { "LocalizacaoOrigem" });
                 }
 
                 if (solicitacao is null)
                 {
                     return;
                 }
+
+                if (solicitacao.Situacao == SituacaoSolicitacaoCorrida.Indefinido)
+                {
+                    // passa a avaliar a solicitação de corrida
+                    await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.EmAvaliacao);
+                }
+
+                IEnumerable<Taxista> taxistasEleitos = null;
 
                 while (solicitacao.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao)
                 {
@@ -137,9 +149,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                             {
                                 Thread.Sleep(parametros.JanelaAcumulacao);
 
-                                var num_taxistas = await ObterRespostasTaxistas(solicitacao);
+                                taxistasEleitos = await ClassificarTaxistasEleitos(solicitacao);
                                 await AlterarStatusMonitoramento(solicitacao,
-                                    num_taxistas == 0 ?
+                                    taxistasEleitos.Count() == 0 ?
                                     StatusMonitoramentoSolicitacaoCorrida.Disponibilidade : // nenhum taxista aceitou a solicitacao
                                     StatusMonitoramentoSolicitacaoCorrida.Conclusao // algum taxista aceitou a solicitacao
                                     );
@@ -157,13 +169,22 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
 
                                 do
                                 {
-                                    num_taxistas = await ObterRespostasTaxistas(solicitacao);
+                                    num_taxistas = await ObterRespostasTaxistas(solicitacao); // operação mais 'barata' que a classificação
+                                    if (num_taxistas > 0)
+                                    {
+                                        taxistasEleitos = await ClassificarTaxistasEleitos(solicitacao);
+                                        if (taxistasEleitos.Count() > 0)
+                                        {
+                                            break;
+                                        }
+                                    }
+
                                     Thread.Sleep(500);
 
-                                    accumTime += (DateTime.Now - currTime).Seconds;
+                                    accumTime += (DateTime.Now - currTime).Milliseconds;
                                     currTime = DateTime.Now;
                                 }
-                                while (accumTime < parametros.JanelaDisponibilidade || num_taxistas == 0);
+                                while (accumTime < parametros.JanelaDisponibilidade);
 
                                 // countdown atingido ou algum taxista aceitou a solicitação
                                 await AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Conclusao);
@@ -173,11 +194,16 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
 
                         case StatusMonitoramentoSolicitacaoCorrida.Conclusao:
                             {
-                                var taxistas = await ClassificarTaxistasEleitos(solicitacao);
-                                if (taxistas.Count() > 0)
+                                if (taxistasEleitos == null)
+                                {
+                                    // caso tenha chegado aqui após uma queda do sistema, por exemplo
+                                    taxistasEleitos = await ClassificarTaxistasEleitos(solicitacao);
+                                }
+
+                                if (taxistasEleitos.Count() > 0)
                                 {
                                     // cria registro de corrida para o primeiro taxista da classificação
-                                    await ElegerTaxista(solicitacao, taxistas.First());
+                                    await ElegerTaxista(solicitacao, taxistasEleitos.First());
 
                                     // muda o status da solicitação para aceita
                                     await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.Aceita);
@@ -229,7 +255,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                 
                 // obtém solicitações vigentes
                 var solicitacoes = solicitacaoCorridaRepo.Search(
-                    sol_corrida => sol_corrida.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao,
+                    sol_corrida =>
+                        sol_corrida.Situacao == SituacaoSolicitacaoCorrida.Indefinido ||
+                        sol_corrida.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao,
                     new[] { "Passageiro", "Passageiro.TaxistasFavoritos" });
 
                 foreach (var solicitacao in solicitacoes)
@@ -237,8 +265,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                     ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
                     {
                         IdSolicitacaoCorrida = solicitacao.Id,
-                        JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida.JanelaAcumulacao"),
-                        JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida.JanelaDisponibilidade"),
+                        JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
+                        JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
                         ScopeFactory = scopeFactory
                     });
                 }
@@ -250,8 +278,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                     ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
                     {
                         IdSolicitacaoCorrida = insertingEntry.Entity.Id,
-                        JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida.JanelaAcumulacao"),
-                        JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida.JanelaDisponibilidade"),
+                        JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
+                        JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
                         ScopeFactory = scopeFactory
                     });
                 };

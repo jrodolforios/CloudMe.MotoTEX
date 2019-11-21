@@ -122,6 +122,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
 
             // cria o registro de localização atual do passageiro
             var localizacaoSummary = new LocalizacaoSummary();
+            localizacaoSummary.Latitude = localizacaoSummary.Longitude = "0";
             var localizacao = await this._localizacaoService.CreateAsync(localizacaoSummary);
             if (_localizacaoService.IsInvalid())
             {

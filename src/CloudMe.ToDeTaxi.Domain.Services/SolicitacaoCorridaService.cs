@@ -7,16 +7,22 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CloudMe.ToDeTaxi.Domain.Enums;
+using System.Linq;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class SolicitacaoCorridaService : ServiceBase<SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>, ISolicitacaoCorridaService
     {
         private readonly ISolicitacaoCorridaRepository _SolicitacaoCorridaRepository;
+        private readonly ITaxistaRepository _TaxistaRepository;
 
-        public SolicitacaoCorridaService(ISolicitacaoCorridaRepository SolicitacaoCorridaRepository)
+        public SolicitacaoCorridaService(
+            ISolicitacaoCorridaRepository SolicitacaoCorridaRepository,
+            ITaxistaRepository taxistaRepository)
         {
             _SolicitacaoCorridaRepository = SolicitacaoCorridaRepository;
+            _TaxistaRepository = taxistaRepository;
         }
 
         public override string GetTag()
@@ -108,38 +114,57 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             if (summary.IdPassageiro.Equals(Guid.Empty))
             {
-                this.AddNotification(new Notification("IdPassageiro", "Passageiro: passasgeiro inexistente ou não informado"));
+                this.AddNotification(new Notification("IdPassageiro", "SolicitacaoCorrida: passasgeiro inexistente ou não informado"));
             }
 
             if (summary.IdLocalizacaoOrigem.Equals(Guid.Empty))
             {
-                this.AddNotification(new Notification("IdLocalizacaoOrigem", "Passageiro: local de origem inexistente ou não informado"));
+                this.AddNotification(new Notification("IdLocalizacaoOrigem", "SolicitacaoCorrida: local de origem inexistente ou não informado"));
             }
 
             if (summary.IdLocalizacaoDestino.Equals(Guid.Empty))
             {
-                this.AddNotification(new Notification("IdLocalizacaoDestino", "Passageiro: local de destino inexistente ou não informado"));
+                this.AddNotification(new Notification("IdLocalizacaoDestino", "SolicitacaoCorrida: local de destino inexistente ou não informado"));
             }
 
-            if (summary.IdRota.Equals(Guid.Empty))
+            /*if (summary.IdRota.Equals(Guid.Empty))
             {
                 this.AddNotification(new Notification("IdRota", "Passageiro: rota inexistente ou não informado"));
-            }
+            }*/
 
             if (summary.IdFormaPagamento.Equals(Guid.Empty))
             {
-                this.AddNotification(new Notification("IdFormaPagamento", "Passageiro: forma de pagamento inexistente ou não informado"));
+                this.AddNotification(new Notification("IdFormaPagamento", "SolicitacaoCorrida: forma de pagamento inexistente ou não informado"));
             }
 
             if (summary.TipoAtendimento == Enums.TipoAtendimento.Indefinido)
             {
-                this.AddNotification(new Notification("TipoAtendimento", "Passageiro: tipo de atendimento não definido"));
+                this.AddNotification(new Notification("TipoAtendimento", "SolicitacaoCorrida: tipo de atendimento não definido"));
             }
 
-            if (summary.Situacao == Enums.SituacaoSolicitacaoCorrida.Indefinido)
+            /*if (summary.Situacao == Enums.SituacaoSolicitacaoCorrida.Indefinido)
             {
                 this.AddNotification(new Notification("Situacao", "Passageiro: situação não definida"));
+            }*/
+        }
+
+        public async Task<bool> RegistrarAcaoTaxista(Guid id_solicitacao, Guid id_taxista, AcaoTaxistaSolicitacaoCorrida acao)
+        {
+            var solicitacao = Search(x => x.Id == id_solicitacao).FirstOrDefault();
+            if (solicitacao is null)
+            {
+                AddNotification(new Notification("Solicitações de corrida", "Registrar ação taxista: solicitação não encontrada"));
+                return false;
             }
+
+            var taxista = _TaxistaRepository.Search(x => x.Id == id_taxista).FirstOrDefault();
+            if (solicitacao is null)
+            {
+                AddNotification(new Notification("Solicitações de corrida", "Registrar ação taxista: taxista não encontrado"));
+                return false;
+            }
+
+            return await _SolicitacaoCorridaRepository.RegistrarAcaoTaxista(solicitacao, taxista, acao);
         }
     }
 }

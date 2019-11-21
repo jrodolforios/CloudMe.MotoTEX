@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using CloudMe.ToDeTaxi.Domain.Enums;
 using GeoCoordinatePortable;
 
@@ -18,7 +19,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public Guid IdLocalizacaoDestino { get; set; }
         public virtual Localizacao LocalizacaoDestino { get; set; }
 
-        public Guid IdRota { get; set; }
+        public Guid? IdRota { get; set; }
         public virtual Rota Rota { get; set; }
 
         public Guid IdFormaPagamento { get; set; }
@@ -47,8 +48,13 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 
         public static double ObterDistancia(Localizacao origem, Localizacao destino)
         {
-            GeoCoordinate pin1 = new GeoCoordinate(Convert.ToDouble(origem.Latitude), Convert.ToDouble(origem.Longitude));
-            GeoCoordinate pin2 = new GeoCoordinate(Convert.ToDouble(destino.Latitude), Convert.ToDouble(destino.Longitude));
+            GeoCoordinate pin1 = new GeoCoordinate(
+                Convert.ToDouble(origem.Latitude, CultureInfo.InvariantCulture.NumberFormat),
+                Convert.ToDouble(origem.Longitude, CultureInfo.InvariantCulture.NumberFormat));
+
+            GeoCoordinate pin2 = new GeoCoordinate(
+                Convert.ToDouble(destino.Latitude, CultureInfo.InvariantCulture.NumberFormat),
+                Convert.ToDouble(destino.Longitude, CultureInfo.InvariantCulture.NumberFormat));
 
             return pin1.GetDistanceTo(pin2);
         }

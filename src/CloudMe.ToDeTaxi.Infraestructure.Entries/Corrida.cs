@@ -16,7 +16,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public Guid IdVeiculo { get; set; }
         public virtual Veiculo Veiculo { get; set; }
 
-        public Guid IdRotaExecutada { get; set; }
+        public Guid? IdRotaExecutada { get; set; }
         public virtual Rota RotaExecutada { get; set; }
 
         public Guid IdTarifa { get; set; }

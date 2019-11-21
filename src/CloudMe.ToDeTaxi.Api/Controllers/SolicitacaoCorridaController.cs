@@ -8,6 +8,7 @@ using CloudMe.ToDeTaxi.Domain.Model.Corrida;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
+using CloudMe.ToDeTaxi.Domain.Enums;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -80,6 +81,20 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         public async Task<Response<bool>> Delete(Guid id)
         {
             return await base.ResponseAsync(await this._SolicitacaoCorridaService.DeleteAsync(id), _SolicitacaoCorridaService);
+        }
+
+        /// <summary>
+        /// Informa a ação do taxista a uma solicitação de corrida.
+        /// </summary>
+        /// <param name="id_solicitacao">Id da solicitação</param>
+        /// <param name="id_taxista">Id do taxista</param>
+        /// <param name="acao">Ação tomada pelo taxista na solicitação</param>
+        [HttpPost("acao_taxista/{id}")]
+        //[ValidateAntiForgeryToken]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> AcaoTaxistaSolicitacao(Guid id_solicitacao, Guid id_taxista, AcaoTaxistaSolicitacaoCorrida acao)
+        {
+            return await base.ResponseAsync(await this._SolicitacaoCorridaService.RegistrarAcaoTaxista(id_solicitacao, id_taxista, acao), _SolicitacaoCorridaService);
         }
     }
 }

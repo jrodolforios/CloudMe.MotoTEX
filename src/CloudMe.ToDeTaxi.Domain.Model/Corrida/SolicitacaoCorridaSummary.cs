@@ -9,7 +9,7 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Corrida
         public Guid IdPassageiro { get; set; }
         public Guid IdLocalizacaoOrigem { get; set; }
         public Guid IdLocalizacaoDestino { get; set; }
-        public Guid IdRota { get; set; }
+        public Guid? IdRota { get; set; }
         public Guid IdFormaPagamento { get; set; }
         public Guid? IdFaixaDesconto { get; set; }
         public TipoAtendimento TipoAtendimento { get; set; }

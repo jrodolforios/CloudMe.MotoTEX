@@ -59,26 +59,39 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
                 .Include(x => x.FaixasDesconto)
                 .Include(x => x.LocalizacaoAtual)
                 .Include(x => x.Veiculos)
+                //.Include(x => x.Favoritos)
                 .Include(x => x.SolicitacoesCorrida)
-                .Where(x => 
+                .Where(x =>
                     x.Ativo && // taxista que está ativo
                     x.Disponivel && // ... que está disponível
-                    x.FormasPagamento.Any(frmPgto => frmPgto.Id == solicitacao.IdFormaPagamento) && // ... que aceita a forma de pagamento da solicitação
-                    x.FaixasDesconto.Any(fxDesc => fxDesc.Id == solicitacao.IdFaixaDesconto) && // ... que adota a faixa de desconto solicitada
-                    x.Veiculos.Any(veicTx => veicTx.Ativo) &&  // ... que está utilizando um veículo no momento
+                    x.FormasPagamento.Any(frmPgto => frmPgto.IdFormaPagamento == solicitacao.IdFormaPagamento) && // ... que aceita a forma de pagamento da solicitação
+                    x.FaixasDesconto.Any(fxDesc => fxDesc.IdFaixaDesconto == solicitacao.IdFaixaDesconto) && // ... que adota a faixa de desconto solicitada
+                    x.Veiculos.Any(veicTx => veicTx.Ativo) &&   // ... que está utilizando um veículo no momento
                     x.SolicitacoesCorrida.Any(
-                        solCorrTx => solCorrTx.IdSolicitacaoCorrida == solicitacao.Id && 
-                        solCorrTx.Acao == AcaoTaxistaSolicitacaoCorrida.Aceita)); // ... que participou do pregão da solicitação
+                        solCorrTx => solCorrTx.IdSolicitacaoCorrida == solicitacao.Id &&
+                        solCorrTx.Acao == AcaoTaxistaSolicitacaoCorrida.Aceita)); // ... que participou do pregão da solicitação */
 
             var favoritos = Context.Set<Favorito>()
                 .Where(fav => fav.IdPassageiro == solicitacao.IdPassageiro);
 
-            var resultado =
-                from taxista in taxistas
-                join favorito in favoritos on taxista.Id equals favorito.IdTaxista into tx_fav_join
+            var taxistas_com_favoritos =
+                from tx in taxistas
+                join favorito in favoritos on tx.Id equals favorito.IdTaxista into tx_fav_join
                 from tx_fav in tx_fav_join.DefaultIfEmpty()
-                orderby tx_fav.Preferencia, SolicitacaoCorrida.ObterDistancia(solicitacao.LocalizacaoOrigem, taxista.LocalizacaoAtual)
-                select taxista;
+                select new
+                {
+                    taxista = tx,
+                    distancia = SolicitacaoCorrida.ObterDistancia(solicitacao.LocalizacaoOrigem, tx.LocalizacaoAtual),
+                    pref_favorito = tx_fav != null ? tx_fav.Preferencia : 0
+                };
+
+            //orderby tx_fav.Preferencia, SolicitacaoCorrida.ObterDistancia(solicitacao.LocalizacaoOrigem, taxista.LocalizacaoAtual)
+            //select taxista;
+
+            var resultado =
+                from tx_fav in taxistas_com_favoritos
+                orderby tx_fav.pref_favorito, tx_fav.distancia
+                select tx_fav.taxista;
 
             return await resultado.Distinct().ToListAsync();
         }
