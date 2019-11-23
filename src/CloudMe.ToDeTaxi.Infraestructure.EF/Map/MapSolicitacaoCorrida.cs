@@ -19,6 +19,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
             builder.Property(x => x.ETA).IsRequired();
             builder.Property(x => x.TempoDisponivel).IsRequired(false);
             builder.Property(x => x.ValorEstimado).IsRequired(false);
+            builder.Property(x => x.ValorEstimado).IsRequired(true).HasDefaultValue(false);
             builder.Property(x => x.ValorProposto).IsRequired(false);
             builder.Property(x => x.Situacao).IsRequired().HasDefaultValue(SituacaoSolicitacaoCorrida.Indefinido);
             builder.Property(x => x.StatusMonitoramento).IsRequired().HasDefaultValue(StatusMonitoramentoSolicitacaoCorrida.Indefinido);

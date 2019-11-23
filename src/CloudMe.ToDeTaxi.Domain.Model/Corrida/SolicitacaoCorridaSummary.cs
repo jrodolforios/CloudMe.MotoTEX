@@ -18,6 +18,7 @@ namespace CloudMe.ToDeTaxi.Domain.Model.Corrida
         public int? TempoDisponivel { get; set; }
         public float? ValorEstimado { get; set; }
         public float? ValorProposto { get; set; }
+        public bool IsInterUrbano { get; set; }
         public SituacaoSolicitacaoCorrida Situacao { get; set; }
     }
 }

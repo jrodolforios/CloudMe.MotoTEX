@@ -14,10 +14,12 @@ namespace CloudMe.ToDeTaxi.Domain.Services
     public class VeiculoTaxistaService : ServiceBase<VeiculoTaxista, VeiculoTaxistaSummary, Guid>, IVeiculoTaxistaService
     {
         private readonly IVeiculoTaxistaRepository _VeiculoTaxistaRepository;
+        private readonly ITaxistaRepository _taxistaRepository;
 
-        public VeiculoTaxistaService(IVeiculoTaxistaRepository VeiculoTaxistaRepository)
+        public VeiculoTaxistaService(IVeiculoTaxistaRepository VeiculoTaxistaRepository, ITaxistaRepository taxistaRepository)
         {
             _VeiculoTaxistaRepository = VeiculoTaxistaRepository;
+            _taxistaRepository = taxistaRepository;
         }
 		
 		public override string GetTag()
@@ -43,7 +45,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         {
             var veiculosTaxista = _VeiculoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id && x.Ativo).ToList();
 
-            return _VeiculoTaxistaRepository.FindAll().Any(x => veiculosTaxista.Any(y => y.IdVeiculo == x.IdVeiculo && y.IdTaxista != id && y.Ativo));
+            var veiculoTaxistas = _VeiculoTaxistaRepository.FindAll().Where(x => veiculosTaxista.Any(y => y.IdVeiculo == x.IdVeiculo && y.IdTaxista != id && y.Ativo)).ToList();
+
+
+
+            return _taxistaRepository.FindAll().Any(x => veiculoTaxistas.Any(y => y.IdTaxista == x.Id && x.Ativo && x.Disponivel));
         }
 
         protected override Task<VeiculoTaxista> CreateEntryAsync(VeiculoTaxistaSummary summary)

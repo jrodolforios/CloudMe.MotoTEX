@@ -138,7 +138,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpPost("pausar_corrida/{id}")]
-        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<int>), (int)HttpStatusCode.OK)]
         public async Task<Response<int>> PausarCorrida(Guid id)
         {
             return await base.ResponseAsync(await this._corridaService.PausarCorrida(id), _corridaService);

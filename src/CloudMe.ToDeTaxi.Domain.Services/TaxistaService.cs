@@ -192,12 +192,14 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             var taxista = await _TaxistaRepository.FindByIdAsync(id);
 
-            if (!_veiculoTaxistaService.IsTaxiAtivoEmUsoPorOutroTaxista(id) && disponivel)
+            if (!_veiculoTaxistaService.IsTaxiAtivoEmUsoPorOutroTaxista(id) && disponivel && taxista.Ativo)
                 taxista.Disponivel = true;
             else
                 taxista.Disponivel = false;
 
             sucesso = (!_veiculoTaxistaService.IsTaxiAtivoEmUsoPorOutroTaxista(id) && disponivel) || !disponivel;
+
+            sucesso = sucesso && taxista.Ativo;
 
             if (sucesso)
                 sucesso = await _TaxistaRepository.ModifyAsync(taxista);
@@ -207,18 +209,18 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         public async Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao)
         {
-            var passageiro = Search(x => x.Id == Key).FirstOrDefault();
-            if (passageiro is null)
+            var taxista = Search(x => x.Id == Key).FirstOrDefault();
+            if (taxista is null)
             {
                 AddNotification(new Notification("Taxistas", "Informar localização: taxista não localizado"));
                 return false;
             }
 
-            var localizacaoSummmary = await _LocalizacaoService.GetSummaryAsync(passageiro.LocalizacaoAtual);
+            var localizacaoSummmary = await _LocalizacaoService.GetSummaryAsync(taxista.LocalizacaoAtual);
 
             localizacaoSummmary.Latitude = localizacao.Latitude;
             localizacaoSummmary.Longitude = localizacao.Longitude;
-
+            localizacaoSummmary.IdUsuario = taxista.IdUsuario;
             return (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
         }
 

@@ -12,6 +12,7 @@ namespace CloudMe.ToDeTaxi.Domain.Enums
         EmCurso,
         EmEspera,
         Cancelada,
-        Concluida
+        Concluida,
+        EmNegociacao
     }
 }

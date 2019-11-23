@@ -50,7 +50,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 TempoDisponivel = summary.TempoDisponivel,
                 ValorEstimado = summary.ValorEstimado,
                 ValorProposto = summary.ValorProposto,
-                Situacao = summary.Situacao
+                Situacao = summary.Situacao,
+                IsInterUrbano = summary.IsInterUrbano                
             };
             return Task.FromResult(SolicitacaoCorrida);
         }
@@ -72,7 +73,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 TempoDisponivel = entry.TempoDisponivel,
                 ValorEstimado = entry.ValorEstimado,
                 ValorProposto = entry.ValorProposto,
-                Situacao = entry.Situacao
+                Situacao = entry.Situacao,
+                IsInterUrbano = entry.IsInterUrbano
             };
 
             return Task.FromResult(SolicitacaoCorrida);
@@ -103,6 +105,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             entry.ValorEstimado = summary.ValorEstimado;
             entry.ValorProposto = summary.ValorProposto;
             entry.Situacao = summary.Situacao;
+            entry.IsInterUrbano = summary.IsInterUrbano;
         }
 
         protected override void ValidateSummary(SolicitacaoCorridaSummary summary)

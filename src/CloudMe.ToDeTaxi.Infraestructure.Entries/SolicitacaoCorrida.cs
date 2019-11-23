@@ -46,6 +46,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 
         public virtual IEnumerable<SolicitacaoCorridaTaxista> Taxistas { get; set; } // taxistas que responderam à solicitação
 
+        public bool IsInterUrbano { get; set; }
+
         public static double ObterDistancia(Localizacao origem, Localizacao destino)
         {
             GeoCoordinate pin1 = new GeoCoordinate(
