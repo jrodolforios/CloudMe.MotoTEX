@@ -135,41 +135,6 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
                 using (var context = serviceScope.ServiceProvider.GetService<CloudMeToDeTaxiContext>())
                 {
                     context.Database.Migrate();
-
-                    // DEBUB - REMOVER APÓS PRIMEIRA MIGRAÇÃO
-                    const string latitude = "-17.8588";
-                    const string longitude = "-41.509";
-                    await context.Taxistas.ForEachAsync(taxista =>
-                    {
-                        if (!taxista.IdLocalizacaoAtual.HasValue)
-                        {
-                            Localizacao localizacao = new Localizacao();
-                            localizacao.IdUsuario = taxista.IdUsuario;
-                            localizacao.Latitude = latitude;
-                            localizacao.Longitude = longitude;
-                            context.Entry(localizacao).State = EntityState.Added;
-
-                            taxista.IdLocalizacaoAtual = localizacao.Id;
-                            context.Entry(taxista).State = EntityState.Modified;
-                        }
-                    });
-
-                    await context.Passageiros.ForEachAsync(passageiro =>
-                    {
-                        if (!passageiro.IdLocalizacaoAtual.HasValue)
-                        {
-                            Localizacao localizacao = new Localizacao();
-                            localizacao.IdUsuario = passageiro.IdUsuario;
-                            localizacao.Latitude = latitude;
-                            localizacao.Longitude = longitude;
-                            context.Entry(localizacao).State = EntityState.Added;
-
-                            passageiro.IdLocalizacaoAtual = localizacao.Id;
-                            context.Entry(passageiro).State = EntityState.Modified;
-                        }
-                    });
-
-                    context.SaveChanges();
                 }
             }
         }
