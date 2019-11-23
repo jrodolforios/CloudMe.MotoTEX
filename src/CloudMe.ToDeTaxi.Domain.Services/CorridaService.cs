@@ -178,5 +178,50 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             else
                 return false;
         }
+
+        public async Task<int> PausarCorrida(Guid id)
+        {
+            var corrida = await _CorridaRepository.FindByIdAsync(id);
+            if(corrida == null)
+            {
+                AddNotification(new Notification("Pausar corrida", "Corrida não encontrada"));
+                return -1;
+            }
+
+            if (corrida.Status != StatusCorrida.EmCurso)
+            {
+                AddNotification(new Notification("Pausar corrida", "Corrida não está em curso"));
+                return corrida.TempoEmEspera;
+            }
+
+            corrida.UltimaPausa = DateTime.Now;
+            corrida.Status = StatusCorrida.EmEspera;
+            await _CorridaRepository.ModifyAsync(corrida);
+
+            return corrida.TempoEmEspera;
+        }
+
+
+        public async Task<bool> RetomarCorrida(Guid id)
+        {
+            var corrida = await _CorridaRepository.FindByIdAsync(id);
+            if (corrida == null)
+            {
+                AddNotification(new Notification("Pausar corrida", "Corrida não encontrada"));
+                return false;
+            }
+
+            if (corrida.Status != StatusCorrida.EmEspera)
+            {
+                AddNotification(new Notification("Pausar corrida", "Corrida não está em espera"));
+                return false;
+            }
+
+            corrida.TempoEmEspera += (DateTime.Now - corrida.UltimaPausa.Value).Seconds;
+            corrida.Status = StatusCorrida.EmCurso;
+            await _CorridaRepository.ModifyAsync(corrida);
+
+            return true;
+        }
     }
 }

@@ -15,7 +15,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
             builder.ToTable("SolicitacaoCorrida");
 
             builder.Property(x => x.TipoAtendimento).IsRequired().HasDefaultValue(TipoAtendimento.Indefinido);
-            builder.Property(x => x.Data).IsRequired();
+            builder.Property(x => x.Data).IsRequired(false);
             builder.Property(x => x.ETA).IsRequired();
             builder.Property(x => x.TempoDisponivel).IsRequired(false);
             builder.Property(x => x.ValorEstimado).IsRequired(false);

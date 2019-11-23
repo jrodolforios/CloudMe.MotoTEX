@@ -93,6 +93,9 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             services.AddSingleton<PoolSolicitacoesCorrida>();
             services.AddSingleton<IHostedService, PoolSolicitacoesCorrida>(serviceProvider => serviceProvider.GetService<PoolSolicitacoesCorrida>());
 
+            services.AddSingleton<PoolCorridas>();
+            services.AddSingleton<IHostedService, PoolCorridas>(serviceProvider => serviceProvider.GetService<PoolCorridas>());
+
             return services;
         }
         public static IServiceCollection AddToDeTaxiRepositories(this IServiceCollection services)

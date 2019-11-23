@@ -30,7 +30,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 
         public TipoAtendimento TipoAtendimento { get; set; }
 
-        public DateTime Data { get; set; }
+        public DateTime? Data { get; set; }
 
         public int ETA { get; set; }
         public int? TempoDisponivel { get; set; }

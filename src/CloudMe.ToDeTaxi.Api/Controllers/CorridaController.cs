@@ -132,5 +132,27 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         {
             return await base.ResponseAsync(await this._corridaService.DeleteAsync(id), _corridaService);
         }
+
+        /// <summary>
+        /// Pausa uma corrida.
+        /// </summary>
+        /// <param name="id">DialList's ID</param>
+        [HttpPost("{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<int>> PausarCorrida(Guid id)
+        {
+            return await base.ResponseAsync(await this._corridaService.PausarCorrida(id), _corridaService);
+        }
+
+        /// <summary>
+        /// Retoma uma corrida pausada.
+        /// </summary>
+        /// <param name="id">DialList's ID</param>
+        [HttpPost("{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> RetomarCorrida(Guid id)
+        {
+            return await base.ResponseAsync(await this._corridaService.RetomarCorrida(id), _corridaService);
+        }
     }
 }

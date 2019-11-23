@@ -23,7 +23,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
         private class ParametrosMonitoramento
         {
             public Guid IdSolicitacaoCorrida { get; set; }
-            public IServiceScopeFactory ScopeFactory { get; set; }
+            public IServiceScopeFactory serviceScopeFactory { get; set; }
             public int JanelaAcumulacao { get; set; } = 10000; // default = 10s
             public int JanelaDisponibilidade { get; set; } = 50000; // default = 50s
         }
@@ -31,38 +31,40 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
         private class MonitorSolicitacaoCorrida
         {
             ParametrosMonitoramento parametros { get; set; }
+            IServiceScope serviceScope { get; set; }
 
             public MonitorSolicitacaoCorrida(ParametrosMonitoramento parametros)
             {
                 this.parametros = parametros;
+                serviceScope = parametros.serviceScopeFactory.CreateScope();
             }
 
             private async Task<int> ObterRespostasTaxistas(SolicitacaoCorrida solicitacao)
             {
-                using (var scope = parametros.ScopeFactory.CreateScope())
+                //using (var scope = parametros.serviceScope.CreateScope())
                 {
-                    var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
+                    var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
                     return await solicitacaoCorridaRepo.ObterNumeroAceitacoes(solicitacao);
                 }
             }
 
             private async Task<IEnumerable<Taxista>> ClassificarTaxistasEleitos(SolicitacaoCorrida solicitacao)
             {
-                using (var scope = parametros.ScopeFactory.CreateScope())
+                //using (var scope = parametros.serviceScope.CreateScope())
                 {
-                    var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
+                    var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
                     return await solicitacaoCorridaRepo.ClassificarTaxistas(solicitacao);
                 }
             }
 
             private async Task<bool> ElegerTaxista(SolicitacaoCorrida solicitacao, Taxista taxista)
             {
-                using (var scope = parametros.ScopeFactory.CreateScope())
+                //using (var scope = parametros.serviceScope.CreateScope())
                 {
-                    var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                    var corridaService = scope.ServiceProvider.GetRequiredService<ICorridaService>();
-                    var tarifaService = scope.ServiceProvider.GetRequiredService<ITarifaService>();
-                    var veiculoTaxistaService = scope.ServiceProvider.GetRequiredService<IVeiculoTaxistaService>();
+                    var unitOfWork = serviceScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                    var corridaService = serviceScope.ServiceProvider.GetRequiredService<ICorridaService>();
+                    var tarifaService = serviceScope.ServiceProvider.GetRequiredService<ITarifaService>();
+                    var veiculoTaxistaService = serviceScope.ServiceProvider.GetRequiredService<IVeiculoTaxistaService>();
 
                     var tarifaVigente = (await tarifaService.GetAll()).FirstOrDefault();
 
@@ -84,18 +86,18 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
 
             private async Task<bool> AlterarStatusMonitoramento(SolicitacaoCorrida solicitacao, StatusMonitoramentoSolicitacaoCorrida status)
             {
-                using (var scope = parametros.ScopeFactory.CreateScope())
+                //using (var scope = parametros.serviceScope.CreateScope())
                 {
-                    var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
+                    var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
                     return await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, status);
                 }
             }
 
             private async Task<bool> AlterarSituacaoSolicitacao(SolicitacaoCorrida solicitacao, SituacaoSolicitacaoCorrida situacao)
             {
-                using (var scope = parametros.ScopeFactory.CreateScope())
+                //using (var scope = parametros.serviceScope.CreateScope())
                 {
-                    var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
+                    var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
                     return await solicitacaoCorridaRepo.AlterarSituacao(solicitacao, situacao);
                 }
             }
@@ -117,9 +119,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                  */
 
                 SolicitacaoCorrida solicitacao = null;
-                using (var scope = parametros.ScopeFactory.CreateScope())
+                //using (var scope = parametros.serviceScope.CreateScope())
                 {
-                    var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
+                    var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
                     solicitacao = await solicitacaoCorridaRepo.FindByIdAsync(parametros.IdSolicitacaoCorrida, new[] { "LocalizacaoOrigem" });
                 }
 
@@ -267,7 +269,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                         IdSolicitacaoCorrida = solicitacao.Id,
                         JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
                         JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
-                        ScopeFactory = scopeFactory
+                        serviceScopeFactory = scopeFactory
                     });
                 }
 
@@ -280,7 +282,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                         IdSolicitacaoCorrida = insertingEntry.Entity.Id,
                         JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
                         JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
-                        ScopeFactory = scopeFactory
+                        serviceScopeFactory = scopeFactory
                     });
                 };
             }

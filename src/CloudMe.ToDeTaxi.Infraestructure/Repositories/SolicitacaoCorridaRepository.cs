@@ -65,7 +65,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
                     x.Ativo && // taxista que está ativo
                     x.Disponivel && // ... que está disponível
                     x.FormasPagamento.Any(frmPgto => frmPgto.IdFormaPagamento == solicitacao.IdFormaPagamento) && // ... que aceita a forma de pagamento da solicitação
-                    x.FaixasDesconto.Any(fxDesc => fxDesc.IdFaixaDesconto == solicitacao.IdFaixaDesconto || solicitacao.IdFaixaDesconto == null) && // ... que adota a faixa de desconto solicitada
+                    x.FaixasDesconto.Any(fxDesc => fxDesc.IdFaixaDesconto == solicitacao.IdFaixaDesconto || !solicitacao.IdFaixaDesconto.HasValue) && // ... que adota a faixa de desconto solicitada
                     x.Veiculos.Any(veicTx => veicTx.Ativo) &&   // ... que está utilizando um veículo no momento
                     x.SolicitacoesCorrida.Any(
                         solCorrTx => solCorrTx.IdSolicitacaoCorrida == solicitacao.Id &&

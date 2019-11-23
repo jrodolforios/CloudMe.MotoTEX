@@ -25,6 +25,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public DateTime? Inicio { get; set; }
         public DateTime? Fim { get; set; }
 
+        public DateTime? UltimaPausa { get; set; }
+
         public AvaliacaoUsuario? AvaliacaoTaxista { get; set; }
         public AvaliacaoUsuario? AvaliacaoPassageiro { get; set; }
 
