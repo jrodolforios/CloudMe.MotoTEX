@@ -137,7 +137,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// Pausa uma corrida.
         /// </summary>
         /// <param name="id">DialList's ID</param>
-        [HttpPost("{id}")]
+        [HttpPost("pausar_corrida/{id}")]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         public async Task<Response<int>> PausarCorrida(Guid id)
         {
@@ -148,7 +148,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// Retoma uma corrida pausada.
         /// </summary>
         /// <param name="id">DialList's ID</param>
-        [HttpPost("{id}")]
+        [HttpPost("retomar_corrida/{id}")]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         public async Task<Response<bool>> RetomarCorrida(Guid id)
         {
