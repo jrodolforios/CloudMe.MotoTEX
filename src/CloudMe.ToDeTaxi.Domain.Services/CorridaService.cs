@@ -154,7 +154,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         {
             var corrida = await _CorridaRepository.FindByIdAsync(id);
 
-            if (corrida != null) { 
+            if (corrida != null)
+            {
                 corrida.AvaliacaoTaxista = (AvaliacaoUsuario)classificacao;
 
                 await _CorridaRepository.ModifyAsync(corrida);
@@ -182,7 +183,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public async Task<int> PausarCorrida(Guid id)
         {
             var corrida = await _CorridaRepository.FindByIdAsync(id);
-            if(corrida == null)
+            if (corrida == null)
             {
                 AddNotification(new Notification("Pausar corrida", "Corrida não encontrada"));
                 return -1;
@@ -222,6 +223,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             await _CorridaRepository.ModifyAsync(corrida);
 
             return true;
+        }
+
+        public async Task<List<CorridaSummary>> RecuperarAPartirDeData(DateTime data)
+        {
+            var result = _SolicitacaoCorridaRepository.FindAll().Where(x => x.Data >= data).ToList();
+
+            var resultFinal = _CorridaRepository.FindAll().Where(x => result.Any(y => y.Id == x.IdSolicitacao)).ToList();
+            var resultEnviar = new List<CorridaSummary>();
+
+            foreach (var x in resultFinal)
+            {
+                resultEnviar.Add(await CreateSummaryAsync(x));
+            }
+
+            return resultEnviar;
         }
     }
 }

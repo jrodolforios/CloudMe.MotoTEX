@@ -15,5 +15,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
         Task<bool> ClassificaPassageiro(Guid id, int classificacao);
         Task<int> PausarCorrida(Guid id);
         Task<bool> RetomarCorrida(Guid id);
+        Task<List<CorridaSummary>> RecuperarAPartirDeData(DateTime data);
     }
 }

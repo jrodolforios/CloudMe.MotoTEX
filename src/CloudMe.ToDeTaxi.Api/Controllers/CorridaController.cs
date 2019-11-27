@@ -145,6 +145,17 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Pausa uma corrida.
+        /// </summary>
+        /// <param name="data">DialList's ID</param>
+        [HttpPost("recuperar_apartir_de_data/{data}")]
+        [ProducesResponseType(typeof(Response<List<CorridaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<List<CorridaSummary>>> RecuperarAPartirDeData(DateTime data)
+        {
+            return await ResponseAsync(await _corridaService.RecuperarAPartirDeData(data), _corridaService);
+        }
+
+        /// <summary>
         /// Retoma uma corrida pausada.
         /// </summary>
         /// <param name="id">DialList's ID</param>
