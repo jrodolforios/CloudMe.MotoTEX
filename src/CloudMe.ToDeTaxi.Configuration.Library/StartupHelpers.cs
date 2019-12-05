@@ -31,6 +31,7 @@ using EntityFrameworkCore.Triggers.AspNetCore;
 using CloudMe.ToDeTaxi.Domain.Services.Background;
 using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
 using Microsoft.Extensions.Hosting;
+using CloudMe.ToDeTaxi.Domain.Notifications.Abstracts;
 
 namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 {
@@ -86,10 +87,10 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             services.AddTriggers();
 
             services.AddSingleton<PoolLocalizacaoTaxista>();
-            services.AddSingleton<IHostedService, PoolLocalizacaoTaxista>(serviceProvider =>serviceProvider.GetService<PoolLocalizacaoTaxista>());
+            services.AddSingleton<IPoolLocalizacaoTaxista, PoolLocalizacaoTaxista>(serviceProvider =>serviceProvider.GetService<PoolLocalizacaoTaxista>());
 
             services.AddSingleton<PoolLocalizacaoPassageiro>();
-            services.AddSingleton<IHostedService, PoolLocalizacaoPassageiro>(serviceProvider => serviceProvider.GetService<PoolLocalizacaoPassageiro>());
+            services.AddSingleton<IPoolLocalizacaoPassageiro, PoolLocalizacaoPassageiro>(serviceProvider => serviceProvider.GetService<PoolLocalizacaoPassageiro>());
 
             services.AddSingleton<PoolSolicitacoesCorrida>();
             services.AddSingleton<IHostedService, PoolSolicitacoesCorrida>(serviceProvider => serviceProvider.GetService<PoolSolicitacoesCorrida>());
