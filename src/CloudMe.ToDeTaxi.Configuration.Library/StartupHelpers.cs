@@ -76,6 +76,7 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             services.AddTransient<ICorVeiculoService, CorVeiculoService>();
             services.AddTransient<IContratoService, ContratoService>();
             services.AddTransient<IMensagemService, MensagemService>();
+            services.AddTransient<IEmergenciaService, EmergenciaService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped(p => p.GetService<IHttpContextAccessor>()?.HttpContext);
@@ -124,6 +125,7 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             services.AddTransient<IContratoRepository, ContratoRepository>();
             services.AddTransient<IMensagemRepository, MensagemRepository>();
             services.AddTransient<IMensagemDestinatarioRepository, MensagemDestinatarioRepository>();
+            services.AddTransient<IEmergenciaRepository, EmergenciaRepository>();
 
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
