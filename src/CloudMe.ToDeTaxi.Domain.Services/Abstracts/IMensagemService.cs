@@ -13,6 +13,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
         Task<IEnumerable<Guid>> ObterConversacoesComUsuarios(Guid id_usuario, DateTime? inicio, DateTime? fim);
         Task<IEnumerable<Guid>> ObterConversacoesComGruposUsuarios(Guid id_usuario, DateTime? inicio, DateTime? fim);
 
+        Task<IEnumerable<DetalhesMensagem>> ObterMensagensUsuario(Guid id_usuario, DateTime? inicio, DateTime? fim);
         Task<IEnumerable<DetalhesMensagem>> ObterMensagensConversacaoUsuario(Guid id_usuario, Guid id_usuario_conversacao, DateTime? inicio, DateTime? fim);
         Task<IEnumerable<DetalhesMensagem>> ObterMensagensConversacaoGrupoUsuario(Guid id_grupo_usuario, DateTime? inicio, DateTime? fim);
 

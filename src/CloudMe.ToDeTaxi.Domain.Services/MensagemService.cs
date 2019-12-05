@@ -147,7 +147,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 AddNotification(
                     new Notification(
-                        "Enviar mensagem", 
+                        "Enviar mensagem",
                         string.Format("Mensagem não enviada: usuário {0} não encontrado.", id_usuario.ToString())
                         )
                     );
@@ -315,9 +315,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         public async Task<IEnumerable<Guid>> ObterConversacoesComUsuarios(Guid id_usuario, DateTime? inicio, DateTime? fim)
         {
-            return mensagemDestinatarioRepository.Search( x =>
-                    (x.Mensagem.IdRemetente == id_usuario || x.Usuario.Id == id_usuario) &&
-                    (!x.IdGrupoUsuario.HasValue), new[] { "Mensagem" })
+            return mensagemDestinatarioRepository.Search(x =>
+                   (x.Mensagem.IdRemetente == id_usuario || x.Usuario.Id == id_usuario) &&
+                   (!x.IdGrupoUsuario.HasValue), new[] { "Mensagem" })
                     .Select(x => x.Id)
                     .Distinct();
         }
@@ -361,8 +361,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return DetalharMensagens(msgsDest);*/
 
             var msgs = mensagemRepository.Search(x =>
-                    (( x.IdRemetente == id_usuario && x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario_conversacao) ) ||
-                     ( x.IdRemetente == id_usuario_conversacao && x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario) )) &&
+                    ((x.IdRemetente == id_usuario && x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario_conversacao)) ||
+                     (x.IdRemetente == id_usuario_conversacao && x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario))) &&
                     x.Inserted >= inicio &&
                     x.Inserted <= fim,
                     new[] { "Destinatarios" })
@@ -371,8 +371,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             return msgs.Select(msg =>
             {
-                var msgDst = msg.Destinatarios.FirstOrDefault(x => 
-                    x.IdUsuario == id_usuario_conversacao || 
+                var msgDst = msg.Destinatarios.FirstOrDefault(x =>
+                    x.IdUsuario == id_usuario_conversacao ||
                     x.IdUsuario == id_usuario);
 
                 return new DetalhesMensagem()
@@ -386,6 +386,48 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                     DataEnvio = msg.Inserted,
                     DataRecebimento = msgDst.DataRecebimento,
                     DataLeitura = msgDst.DataLeitura
+                };
+            });
+
+        }
+
+        public async Task<IEnumerable<DetalhesMensagem>> ObterMensagensUsuario(Guid id_usuario, DateTime? inicio, DateTime? fim)
+        {
+            /*var msgsDest = mensagemDestinatarioRepository.Search(x =>
+                    ((x.Mensagem.IdRemetente == id_usuario && x.IdUsuario == id_usuario_conversacao) ||
+                     (x.Mensagem.IdRemetente == id_usuario_conversacao && x.IdUsuario == id_usuario)) &&
+                    x.Mensagem.Inserted >= inicio &&
+                    x.Mensagem.Inserted <= fim, 
+                    new[] { "Mensagem" })
+                    .OrderBy(x => x.Mensagem.Inserted)
+                    .Distinct();
+
+            return DetalharMensagens(msgsDest);*/
+
+            var msgs = mensagemRepository.Search(x =>
+                    (x.IdRemetente == id_usuario || x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario)) &&
+                    x.Inserted >= inicio &&
+                    x.Inserted <= fim,
+                    new[] { "Destinatarios" })
+                    .OrderBy(x => x.Inserted)
+                    .Distinct();
+
+            return msgs.Select(msg =>
+            {
+                var msgDst = msg.Destinatarios.FirstOrDefault(x =>
+                    x.IdUsuario == id_usuario || x.IdGrupoUsuario != null);
+
+                return new DetalhesMensagem()
+                {
+                    IdMensagem = msg.Id,
+                    IdRemetente = msg.IdRemetente,
+                    IdDestinatario = msgDst?.IdUsuario,
+                    IdGrupo = msgDst?.IdGrupoUsuario,
+                    Assunto = msg.Assunto,
+                    Corpo = msg.Corpo,
+                    DataEnvio = msg.Inserted,
+                    DataRecebimento = msgDst?.DataRecebimento,
+                    DataLeitura = msgDst?.DataLeitura
                 };
             });
 

@@ -45,6 +45,17 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Obtém todas as mensagens do usuário (como remetente ou destinatário)
+        /// </summary>
+        [HttpGet("msgs_conversacao_usr")]
+        [ProducesResponseType(typeof(Response<IEnumerable<DetalhesMensagem>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<DetalhesMensagem>>> ObterMensagensUsuario(Guid id_usuario, DateTime? inicio, DateTime? fim)
+        {
+            return await base.ResponseAsync(
+                await _MensagemService.ObterMensagensUsuario(id_usuario, inicio, fim), _MensagemService);
+        }
+
+        /// <summary>
         /// Obtém mensagens da conversação de um usuário com outro usuário.
         /// </summary>
         [HttpGet("msgs_conversacao_usr")]
