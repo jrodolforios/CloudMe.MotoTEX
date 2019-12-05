@@ -15,5 +15,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         //public DateTime DataExclusao { get; set; }
         //public bool Ativo { get; set; }
         public virtual IEnumerable<UsuarioGrupoUsuario> Grupos { get; set; }
+
+        public virtual IEnumerable<Mensagem> MensagensEnviadas { get; set; }
+        public virtual IEnumerable<MensagemDestinatario> MensagensRecebidas { get; set; }
     }
 }

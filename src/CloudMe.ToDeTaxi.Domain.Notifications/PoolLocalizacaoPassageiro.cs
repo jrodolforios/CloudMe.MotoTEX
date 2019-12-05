@@ -1,6 +1,5 @@
 ﻿using CloudMe.ToDeTaxi.Domain.Notifications.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
-using CloudMe.ToDeTaxi.Domain.Services.Abstracts.Background;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using System;

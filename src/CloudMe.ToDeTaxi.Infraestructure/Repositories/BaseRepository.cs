@@ -118,6 +118,5 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
         {
             Context.Entry(entry).State = EntityState.Detached;
         }
-
     }
 }

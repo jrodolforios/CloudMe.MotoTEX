@@ -12,5 +12,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public string Descricao { get; set; }
 
         public virtual IEnumerable<UsuarioGrupoUsuario> Usuarios { get; set; }
+        public virtual IEnumerable<MensagemDestinatario> MensagensRecebidas { get; set; }
     }
 }

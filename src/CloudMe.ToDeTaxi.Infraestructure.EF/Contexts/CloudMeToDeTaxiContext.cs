@@ -32,6 +32,9 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
         public DbSet<CorVeiculo> CoresVeiculos { get; set; }
         public DbSet<Contrato> Contratos { get; set; }
         public DbSet<SolicitacaoCorridaTaxista> SolicitacoesCorridaTaxistas { get; set; }
+        public DbSet<Mensagem> Mensagens { get; set; }
+        public DbSet<MensagemDestinatario> MensagensDestinatarios  { get; set; }
+        public DbSet<Emergencia> Emergencias { get; set; }
 
 
         public CloudMeToDeTaxiContext(
@@ -69,6 +72,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
             builder.ApplyConfiguration(new MapCorVeiculo());
             builder.ApplyConfiguration(new MapContrato());
             builder.ApplyConfiguration(new MapSolicitacaoCorridaTaxista());
+            builder.ApplyConfiguration(new MapMensagem());
+            builder.ApplyConfiguration(new MapMensagemDestinatario());
             base.OnModelCreating(builder);
         }
 

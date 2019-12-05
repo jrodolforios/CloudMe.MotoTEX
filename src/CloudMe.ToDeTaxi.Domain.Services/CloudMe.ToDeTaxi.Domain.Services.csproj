@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Security\**" />
@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Model\CloudMe.ToDeTaxi.Domain.Model.csproj" />
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Notifications.Abstracts\CloudMe.ToDeTaxi.Domain.Notifications.Abstract.csproj" />
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.Abstracts\CloudMe.ToDeTaxi.Infraestructure.Abstracts.csproj" />
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure\CloudMe.ToDeTaxi.Infraestructure.csproj" />
   </ItemGroup>

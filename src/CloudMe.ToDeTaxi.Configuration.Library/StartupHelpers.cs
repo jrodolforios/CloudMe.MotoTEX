@@ -28,7 +28,6 @@ using Microsoft.AspNetCore.SignalR;
 using CloudMe.ToDeTaxi.Configuration.Library.SignalR;
 using EntityFrameworkCore.Triggers;
 using EntityFrameworkCore.Triggers.AspNetCore;
-using CloudMe.ToDeTaxi.Domain.Services.Abstracts.Background;
 using CloudMe.ToDeTaxi.Domain.Services.Background;
 using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
 using Microsoft.Extensions.Hosting;
@@ -76,6 +75,7 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             services.AddTransient<IFotoService, FotoService>();
             services.AddTransient<ICorVeiculoService, CorVeiculoService>();
             services.AddTransient<IContratoService, ContratoService>();
+            services.AddTransient<IMensagemService, MensagemService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped(p => p.GetService<IHttpContextAccessor>()?.HttpContext);
@@ -122,6 +122,8 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             services.AddTransient<IFotoRepository, FotoRepository>();
             services.AddTransient<ICorVeiculoRepository, CorVeiculoRepository>();
             services.AddTransient<IContratoRepository, ContratoRepository>();
+            services.AddTransient<IMensagemRepository, MensagemRepository>();
+            services.AddTransient<IMensagemDestinatarioRepository, MensagemDestinatarioRepository>();
 
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
@@ -134,7 +136,7 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             {
                 using (var context = serviceScope.ServiceProvider.GetService<CloudMeToDeTaxiContext>())
                 {
-                    context.Database.Migrate();
+                    await context.Database.MigrateAsync();
                 }
             }
         }
@@ -177,6 +179,8 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 
                 routes.MapHub<HubLocalizacaoTaxista>("/notifications/localizacao_taxista");
                 routes.MapHub<HubLocalizacaoPassageiro>("/notifications/localizacao_passageiro");
+
+                routes.MapHub<HubMensagens>("/notifications/mensagens");
             });
 
             BuildEntryNotifiers<TContext>(app);

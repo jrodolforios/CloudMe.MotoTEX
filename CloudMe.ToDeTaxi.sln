@@ -36,6 +36,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMe.ToDeTaxi", "src\Clo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMe.ToDeTaxi.Domain.Notifications", "src\CloudMe.ToDeTaxi.Domain.Notifications\CloudMe.ToDeTaxi.Domain.Notifications.csproj", "{2E2B3E2F-52B8-467A-AD55-0434003D930F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMe.ToDeTaxi.Domain.Notifications.Abstract", "src\CloudMe.ToDeTaxi.Domain.Notifications.Abstracts\CloudMe.ToDeTaxi.Domain.Notifications.Abstract.csproj", "{AEA0114A-F22B-4F5D-A481-33D9FA40DF61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +96,10 @@ Global
 		{2E2B3E2F-52B8-467A-AD55-0434003D930F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E2B3E2F-52B8-467A-AD55-0434003D930F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E2B3E2F-52B8-467A-AD55-0434003D930F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEA0114A-F22B-4F5D-A481-33D9FA40DF61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEA0114A-F22B-4F5D-A481-33D9FA40DF61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEA0114A-F22B-4F5D-A481-33D9FA40DF61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEA0114A-F22B-4F5D-A481-33D9FA40DF61}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -115,6 +121,7 @@ Global
 		{8B0B136C-21BB-4BA7-AF88-4F91FFAFEC35} = {36370E81-4B5E-452E-94EC-1535BDF09095}
 		{A2254298-73A8-4341-967C-910F44D47B7D} = {36370E81-4B5E-452E-94EC-1535BDF09095}
 		{2E2B3E2F-52B8-467A-AD55-0434003D930F} = {6973C420-6872-45E9-87E3-1BDC8B566BE1}
+		{AEA0114A-F22B-4F5D-A481-33D9FA40DF61} = {6973C420-6872-45E9-87E3-1BDC8B566BE1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5374856F-8FF6-4408-B743-CA36BFC462E1}

@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Notifications.Abstracts\CloudMe.ToDeTaxi.Domain.Notifications.Abstract.csproj" />
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Services\CloudMe.ToDeTaxi.Domain.Services.csproj" />
     <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.EF\CloudMe.ToDeTaxi.Infraestructure.EF.csproj" />
   </ItemGroup>

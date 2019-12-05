@@ -18,10 +18,17 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         private string[] defaultPaths = {"Endereco"};
 
         private readonly IPontoTaxiRepository _PontoTaxiRepository;
+        private readonly IGrupoUsuarioRepository _GrupoUsuarioRepository;
+        private readonly IUsuarioGrupoUsuarioRepository _UsuarioGrupoUsuarioRepository;
 
-        public PontoTaxiService(IPontoTaxiRepository PontoTaxiRepository)
+        public PontoTaxiService(
+            IPontoTaxiRepository PontoTaxiRepository,
+            IGrupoUsuarioRepository GrupoUsuarioRepository,
+            IUsuarioGrupoUsuarioRepository UsuarioGrupoUsuarioRepository)
         {
             _PontoTaxiRepository = PontoTaxiRepository;
+            _GrupoUsuarioRepository = GrupoUsuarioRepository;
+            _UsuarioGrupoUsuarioRepository = UsuarioGrupoUsuarioRepository;
         }
 
         public override string GetTag()
@@ -78,6 +85,25 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         protected override IBaseRepository<PontoTaxi> GetRepository()
         {
             return _PontoTaxiRepository;
+        }
+
+        public async override Task<PontoTaxi> CreateAsync(PontoTaxiSummary summary)
+        {
+            var pontoTaxi = await base.CreateAsync(summary);
+
+            if (pontoTaxi != null)
+            {
+                // cria um grupo de usuários para o ponto de táxi
+                var grpPtTx = new GrupoUsuario()
+                {
+                    Nome = summary.Nome,
+                    Descricao = "Grupo de usuários do ponto de táxi " + summary.Nome
+                };
+
+                await _GrupoUsuarioRepository.SaveAsync(grpPtTx);
+            }
+
+            return pontoTaxi;
         }
 
         protected override void UpdateEntry(PontoTaxi entry, PontoTaxiSummary summary)

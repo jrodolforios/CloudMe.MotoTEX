@@ -26,10 +26,11 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
             var defaultClaims = await _userManager.GetClaimsAsync(user);
             context.IssuedClaims.AddRange(defaultClaims);
 
-            var claims = new List<Claim>
-                {
-                    new Claim("nome", user.Nome),
-                };
+            var claims = new List<Claim>();
+            if (!string.IsNullOrEmpty(user.Nome))
+            {
+                claims.Add(new Claim("nome", user.Nome));
+            };
 
             context.IssuedClaims.AddRange(claims);
         }

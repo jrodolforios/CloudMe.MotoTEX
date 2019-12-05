@@ -178,7 +178,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         public async Task<TaxistaSummary> GetByUserId(Guid id)
         {
-            TaxistaSummary returner = null;
             var taxista = _TaxistaRepository.FindAll().FirstOrDefault(x => x.IdUsuario == id);
             var taxistaSummary = await this.GetSummaryAsync(taxista.Id);
 

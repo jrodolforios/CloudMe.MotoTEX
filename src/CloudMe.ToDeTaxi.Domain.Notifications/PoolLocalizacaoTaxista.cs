@@ -1,5 +1,6 @@
-﻿using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
-using CloudMe.ToDeTaxi.Domain.Services.Abstracts.Background;
+﻿using CloudMe.ToDeTaxi.Domain.Model.Taxista;
+using CloudMe.ToDeTaxi.Domain.Notifications.Abstracts;
+using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -21,11 +22,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
             _hubContext = hubContext;
         }
 
+        public async Task SolicitarLocalizacao()
+        {
+            await _hubContext.Clients.All.SendAsync("EnviarLocalizacao");
+        }
+
+        public async Task EnviarPanico(EmergenciaSummary emergencia)
+        {
+            await _hubContext.Clients.AllExcept(emergencia.IdTaxista.ToString()).SendAsync("panico", emergencia);
+        }
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await _hubContext.Clients.All.SendAsync("EnviarLocalizacao");
+                await SolicitarLocalizacao();
                 await Task.Delay(Timeout, stoppingToken);
             }
 
