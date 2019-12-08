@@ -4,6 +4,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <UserSecretsId>9c91d295-54c5-4d09-9bd6-fa56fb74011b</UserSecretsId>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JsonModelBinder" Version="1.0.1" />

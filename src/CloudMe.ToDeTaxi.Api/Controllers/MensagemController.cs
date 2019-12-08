@@ -9,6 +9,7 @@ using CloudMe.ToDeTaxi.Api.Models;
 using CloudMe.ToDeTaxi.Domain.Enums;
 using CloudMe.ToDeTaxi.Domain.Model.Mensagem;
 using CloudMe.ToDeTaxi.Api.Models.Mensagens;
+using CloudMe.ToDeTaxi.Domain.Model;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -23,100 +24,84 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
-        /// Obtém as conversações de um usuário com outros usuários (retorna o ID de cada usuário).
+        /// Obtém as mensagens enviadas por um usuário.
         /// </summary>
-        [HttpGet("conversacoes_usrs")]
-        [ProducesResponseType(typeof(Response<IEnumerable<Guid>>), (int)HttpStatusCode.OK)]
-        public async Task<Response<IEnumerable<Guid>>> ObterConversacoesComUsuarios(Guid id_usuario, DateTime? inicio, DateTime? fim)
-        {
-            return await base.ResponseAsync(
-                await _MensagemService.ObterConversacoesComUsuarios(id_usuario, inicio, fim), _MensagemService);
-        }
-
-        /// <summary>
-        /// Obtém as conversações de um usuário com grupos de usuários (retorna o ID de cada grupo).
-        /// </summary>
-        [HttpGet("conversacoes_grps_usrs")]
-        [ProducesResponseType(typeof(Response<IEnumerable<Guid>>), (int)HttpStatusCode.OK)]
-        public async Task<Response<IEnumerable<Guid>>> ObterConversacoesComGruposUsuarios(Guid id_usuario, DateTime? inicio, DateTime? fim)
-        {
-            return await base.ResponseAsync(
-                await _MensagemService.ObterConversacoesComGruposUsuarios(id_usuario, inicio, fim), _MensagemService);
-        }
-
-        /// <summary>
-        /// Obtém todas as mensagens do usuário (como remetente ou destinatário)
-        /// </summary>
-        [HttpGet("msgs_usr")]
+        [HttpPost("obter_enviadas")]
         [ProducesResponseType(typeof(Response<IEnumerable<DetalhesMensagem>>), (int)HttpStatusCode.OK)]
-        public async Task<Response<IEnumerable<DetalhesMensagem>>> ObterMensagensUsuario(Guid id_usuario, DateTime? inicio, DateTime? fim)
+        public async Task<Response<IEnumerable<DetalhesMensagem>>> ObterMensagensEnviadas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination)
         {
-            return await base.ResponseAsync(
-                await _MensagemService.ObterMensagensUsuario(id_usuario, inicio, fim), _MensagemService);
+            int count = 0;
+            var response = await base.ResponseAsync(
+                await _MensagemService.ObterMensagensEnviadas(id_usuario, inicio, fim, pagination, out count), _MensagemService);
+
+            if (response.success)
+            {
+                response.count = count;
+            }
+            return response;
         }
 
         /// <summary>
-        /// Obtém mensagens da conversação de um usuário com outro usuário.
+        /// Obtém as mensagens recebidas por um usuário.
         /// </summary>
-        [HttpGet("msgs_conversacao_usr")]
+        [HttpPost("obter_recebidas")]
         [ProducesResponseType(typeof(Response<IEnumerable<DetalhesMensagem>>), (int)HttpStatusCode.OK)]
-        public async Task<Response<IEnumerable<DetalhesMensagem>>> ObterMensagensConversacaoUsuario(Guid id_usuario, Guid id_usuario_conversacao, DateTime? inicio, DateTime? fim)
+        public async Task<Response<IEnumerable<DetalhesMensagem>>> ObterMensagensRecebidas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination)
         {
-            return await base.ResponseAsync(
-                await _MensagemService.ObterMensagensConversacaoUsuario(id_usuario, id_usuario_conversacao, inicio, fim), _MensagemService);
-        }
+            int count = 0;
+            var response = await base.ResponseAsync(
+                await _MensagemService.ObterMensagensRecebidas(id_usuario, inicio, fim, pagination, out count), _MensagemService);
 
-        /// <summary>
-        /// Obtém mensagens da conversação em um grupo de usuários.
-        /// </summary>
-        [HttpGet("msgs_conversacao_grp_usr")]
-        [ProducesResponseType(typeof(Response<IEnumerable<Guid>>), (int)HttpStatusCode.OK)]
-        public async Task<Response<IEnumerable<DetalhesMensagem>>> ObterMensagensConversacaoGrupoUsuario(Guid id_grupo_usuario, DateTime? inicio, DateTime? fim)
-        {
-            return await base.ResponseAsync(
-                await _MensagemService.ObterMensagensConversacaoGrupoUsuario(id_grupo_usuario, inicio, fim), _MensagemService);
+            if (response.success)
+            {
+                response.count = count;
+            }
+            return response;
         }
 
         /// <summary>
         /// Envia uma mensagem para um usuário.
         /// </summary>
-        [HttpPost("enviar_para_usuario")]
-        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        [HttpPost("enviar")]
+        [ProducesResponseType(typeof(Response<int>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<Response<bool>> EnviarParaUsuario(Guid id_usuario, [FromBody] MensagemSummary mensagem)
+        public async Task<Response<int>> Enviar([FromBody] ParametrosEnvio parametrosEnvio)
         {
             return await base.ResponseAsync(
-                await _MensagemService.EnviarParaUsuario(id_usuario, mensagem), _MensagemService);
+                await _MensagemService.Enviar(parametrosEnvio.mensagem, parametrosEnvio.destinatarios), _MensagemService);
         }
 
         /// <summary>
-        /// Envia uma mensagem para vários usuários (retorna a qtd de mensagens enviadas).
+        /// Encaminha uma mensagem para um usuário.
         /// </summary>
-        [HttpPost("enviar_para_usuarios")]
+        /*
+         * TODO: AINDA EM ANÁLISE
+         * 
+         * [HttpPost("encaminhar")]
         [ProducesResponseType(typeof(Response<int>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
-        public async Task<Response<int>> EnviarParaUsuarios([FromBody] MensagemMultiUsuarios mensagem_usuarios)
+        public async Task<Response<int>> Encaminhar(Guid id_mensagem, DestinatariosMensagem destinatarios)
         {
             return await base.ResponseAsync(
-                await _MensagemService.EnviarParaUsuarios(mensagem_usuarios.ids_usuarios, mensagem_usuarios.mensagem), _MensagemService);
+                await _MensagemService.Encaminhar(id_mensagem, destinatarios), _MensagemService);
+        }*/
+
+        /// <summary>
+        /// Obtém o recibo de envio de uma mensagem a um destinatário.
+        /// </summary>
+        [HttpGet("recibo")]
+        [ProducesResponseType(typeof(Response<MensagemDestinatarioSummary>), (int)HttpStatusCode.OK)]
+        //[ValidateAntiForgeryToken]
+        public async Task<Response<IEnumerable<MensagemDestinatarioSummary>>> ObterRecibosMensagem(Guid id_mensagem, Guid id_usuario)
+        {
+            return await base.ResponseAsync(
+                await _MensagemService.ObterRecibosMensagem(id_mensagem, id_usuario), _MensagemService);
         }
 
         /// <summary>
         /// Envia uma mensagem para um grupo de usuários (retorna a qtd de mensagens enviadas).
         /// </summary>
-        [HttpPost("enviar_para_grupo_usuarios")]
-        [ProducesResponseType(typeof(Response<int>), (int)HttpStatusCode.OK)]
-        //[ValidateAntiForgeryToken]
-        public async Task<Response<int>> EnviarParaGrupoUsuarios(Guid id_grupo_usuario, [FromBody] MensagemSummary mensagem)
-        {
-            return await base.ResponseAsync(
-                await _MensagemService.EnviarParaGrupoUsuarios(id_grupo_usuario, mensagem), _MensagemService);
-        }
-
-        /// <summary>
-        /// Envia uma mensagem para um grupo de usuários (retorna a qtd de mensagens enviadas).
-        /// </summary>
-        [HttpPost("alterar_status_msg")]
+        [HttpPost("alterar_status")]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
         public async Task<Response<bool>> AlterarStatusMensagem(Guid id_mensagem, Guid id_usuario, StatusMensagem status)

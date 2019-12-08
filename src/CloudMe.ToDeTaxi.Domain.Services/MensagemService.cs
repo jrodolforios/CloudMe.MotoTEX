@@ -21,23 +21,23 @@ namespace CloudMe.ToDeTaxi.Domain.Services
     {
         private readonly IMensagemRepository mensagemRepository;
         private readonly IMensagemDestinatarioRepository mensagemDestinatarioRepository;
-        private readonly IGrupoUsuarioService grupoUsuarioService;
-        private readonly IUsuarioService usuarioService;
+        private readonly IGrupoUsuarioRepository grupoUsuarioRepository;
+        private readonly IUsuarioRepository usuarioRepository;
         private readonly IProxyHubMensagens proxyMensagens;
         private readonly IUnitOfWork unitOfWork;
 
         public MensagemService(
             IMensagemRepository mensagemRepository,
             IMensagemDestinatarioRepository mensagemDestinatarioRepository,
-            IGrupoUsuarioService grupoUsuarioService,
-            IUsuarioService usuarioService,
+            IGrupoUsuarioRepository grupoUsuarioService,
+            IUsuarioRepository usuarioService,
             IProxyHubMensagens proxyMensagens,
             IUnitOfWork unitOfWork)
         {
             this.mensagemRepository = mensagemRepository;
             this.mensagemDestinatarioRepository = mensagemDestinatarioRepository;
-            this.grupoUsuarioService = grupoUsuarioService;
-            this.usuarioService = usuarioService;
+            this.grupoUsuarioRepository = grupoUsuarioService;
+            this.usuarioRepository = usuarioService;
             this.proxyMensagens = proxyMensagens;
             this.unitOfWork = unitOfWork;
         }
@@ -101,19 +101,36 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             }
         }
 
+        public Task<IEnumerable<MensagemDestinatarioSummary>> ObterRecibosMensagem(Guid id_mensagem, Guid id_usuario)
+        {
+            var msgsDst = mensagemDestinatarioRepository.Search(
+                x => x.IdMensagem == id_mensagem && x.IdUsuario == id_usuario);
+
+            return Task.FromResult(msgsDst.Select(msgDst => new MensagemDestinatarioSummary()
+            {
+                Id = msgDst.Id,
+                IdMensagem = msgDst.IdMensagem,
+                IdUsuario = msgDst.IdUsuario,
+                IdGrupoUsuario = msgDst.IdGrupoUsuario,
+                DataLeitura = msgDst.DataLeitura,
+                DataRecebimento = msgDst.DataRecebimento,
+                Status = msgDst.Status
+            }));
+        }
+
         public async Task<bool> AlterarStatusMensagem(Guid id_mensagem, Guid id_usuario, StatusMensagem status)
         {
-            var mstDst = mensagemDestinatarioRepository.Search(
+            var msgDst = mensagemDestinatarioRepository.Search(
                 x => x.IdMensagem == id_mensagem && x.IdUsuario == id_usuario).FirstOrDefault();
 
-            if (mstDst is null)
+            if (msgDst is null)
             {
                 AddNotification(new Notification("Alterar status mensagem", "mensagem não encontrada ou não destinada ao usuário"));
                 return false;
             }
 
             bool novoStatusValido = false;
-            switch (mstDst.Status)
+            switch (msgDst.Status)
             {
                 case StatusMensagem.Indefinido:
                     novoStatusValido = status == StatusMensagem.Enviada || status == StatusMensagem.Encaminhada;
@@ -131,108 +148,101 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             if (novoStatusValido)
             {
-                mstDst.Status = status;
-                return await mensagemDestinatarioRepository.ModifyAsync(mstDst);
+                msgDst.Status = status;
+                return await mensagemDestinatarioRepository.ModifyAsync(msgDst);
             }
 
             return false;
         }
 
-        public async Task<bool> EnviarParaUsuario(Guid id_usuario, MensagemSummary mensagem)
+        #region ENVIO
+        private async Task<int> EnviarOuEncaminhar(MensagemSummary mensagem, DestinatariosMensagem destinatarios, bool encaminhar)
         {
-            // obtém o usuário
-            var usr = await usuarioService.Get(id_usuario);
-            if (usr == null)
-            {
-                AddNotification(
-                    new Notification(
-                        "Enviar mensagem",
-                        string.Format("Mensagem não enviada: usuário {0} não encontrado.", id_usuario.ToString())
-                        )
-                    );
-                return false;
-            }
+            int usrSentCount = 0;
+
+            var usuarios = usuarioRepository.FindAll()
+                .Where(x => destinatarios.IdsUsuarios.Contains(x.Id));
+
+            var grupos = grupoUsuarioRepository.FindAll(new[] {"Usuarios"})
+                .Where(x => destinatarios.IdsGruposUsuarios.Contains(x.Id));
+
+            var idsGruposEnviados = new List<Guid>();
 
             // cria a mensagem
+            mensagem.Id = Guid.Empty;
             var msg = await CreateAsync(mensagem);
             if (IsInvalid())
             {
-                return false;
+                return 0;
             }
 
-            // associa ao destinatário
-            var msgDest = new MensagemDestinatario
-            {
-                IdMensagem = msg.Id,
-                IdUsuario = usr.Id,
-                Status = StatusMensagem.Enviada
-            };
-
-            await mensagemDestinatarioRepository.SaveAsync(msgDest);
-            await unitOfWork.CommitAsync();
-
-            await proxyMensagens.EnviarParaUsuario(usr, new DetalhesMensagem()
-            {
-                IdMensagem = msg.Id,
-                IdRemetente = msg.IdRemetente,
-                IdDestinatario = msgDest.IdUsuario,
-                Assunto = msg.Assunto,
-                Corpo = msg.Corpo,
-                DataEnvio = msg.Inserted
-            });
-
-            return true;
-        }
-
-        public async Task<int> EnviarParaUsuarios(IEnumerable<Guid> ids_usuarios, MensagemSummary mensagem)
-        {
-            var usuarios = new List<Usuario>();
-            foreach (var id_usuario in ids_usuarios)
-            {
-                var usuario = await usuarioService.Get(id_usuario);
-                if (usuario != null)
-                {
-                    usuarios.Add(usuario);
-                }
-            }
-
-            int usrSentCount = 0;
+            // envia para usuários
             if (usuarios.Count() > 0)
             {
-                // cria a mensagem
-                var msg = await CreateAsync(mensagem);
-                if (IsInvalid())
-                {
-                    return 0;
-                }
-
                 foreach (var usuario in usuarios)
                 {
-                    if (usuario.Id == mensagem.IdRemetente)
-                    {
-                        // não manda pra o próprio remetente
-                        continue;
-                    }
-
                     // associa ao destinatário
                     var msgDest = new MensagemDestinatario
                     {
                         IdMensagem = msg.Id,
                         IdUsuario = usuario.Id,
-                        Status = StatusMensagem.Enviada
+                        Status = encaminhar ? StatusMensagem.Encaminhada : StatusMensagem.Enviada
                     };
 
                     await mensagemDestinatarioRepository.SaveAsync(msgDest);
-
                     usrSentCount++;
                 }
+            }
 
-                await unitOfWork.CommitAsync();
+            // envia para os grupos
+            if(grupos.Count() > 0)
+            {
+                foreach (var grupo in grupos)
+                {
+                    foreach (var usuario in grupo.Usuarios)
+                    {
+                        // associa ao destinatário
+                        var msgDest = new MensagemDestinatario
+                        {
+                            IdMensagem = msg.Id,
+                            IdUsuario = usuario.IdUsuario,
+                            IdGrupoUsuario = grupo.Id,
+                            Status = encaminhar ? StatusMensagem.Encaminhada : StatusMensagem.Enviada
+                        };
 
-                await proxyMensagens.EnviarParaUsuarios(usuarios, new DetalhesMensagem()
+                        await mensagemDestinatarioRepository.SaveAsync(msgDest);
+                        usrSentCount++;
+                    }
+                }
+            }
+
+            await unitOfWork.CommitAsync();
+
+            // notifica usuários
+            await proxyMensagens.EnviarParaUsuarios(usuarios, new DetalhesMensagem()
+            {
+                IdMensagem = msg.Id,
+                IdRemetente = msg.IdRemetente,
+                /*destinatarios = new DestinatariosMensagem()
+                {
+                    IdsUsuarios = usuarios.Select(usr => usr.Id)
+                },*/
+                Assunto = msg.Assunto,
+                Corpo = msg.Corpo,
+                DataEnvio = msg.Inserted
+            });
+
+            // notifica grupos
+            foreach (var grupo in grupos)
+            {
+                await proxyMensagens.EnviarParaGrupoUsuarios(grupo, new DetalhesMensagem()
                 {
                     IdMensagem = msg.Id,
                     IdRemetente = msg.IdRemetente,
+                    /*destinatarios = new DestinatariosMensagem()
+                    {
+                        IdsGruposUsuarios = grupos.Select(grp => grp.Id)
+                    },*/
                     Assunto = msg.Assunto,
                     Corpo = msg.Corpo,
                     DataEnvio = msg.Inserted
@@ -242,236 +252,120 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return usrSentCount;
         }
 
-        public async Task<int> EnviarParaGrupoUsuarios(Guid id_grupo_usuario, MensagemSummary mensagem)
+        public async Task<int> Enviar(MensagemSummary mensagem, DestinatariosMensagem destinatarios)
         {
-            // obtém o grupo de usuários
-            var grupoUsr = await grupoUsuarioService.Get(id_grupo_usuario, new[] { "Usuarios" });
-            if (grupoUsr == null)
+            return await EnviarOuEncaminhar(mensagem, destinatarios, false);
+        }
+
+        public async Task<int> Encaminhar(Guid id_mensagem, DestinatariosMensagem destinatarios)
+        {
+            var msg = await mensagemRepository.FindByIdAsync(id_mensagem);
+            if (msg == null)
             {
-                AddNotification(
-                    new Notification(
-                        "Enviar mensagem",
-                        string.Format("Mensagem não enviada: grupo de usuários {0} não encontrado.", id_grupo_usuario.ToString())
-                    )
-                );
+                AddNotification(new Notification("Encaminhar mensagem", "mensagem não encontrada"));
                 return 0;
             }
 
-            // cria a mensagem
-            var msg = await CreateAsync(mensagem);
-            if (IsInvalid())
-            {
-                return 0;
-            }
-
-            /*
-            // envia ao destinatário
-            var msgDest = new MensagemDestinatario
-            {
-                IdMensagem = msg.Id,
-                IdGrupoUsuario = grupoUsr.Id
-                //Status = Enums.StatusMensagem.Enviada TODO
-            };
-            */
-
-            int usrSentCount = 0;
-
-            foreach (var usuario in grupoUsr.Usuarios)
-            {
-                if (usuario.IdUsuario == mensagem.IdRemetente)
-                {
-                    // o usuário é o remetente e também participa do grupo em questão (não manda pra ele mesmo)
-                    continue;
-                }
-
-                // associa ao destinatário
-                var msgDest = new MensagemDestinatario
-                {
-                    IdMensagem = msg.Id,
-                    IdUsuario = usuario.IdUsuario,
-                    IdGrupoUsuario = grupoUsr.Id,
-                    Status = StatusMensagem.Enviada
-                };
-
-                await mensagemDestinatarioRepository.SaveAsync(msgDest);
-
-                usrSentCount++;
-            }
-
-            await unitOfWork.CommitAsync();
-
-        await proxyMensagens.EnviarParaGrupoUsuarios(grupoUsr, new DetalhesMensagem()
-            {
-                IdMensagem = msg.Id,
-                IdRemetente = msg.IdRemetente,
-                IdGrupo = grupoUsr.Id,
-                Assunto = msg.Assunto,
-                Corpo = msg.Corpo,
-                DataEnvio = msg.Inserted
-            });
-
-            return usrSentCount;
+            return await EnviarOuEncaminhar(await CreateSummaryAsync(msg), destinatarios, true);
         }
 
-        public async Task<IEnumerable<Guid>> ObterConversacoesComUsuarios(Guid id_usuario, DateTime? inicio, DateTime? fim)
-        {
-            return mensagemDestinatarioRepository.Search(x =>
-                   (x.Mensagem.IdRemetente == id_usuario || x.Usuario.Id == id_usuario) &&
-                   (!x.IdGrupoUsuario.HasValue), new[] { "Mensagem" })
-                    .Select(x => x.Id)
-                    .Distinct();
-        }
+        #endregion
 
-        public async Task<IEnumerable<Guid>> ObterConversacoesComGruposUsuarios(Guid id_usuario, DateTime? inicio, DateTime? fim)
-        {
-            return mensagemDestinatarioRepository.Search(x =>
-                   (x.Mensagem.IdRemetente == id_usuario || x.Usuario.Id == id_usuario) &&
-                   (x.IdGrupoUsuario.HasValue), new[] { "Mensagem" })
-                    .Select(x => x.IdGrupoUsuario.Value)
-                    .Distinct();
-        }
+        #region RECEBIMENTO
 
-        private IEnumerable<DetalhesMensagem> DetalharMensagens(IEnumerable<MensagemDestinatario> mensagensDestinatarios)
-        {
-            return mensagensDestinatarios.Select(x => new DetalhesMensagem()
-            {
-                IdMensagem = x.Mensagem.Id,
-                IdRemetente = x.Mensagem.IdRemetente,
-                IdDestinatario = x.IdUsuario,
-                IdGrupo = x.IdGrupoUsuario,
-                Assunto = x.Mensagem.Assunto,
-                Corpo = x.Mensagem.Corpo,
-                DataEnvio = x.Mensagem.Inserted,
-                DataLeitura = x.DataLeitura,
-                DataRecebimento = x.DataRecebimento
-            });
-        }
-
-        public async Task<IEnumerable<DetalhesMensagem>> ObterMensagensConversacaoUsuario(Guid id_usuario, Guid id_usuario_conversacao, DateTime? inicio, DateTime? fim)
-        {
-            /*var msgsDest = mensagemDestinatarioRepository.Search(x =>
-                    ((x.Mensagem.IdRemetente == id_usuario && x.IdUsuario == id_usuario_conversacao) ||
-                     (x.Mensagem.IdRemetente == id_usuario_conversacao && x.IdUsuario == id_usuario)) &&
-                    x.Mensagem.Inserted >= inicio &&
-                    x.Mensagem.Inserted <= fim, 
-                    new[] { "Mensagem" })
-                    .OrderBy(x => x.Mensagem.Inserted)
-                    .Distinct();
-
-            return DetalharMensagens(msgsDest);*/
-
-            var msgs = mensagemRepository.Search(x =>
-                    ((x.IdRemetente == id_usuario && x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario_conversacao)) ||
-                     (x.IdRemetente == id_usuario_conversacao && x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario))) &&
-                    x.Inserted >= inicio &&
-                    x.Inserted <= fim,
-                    new[] { "Destinatarios" })
-                    .OrderBy(x => x.Inserted)
-                    .Distinct();
-
-            return msgs.Select(msg =>
-            {
-                var msgDst = msg.Destinatarios.FirstOrDefault(x =>
-                    x.IdUsuario == id_usuario_conversacao ||
-                    x.IdUsuario == id_usuario);
-
-                return new DetalhesMensagem()
-                {
-                    IdMensagem = msg.Id,
-                    IdRemetente = msg.IdRemetente,
-                    IdDestinatario = msgDst.IdUsuario,
-                    IdGrupo = msgDst.IdGrupoUsuario,
-                    Assunto = msg.Assunto,
-                    Corpo = msg.Corpo,
-                    DataEnvio = msg.Inserted,
-                    DataRecebimento = msgDst.DataRecebimento,
-                    DataLeitura = msgDst.DataLeitura
-                };
-            });
-
-        }
-
-        public async Task<IEnumerable<DetalhesMensagem>> ObterMensagensUsuario(Guid id_usuario, DateTime? inicio, DateTime? fim)
+        public Task<IEnumerable<DetalhesMensagem>> ObterMensagensEnviadas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination, out int count)
         {
             DateTime dataInicio = inicio ?? DateTime.MinValue;
             DateTime dataFim = fim ?? DateTime.MaxValue;
 
-            /*var msgsDest = mensagemDestinatarioRepository.Search(x =>
-                    ((x.Mensagem.IdRemetente == id_usuario && x.IdUsuario == id_usuario_conversacao) ||
-                     (x.Mensagem.IdRemetente == id_usuario_conversacao && x.IdUsuario == id_usuario)) &&
-                    x.Mensagem.Inserted >= inicio &&
-                    x.Mensagem.Inserted <= fim, 
-                    new[] { "Mensagem" })
-                    .OrderBy(x => x.Mensagem.Inserted)
-                    .Distinct();
-
-            return DetalharMensagens(msgsDest);*/
-
             var msgs = mensagemRepository.Search(x =>
-                    (x.IdRemetente == id_usuario || x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario)) &&
+                    x.IdRemetente == id_usuario &&
                     x.Inserted >= dataInicio &&
                     x.Inserted <= dataFim,
-                    new[] { "Destinatarios" })
-                    .Distinct();
+                    new[] { "Destinatarios" });
 
-            return msgs.Select(msg =>
+            count = msgs.Count();
+
+            msgs = msgs.OrderByDescending(x => x.Inserted)
+                .Skip(pagination.page * pagination.itensPerPage)
+                .Take(pagination.itensPerPage);
+
+
+            return Task.FromResult(msgs.Select(msg =>
             {
-                var msgDst = msg.Destinatarios.FirstOrDefault(x =>
-                    x.IdUsuario == id_usuario || x.IdGrupoUsuario != null);
-
                 return new DetalhesMensagem()
                 {
                     IdMensagem = msg.Id,
                     IdRemetente = msg.IdRemetente,
-                    IdDestinatario = msgDst?.IdUsuario,
-                    IdGrupo = msgDst?.IdGrupoUsuario,
+                    destinatarios = new DestinatariosMensagem()
+                    {
+                        IdsUsuarios = msg.Destinatarios
+                            .Where(msgUsr => !msgUsr.IdGrupoUsuario.HasValue)
+                            .Select(msgUsr => msgUsr.IdUsuario)
+                            .Distinct(),
+
+                        IdsGruposUsuarios = msg.Destinatarios
+                            .Where(msgUsr => msgUsr.IdGrupoUsuario.HasValue)
+                            .Select(msgUsr => msgUsr.IdGrupoUsuario.Value)
+                            .Distinct()
+                    },
                     Assunto = msg.Assunto,
                     Corpo = msg.Corpo,
                     DataEnvio = msg.Inserted,
-                    DataRecebimento = msgDst?.DataRecebimento,
-                    DataLeitura = msgDst?.DataLeitura
-                };
-            }).OrderByDescending(x => x.DataEnvio);
+                    DataLeitura =
+                        msg.Destinatarios.All(msgUsr => msgUsr.DataLeitura.HasValue) ?
+                        msg.Destinatarios.Max(msgUsr => msgUsr.DataLeitura) : null,
+                    DataRecebimento =
+                        msg.Destinatarios.All(msgUsr => msgUsr.DataRecebimento.HasValue) ?
+                        msg.Destinatarios.Max(msgUsr => msgUsr.DataRecebimento) : null
 
+                };
+            }));
         }
 
-        public async Task<IEnumerable<DetalhesMensagem>> ObterMensagensConversacaoGrupoUsuario(Guid id_grupo_usuario, DateTime? inicio, DateTime? fim)
+        public Task<IEnumerable<DetalhesMensagem>> ObterMensagensRecebidas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination, out int count)
         {
-            /*var msgsDest = mensagemDestinatarioRepository.Search(x =>
-                    (x.IdGrupoUsuario.HasValue && x.IdGrupoUsuario.Value == id_grupo_usuario) &&
-                    x.Mensagem.Inserted >= inicio &&
-                    x.Mensagem.Inserted <= fim,
-                    new[] { "Mensagem" }).OrderBy(x => x.Mensagem.Inserted);
+            DateTime dataInicio = inicio ?? DateTime.MinValue;
+            DateTime dataFim = fim ?? DateTime.MaxValue;
 
-            return DetalharMensagens(msgsDest);*/
             var msgs = mensagemRepository.Search(x =>
-                    (x.Destinatarios.Any(dest => dest.IdGrupoUsuario.HasValue && dest.IdGrupoUsuario.Value == id_grupo_usuario)) &&
-                    x.Inserted >= inicio &&
-                    x.Inserted <= fim,
-                    new[] { "Destinatarios" })
-                    .OrderBy(x => x.Inserted);
+                    x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario) &&
+                    x.Inserted >= dataInicio &&
+                    x.Inserted <= dataFim,
+                    new[] { "Destinatarios" }).Distinct();
 
-            return msgs.Select(msg =>
+            count = msgs.Count();
+
+            msgs = msgs.OrderByDescending(x => x.Inserted)
+                .Skip(pagination.page * pagination.itensPerPage)
+                .Take(pagination.itensPerPage);
+
+            return Task.FromResult(msgs.Select(msg =>
             {
-                var msgDst = msg.Destinatarios.FirstOrDefault(dest =>
-                    dest.IdGrupoUsuario.HasValue && dest.IdGrupoUsuario.Value == id_grupo_usuario);
-
                 return new DetalhesMensagem()
                 {
                     IdMensagem = msg.Id,
                     IdRemetente = msg.IdRemetente,
-                    IdDestinatario = msgDst.IdUsuario,
-                    IdGrupo = msgDst.IdGrupoUsuario,
+                    destinatarios = new DestinatariosMensagem()
+                    {
+                        IdsUsuarios = msg.Destinatarios
+                            .Where(msgUsr => !msgUsr.IdGrupoUsuario.HasValue)
+                            .Select(msgUsr => msgUsr.IdUsuario)
+                            .Distinct(),
+
+                        IdsGruposUsuarios = msg.Destinatarios
+                            .Where(msgUsr => msgUsr.IdGrupoUsuario.HasValue)
+                            .Select(msgUsr => msgUsr.IdGrupoUsuario.Value)
+                            .Distinct()
+                    },
                     Assunto = msg.Assunto,
                     Corpo = msg.Corpo,
-                    DataEnvio = msg.Inserted,
-                    DataRecebimento = msgDst.DataRecebimento,
-                    DataLeitura = msgDst.DataLeitura
+                    DataEnvio = msg.Inserted
                 };
-            });
-
-
+            }));
         }
+
+        #endregion
 
     }
 }

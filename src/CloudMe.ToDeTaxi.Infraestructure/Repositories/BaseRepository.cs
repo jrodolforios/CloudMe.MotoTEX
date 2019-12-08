@@ -63,6 +63,20 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
             return this.Context.Set<TEntry>();
         }
 
+        public IEnumerable<TEntry> FindAll(string[] paths)
+        {
+            var qry = this.Context.Set<TEntry>() as IQueryable<TEntry>;
+            if (paths != null && paths.Any())
+            {
+                foreach (var path in paths)
+                {
+                    qry = qry.Include(path);
+                }
+            }
+
+            return qry.AsEnumerable();
+        }
+
         public async Task<IEnumerable<TEntry>> FindAllAsync()
         {
             return await this.Context.Set<TEntry>().ToListAsync();

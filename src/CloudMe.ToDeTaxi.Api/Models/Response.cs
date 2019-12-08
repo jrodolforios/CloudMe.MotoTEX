@@ -19,5 +19,10 @@ namespace CloudMe.ToDeTaxi.Api.Models
         /// Dados vinculados à resposta da operação (de qualquer formato)
         /// </summary> 
         public T data;
+
+        /// <summary> 
+        /// Utilizado para paginação de resultados
+        /// </summary> 
+        public int count;
     }
 }

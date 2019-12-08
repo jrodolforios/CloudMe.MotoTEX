@@ -12,6 +12,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories
         Task<bool> DeleteAsync(TEntry entry, bool logical = true);
         void Detach<TEntity>(TEntity entry) where TEntity : class;
         IEnumerable<TEntry> FindAll();
+        IEnumerable<TEntry> FindAll(string[] paths);
         Task<IEnumerable<TEntry>> FindAllAsync();
         Task<IEnumerable<TEntry>> FindAllAsync(string[] paths);
         Task<TEntry> FindByIdAsync(object key);

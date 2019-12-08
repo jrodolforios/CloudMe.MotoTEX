@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CloudMe.ToDeTaxi.Api.Models.Mensagens
 {
-    public class MensagemMultiUsuarios
+    public class ParametrosEnvio
     {
         public MensagemSummary mensagem { get; set; }
-        public IEnumerable<Guid> ids_usuarios { get; set; }
+        public DestinatariosMensagem destinatarios { get; set; }
     }
 }
