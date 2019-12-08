@@ -14,9 +14,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 {
     public class ContratoService : ServiceBase<Contrato, ContratoSummary, Guid>, IContratoService
     {
-        private readonly IContatoRepository _contratoRepository;
+        private readonly IContratoRepository _contratoRepository;
 
-        public ContratoService(IContatoRepository FavoritoRepository)
+        public ContratoService(IContratoRepository FavoritoRepository)
         {
             _contratoRepository = FavoritoRepository;
         }
