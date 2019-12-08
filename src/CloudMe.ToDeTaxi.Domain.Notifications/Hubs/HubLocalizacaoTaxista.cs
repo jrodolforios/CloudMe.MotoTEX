@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -9,8 +10,13 @@ using System.Threading.Tasks;
 namespace CloudMe.ToDeTaxi.Domain.Notifications.Hubs
 {
     [Authorize]
-    public class HubLocalizacaoTaxista : Hub
+    public class HubLocalizacaoTaxista : UserMappedHub<HubLocalizacaoTaxista>
     {
+        public HubLocalizacaoTaxista(IUsuarioRepository _usuarioRepository, IHubContext<UserMappedHub<HubLocalizacaoTaxista>> hubContext)
+            : base(_usuarioRepository, hubContext)
+        {
+        }
+
         public async Task SolicitarLocalizacao()
         {
             await Clients.All.SendAsync("EnviarLocalizacao");

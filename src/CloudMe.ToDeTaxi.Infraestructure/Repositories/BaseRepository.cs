@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
 {
@@ -36,22 +37,25 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
 
         public async Task<TEntry> FindByIdAsync(object key, string[] paths)
         {
-            var model = await this.Context.Set<TEntry>().FindAsync(key);
-            if(paths != null && paths.Any())
+            var entity = await this.Context.FindAsync<TEntry>(key);
+            if (entity != null && paths != null && paths.Any())
             {
                 foreach (var path in paths)
                 {
-                    if (path.EndsWith("s") && !path.Contains(".")) //se for uma coleção
+                    var memberEntry = this.Context.Entry(entity).Member(path);
+
+                    if (memberEntry is CollectionEntry collectionMember)
                     {
-                        this.Context.Entry(model).Collection(path).Load();
+                        collectionMember.Load();
                     }
-                    else
+                    else if (memberEntry is ReferenceEntry referenceMember)
                     {
-                        this.Context.Entry(model).Reference(path).Load();
+                        referenceMember.Load();
                     }
                 }
             }
-            return model;
+
+            return entity;
         }
 
         public IEnumerable<TEntry> FindAll()

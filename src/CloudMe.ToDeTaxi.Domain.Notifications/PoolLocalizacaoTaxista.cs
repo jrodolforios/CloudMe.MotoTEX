@@ -3,7 +3,7 @@ using CloudMe.ToDeTaxi.Domain.Notifications.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
-using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -29,7 +29,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
 
         public async Task EnviarPanico(EmergenciaSummary emergencia)
         {
-            await _hubContext.Clients.AllExcept(emergencia.IdTaxista.ToString()).SendAsync("panico", emergencia);
+            var connections = HubLocalizacaoTaxista.connections.GetConnections(emergencia.IdTaxista).ToList().AsReadOnly();
+            await _hubContext.Clients.AllExcept(connections).SendAsync("panico", emergencia);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

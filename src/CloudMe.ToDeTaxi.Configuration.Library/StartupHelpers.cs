@@ -32,6 +32,7 @@ using CloudMe.ToDeTaxi.Domain.Services.Background;
 using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
 using Microsoft.Extensions.Hosting;
 using CloudMe.ToDeTaxi.Domain.Notifications.Abstracts;
+using CloudMe.ToDeTaxi.Domain.Notifications.Abstract;
 
 namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 {
@@ -97,6 +98,8 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 
             services.AddSingleton<PoolCorridas>();
             services.AddSingleton<IHostedService, PoolCorridas>(serviceProvider => serviceProvider.GetService<PoolCorridas>());
+
+            services.AddTransient<IProxyHubMensagens, ProxyHubMensagens>();
 
             return services;
         }

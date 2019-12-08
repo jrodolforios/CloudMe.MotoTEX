@@ -32,6 +32,16 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Obtém os grupos de usuários de um usuário específico.
+        /// </summary>
+        [HttpGet("by_user")]
+        [ProducesResponseType(typeof(Response<IEnumerable<GrupoUsuarioSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<GrupoUsuarioSummary>>> GetAllByUser(Guid id_usuario)
+        {
+            return await base.ResponseAsync(await _GrupoUsuarioService.GetAllSummariesByUserAsync(id_usuario), _GrupoUsuarioService);
+        }
+
+        /// <summary>
         /// Gets a GrupoUsuario.
         /// <param name="id">GrupoUsuario's ID</param>
         /// </summary>
@@ -61,7 +71,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
 
         /// <summary>
         /// Modifies an existing GrupoUsuario.
-        /// </summary>
+        /// </summary>  
         /// <param name="GrupoUsuarioSummary">Modified GrupoUsuario list's properties summary</param>
         [HttpPut]
         //[ValidateAntiForgeryToken]

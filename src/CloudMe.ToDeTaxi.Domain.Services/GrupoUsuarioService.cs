@@ -4,6 +4,7 @@ using CloudMe.ToDeTaxi.Domain.Model.Usuario;
 using CloudMe.ToDeTaxi.Infraestructure.Entries;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -77,6 +78,46 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             {
                 this.AddNotification(new Notification("Nome", "GrupoUsuario: nome é obrigatório"));
             }
+        }
+
+        public async Task<IEnumerable<GrupoUsuarioSummary>> GetAllSummariesByUserAsync(Guid user_id)
+        {
+            var userGroups = await _GrupoUsuarioRepository.GetAllByUserId(user_id);
+            return await GetAllSummariesAsync(userGroups);
+        }
+
+        public override async Task<GrupoUsuario> CreateAsync(GrupoUsuarioSummary summary)
+        {
+            // verifica se existe outro grupo com o mesmo nome
+            var grpMesmoNome = _GrupoUsuarioRepository.Search(grp => grp.Nome == summary.Nome && grp.Id != summary.Id).FirstOrDefault();
+            if (grpMesmoNome != null && !string.IsNullOrEmpty(summary.Nome))
+            {
+                AddNotification("Grupos de Usuários", string.Format("Outro grupo de usuários está utilizando o nome '{0}'", summary.Nome));
+            }
+
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            return await base.CreateAsync(summary);
+        }
+
+        public override async Task<GrupoUsuario> UpdateAsync(GrupoUsuarioSummary summary)
+        {
+            // verifica se existe outro grupo com o mesmo nome
+            var grpMesmoNome = _GrupoUsuarioRepository.Search(grp => grp.Nome == summary.Nome && grp.Id != summary.Id).FirstOrDefault();
+            if (grpMesmoNome != null && !string.IsNullOrEmpty(summary.Nome))
+            {
+                AddNotification("Grupos de Usuários", string.Format("Outro grupo de usuários está utilizando o nome '{0}'", summary.Nome));
+            }
+
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            return await base.UpdateAsync(summary);
         }
     }
 }

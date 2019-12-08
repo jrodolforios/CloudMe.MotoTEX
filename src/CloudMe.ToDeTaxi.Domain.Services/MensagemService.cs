@@ -11,10 +11,9 @@ using CloudMe.ToDeTaxi.Domain.Model.Mensagem;
 using CloudMe.ToDeTaxi.Domain.Model;
 using System.Linq.Expressions;
 using System.Linq;
-using Microsoft.AspNetCore.SignalR;
-using CloudMe.ToDeTaxi.Domain.Notifications.Abstracts.Hubs;
 using CloudMe.ToDeTaxi.Domain.Enums;
 using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
+using CloudMe.ToDeTaxi.Domain.Notifications.Abstract;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
@@ -24,7 +23,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         private readonly IMensagemDestinatarioRepository mensagemDestinatarioRepository;
         private readonly IGrupoUsuarioService grupoUsuarioService;
         private readonly IUsuarioService usuarioService;
-        private readonly IHubMensagens hubMensagens;
+        private readonly IProxyHubMensagens proxyMensagens;
         private readonly IUnitOfWork unitOfWork;
 
         public MensagemService(
@@ -32,14 +31,14 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             IMensagemDestinatarioRepository mensagemDestinatarioRepository,
             IGrupoUsuarioService grupoUsuarioService,
             IUsuarioService usuarioService,
-            IHubMensagens hubMensagens,
+            IProxyHubMensagens proxyMensagens,
             IUnitOfWork unitOfWork)
         {
             this.mensagemRepository = mensagemRepository;
             this.mensagemDestinatarioRepository = mensagemDestinatarioRepository;
             this.grupoUsuarioService = grupoUsuarioService;
             this.usuarioService = usuarioService;
-            this.hubMensagens = hubMensagens;
+            this.proxyMensagens = proxyMensagens;
             this.unitOfWork = unitOfWork;
         }
 
@@ -172,7 +171,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             await mensagemDestinatarioRepository.SaveAsync(msgDest);
             await unitOfWork.CommitAsync();
 
-            await hubMensagens.EnviarParaUsuario(usr, new DetalhesMensagem()
+            await proxyMensagens.EnviarParaUsuario(usr, new DetalhesMensagem()
             {
                 IdMensagem = msg.Id,
                 IdRemetente = msg.IdRemetente,
@@ -230,7 +229,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
                 await unitOfWork.CommitAsync();
 
-                await hubMensagens.EnviarParaUsuarios(usuarios, new DetalhesMensagem()
+                await proxyMensagens.EnviarParaUsuarios(usuarios, new DetalhesMensagem()
                 {
                     IdMensagem = msg.Id,
                     IdRemetente = msg.IdRemetente,
@@ -279,7 +278,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             foreach (var usuario in grupoUsr.Usuarios)
             {
-                if (usuario.Id == mensagem.IdRemetente)
+                if (usuario.IdUsuario == mensagem.IdRemetente)
                 {
                     // o usuário é o remetente e também participa do grupo em questão (não manda pra ele mesmo)
                     continue;
@@ -301,10 +300,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             await unitOfWork.CommitAsync();
 
-            await hubMensagens.EnviarParaGrupoUsuarios(grupoUsr, new DetalhesMensagem()
+        await proxyMensagens.EnviarParaGrupoUsuarios(grupoUsr, new DetalhesMensagem()
             {
                 IdMensagem = msg.Id,
                 IdRemetente = msg.IdRemetente,
+                IdGrupo = grupoUsr.Id,
                 Assunto = msg.Assunto,
                 Corpo = msg.Corpo,
                 DataEnvio = msg.Inserted
@@ -393,6 +393,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         public async Task<IEnumerable<DetalhesMensagem>> ObterMensagensUsuario(Guid id_usuario, DateTime? inicio, DateTime? fim)
         {
+            DateTime dataInicio = inicio ?? DateTime.MinValue;
+            DateTime dataFim = fim ?? DateTime.MaxValue;
+
             /*var msgsDest = mensagemDestinatarioRepository.Search(x =>
                     ((x.Mensagem.IdRemetente == id_usuario && x.IdUsuario == id_usuario_conversacao) ||
                      (x.Mensagem.IdRemetente == id_usuario_conversacao && x.IdUsuario == id_usuario)) &&
@@ -406,10 +409,9 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             var msgs = mensagemRepository.Search(x =>
                     (x.IdRemetente == id_usuario || x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario)) &&
-                    x.Inserted >= inicio &&
-                    x.Inserted <= fim,
+                    x.Inserted >= dataInicio &&
+                    x.Inserted <= dataFim,
                     new[] { "Destinatarios" })
-                    .OrderBy(x => x.Inserted)
                     .Distinct();
 
             return msgs.Select(msg =>
@@ -429,7 +431,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                     DataRecebimento = msgDst?.DataRecebimento,
                     DataLeitura = msgDst?.DataLeitura
                 };
-            });
+            }).OrderByDescending(x => x.DataEnvio);
 
         }
 
