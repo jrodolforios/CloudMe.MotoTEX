@@ -126,7 +126,7 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
             services.AddTransient<IVeiculoTaxistaRepository, VeiculoTaxistaRepository>();
             services.AddTransient<IFotoRepository, FotoRepository>();
             services.AddTransient<ICorVeiculoRepository, CorVeiculoRepository>();
-            services.AddTransient<IContratoRepository, ContratoRepository>();
+            services.AddTransient<IContatoRepository, ContratoRepository>();
             services.AddTransient<IMensagemRepository, MensagemRepository>();
             services.AddTransient<IMensagemDestinatarioRepository, MensagemDestinatarioRepository>();
             services.AddTransient<IEmergenciaRepository, EmergenciaRepository>();

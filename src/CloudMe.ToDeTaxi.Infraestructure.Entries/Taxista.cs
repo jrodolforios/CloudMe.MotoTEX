@@ -31,5 +31,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public virtual IEnumerable<FormaPagamentoTaxista> FormasPagamento { get; set; }
         public virtual IEnumerable<SolicitacaoCorridaTaxista> SolicitacoesCorrida { get; set; }
         public virtual IEnumerable<Favorito> Favoritos { get; set; }
+        public virtual IEnumerable<Contato> Contatos { get; set; }
     }
 }

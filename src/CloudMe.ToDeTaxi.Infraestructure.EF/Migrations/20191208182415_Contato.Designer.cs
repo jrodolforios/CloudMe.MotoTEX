@@ -3,15 +3,17 @@ using System;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 {
     [DbContext(typeof(CloudMeToDeTaxiContext))]
-    partial class CloudMeToDeTaxiContextModelSnapshot : ModelSnapshot
+    [Migration("20191208182415_Contato")]
+    partial class Contato
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,9 +38,9 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
 
                     b.Property<bool>("ForceDelete");
 
-                    b.Property<Guid?>("IdPassageiro");
+                    b.Property<Guid>("IdPassageiro");
 
-                    b.Property<Guid?>("IdTaxista");
+                    b.Property<Guid>("IdTaxista");
 
                     b.Property<DateTime>("Inserted");
 
@@ -1634,11 +1636,13 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Migrations
                 {
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Passageiro", "Passageiro")
                         .WithMany("Contatos")
-                        .HasForeignKey("IdPassageiro");
+                        .HasForeignKey("IdPassageiro")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("CloudMe.ToDeTaxi.Infraestructure.Entries.Taxista", "Taxista")
                         .WithMany("Contatos")
-                        .HasForeignKey("IdTaxista");
+                        .HasForeignKey("IdTaxista")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("CloudMe.ToDeTaxi.Infraestructure.Entries.Corrida", b =>

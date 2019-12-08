@@ -4,9 +4,9 @@ using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories;
 
 namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
 {
-    public class ContratoRepository : BaseRepository<Contrato>, IContatoRepository
+    public class ContatoRepository : BaseRepository<Contato>, IContatoRepository
     {
-        public ContratoRepository(CloudMeToDeTaxiContext context) : base(context)
+        public ContatoRepository(CloudMeToDeTaxiContext context) : base(context)
         {
         }
     }

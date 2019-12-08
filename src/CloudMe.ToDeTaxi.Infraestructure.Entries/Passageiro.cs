@@ -22,6 +22,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
 
         public virtual IEnumerable<Favorito> TaxistasFavoritos { get; set; }
         public virtual IEnumerable<SolicitacaoCorrida> SolicitacoesCorrida { get; set; }
+        public virtual IEnumerable<Contato> Contatos { get; set; }
 
     }
 }
