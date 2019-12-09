@@ -30,6 +30,7 @@ using Microsoft.AspNet.Cors.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Threading.Tasks;
 using IdentityModel.AspNetCore.OAuth2Introspection;
+using Serilog;
 
 public class AuthorizeCheckOperationFilter : IOperationFilter
 {
@@ -292,6 +293,10 @@ namespace CloudMe.ToDeTaxi.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            Log.Logger = new LoggerConfiguration()
+                            .WriteTo.File(AppDomain.CurrentDomain.BaseDirectory + "/Logs/CLOUDME_TODETAXI_API_.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: null)
+                            .CreateLogger();
+
             StartupHelpers.UpdateDatabase(app);
 
             var supportedCultures = new[] { new CultureInfo("pt-BR") };

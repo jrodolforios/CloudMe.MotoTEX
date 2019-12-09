@@ -155,6 +155,36 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return false;
         }
 
+        private DetalhesMensagem detalharMensagem(Mensagem msg)
+        {
+            return new DetalhesMensagem()
+            {
+                IdMensagem = msg.Id,
+                IdRemetente = msg.IdRemetente,
+                destinatarios = new DestinatariosMensagem()
+                {
+                    IdsUsuarios = msg.Destinatarios
+                        .Where(msgUsr => !msgUsr.IdGrupoUsuario.HasValue)
+                        .Select(msgUsr => msgUsr.IdUsuario)
+                        .Distinct(),
+
+                    IdsGruposUsuarios = msg.Destinatarios
+                        .Where(msgUsr => msgUsr.IdGrupoUsuario.HasValue)
+                        .Select(msgUsr => msgUsr.IdGrupoUsuario.Value)
+                        .Distinct()
+                },
+                Assunto = msg.Assunto,
+                Corpo = msg.Corpo,
+                DataEnvio = msg.Inserted,
+                DataLeitura =
+                    msg.Destinatarios.All(msgUsr => msgUsr.DataLeitura.HasValue) ?
+                    msg.Destinatarios.Max(msgUsr => msgUsr.DataLeitura) : null,
+                DataRecebimento =
+                    msg.Destinatarios.All(msgUsr => msgUsr.DataRecebimento.HasValue) ?
+                    msg.Destinatarios.Max(msgUsr => msgUsr.DataRecebimento) : null
+            };
+        }
+
         #region ENVIO
         private async Task<int> EnviarOuEncaminhar(MensagemSummary mensagem, DestinatariosMensagem destinatarios, bool encaminhar)
         {
@@ -218,35 +248,15 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             await unitOfWork.CommitAsync();
 
+            var detalhes = detalharMensagem(msg);
+
             // notifica usuários
-            await proxyMensagens.EnviarParaUsuarios(usuarios, new DetalhesMensagem()
-            {
-                IdMensagem = msg.Id,
-                IdRemetente = msg.IdRemetente,
-                /*destinatarios = new DestinatariosMensagem()
-                {
-                    IdsUsuarios = usuarios.Select(usr => usr.Id)
-                },*/
-                Assunto = msg.Assunto,
-                Corpo = msg.Corpo,
-                DataEnvio = msg.Inserted
-            });
+            await proxyMensagens.EnviarParaUsuarios(usuarios, detalhes);
 
             // notifica grupos
             foreach (var grupo in grupos)
             {
-                await proxyMensagens.EnviarParaGrupoUsuarios(grupo, new DetalhesMensagem()
-                {
-                    IdMensagem = msg.Id,
-                    IdRemetente = msg.IdRemetente,
-                    /*destinatarios = new DestinatariosMensagem()
-                    {
-                        IdsGruposUsuarios = grupos.Select(grp => grp.Id)
-                    },*/
-                    Assunto = msg.Assunto,
-                    Corpo = msg.Corpo,
-                    DataEnvio = msg.Inserted
-                });
+                await proxyMensagens.EnviarParaGrupoUsuarios(grupo, detalhes);
             }
 
             return usrSentCount;
@@ -291,36 +301,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 .Take(pagination.itensPerPage);
 
 
-            return Task.FromResult(msgs.Select(msg =>
-            {
-                return new DetalhesMensagem()
-                {
-                    IdMensagem = msg.Id,
-                    IdRemetente = msg.IdRemetente,
-                    destinatarios = new DestinatariosMensagem()
-                    {
-                        IdsUsuarios = msg.Destinatarios
-                            .Where(msgUsr => !msgUsr.IdGrupoUsuario.HasValue)
-                            .Select(msgUsr => msgUsr.IdUsuario)
-                            .Distinct(),
-
-                        IdsGruposUsuarios = msg.Destinatarios
-                            .Where(msgUsr => msgUsr.IdGrupoUsuario.HasValue)
-                            .Select(msgUsr => msgUsr.IdGrupoUsuario.Value)
-                            .Distinct()
-                    },
-                    Assunto = msg.Assunto,
-                    Corpo = msg.Corpo,
-                    DataEnvio = msg.Inserted,
-                    DataLeitura =
-                        msg.Destinatarios.All(msgUsr => msgUsr.DataLeitura.HasValue) ?
-                        msg.Destinatarios.Max(msgUsr => msgUsr.DataLeitura) : null,
-                    DataRecebimento =
-                        msg.Destinatarios.All(msgUsr => msgUsr.DataRecebimento.HasValue) ?
-                        msg.Destinatarios.Max(msgUsr => msgUsr.DataRecebimento) : null
-
-                };
-            }));
+            return Task.FromResult(msgs.Select(msg => detalharMensagem(msg)));
         }
 
         public Task<IEnumerable<DetalhesMensagem>> ObterMensagensRecebidas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination, out int count)
@@ -340,29 +321,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 .Skip(pagination.page * pagination.itensPerPage)
                 .Take(pagination.itensPerPage);
 
-            return Task.FromResult(msgs.Select(msg =>
-            {
-                return new DetalhesMensagem()
-                {
-                    IdMensagem = msg.Id,
-                    IdRemetente = msg.IdRemetente,
-                    destinatarios = new DestinatariosMensagem()
-                    {
-                        IdsUsuarios = msg.Destinatarios
-                            .Where(msgUsr => !msgUsr.IdGrupoUsuario.HasValue)
-                            .Select(msgUsr => msgUsr.IdUsuario)
-                            .Distinct(),
-
-                        IdsGruposUsuarios = msg.Destinatarios
-                            .Where(msgUsr => msgUsr.IdGrupoUsuario.HasValue)
-                            .Select(msgUsr => msgUsr.IdGrupoUsuario.Value)
-                            .Distinct()
-                    },
-                    Assunto = msg.Assunto,
-                    Corpo = msg.Corpo,
-                    DataEnvio = msg.Inserted
-                };
-            }));
+            return Task.FromResult(msgs.Select(msg => detalharMensagem(msg)));
         }
 
         #endregion
