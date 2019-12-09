@@ -19,7 +19,7 @@ namespace CloudMe.ToDeTaxi.Domain.Notifications.Hubs
 
         public async Task SolicitarLocalizacao()
         {
-            await Clients.All.SendAsync("EnviarLocalizacao");
+            await hubContext.Clients.All.SendAsync("EnviarLocalizacao");
         }
     }
 }

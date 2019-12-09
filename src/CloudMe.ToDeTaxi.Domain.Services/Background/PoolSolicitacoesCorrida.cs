@@ -122,11 +122,14 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                 try
                 {
                     SolicitacaoCorrida solicitacao = null;
+                    Log.Information("Buscando dados da solicitação corrida");
                     //using (var scope = parametros.serviceScope.CreateScope())
                     {
                         var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
                         solicitacao = await solicitacaoCorridaRepo.FindByIdAsync(parametros.IdSolicitacaoCorrida, new[] { "LocalizacaoOrigem" });
                     }
+
+                    Log.Information("Solicitação Corrida após Busca em banco (nulo?): " + (solicitacao is null));
 
                     if (solicitacao is null)
                     {
@@ -249,6 +252,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                 {
                     Log.Error(string.Format("ERRO no monitoramento de solicitações de corrida: MSG [{0}] INNER [{0}]", e.Message, e.InnerException));
                 }
+
+                Log.Information("Saindo do monitoramento da solicitação (public async Task Executar())");
             }
         }
 
@@ -272,6 +277,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
         private void Inicializar()
         {
             Log.Information("Iniciando monitoramento de solicitações de corrida...");
+            try { 
             using (var scope = scopeFactory.CreateScope())
             {
                 var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
@@ -311,6 +317,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                     });
                 };
             }
+            } catch(Exception ex)
+            {
+                Log.Error(ex.Message + " | " + ex.StackTrace);
+            }
             Log.Information("Monitoramento de solicitações de corridas iniciado");
         }
 
@@ -325,6 +335,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
             }
 
             await Task.CompletedTask;
+
+            Log.Information("Saindo do monitoramento da solicitação (protected override async Task ExecuteAsync(CancellationToken stoppingToken))");
         }
     }
 }
