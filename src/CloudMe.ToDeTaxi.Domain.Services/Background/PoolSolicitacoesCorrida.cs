@@ -24,7 +24,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
         private class ParametrosMonitoramento
         {
             public Guid IdSolicitacaoCorrida { get; set; }
-            public IServiceScopeFactory serviceScopeFactory { get; set; }
+            public IServiceScope serviceScope { get; set; }
             public int JanelaAcumulacao { get; set; } = 10000; // default = 10s
             public int JanelaDisponibilidade { get; set; } = 50000; // default = 50s
         }
@@ -37,7 +37,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
             public MonitorSolicitacaoCorrida(ParametrosMonitoramento parametros)
             {
                 this.parametros = parametros;
-                serviceScope = parametros.serviceScopeFactory.CreateScope();
+                serviceScope = parametros.serviceScope;
             }
 
             private async Task<int> ObterRespostasTaxistas(SolicitacaoCorrida solicitacao)
@@ -277,47 +277,49 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
         private void Inicializar()
         {
             Log.Information("Iniciando monitoramento de solicitações de corrida...");
-            try { 
-            using (var scope = scopeFactory.CreateScope())
+            try
             {
-                var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
-
-                Log.Information("   Carregando solicitações vigentes...");
-                // obtém solicitações vigentes
-                var solicitacoes = solicitacaoCorridaRepo.Search(
-                    sol_corrida =>
-                        sol_corrida.Situacao == SituacaoSolicitacaoCorrida.Indefinido ||
-                        sol_corrida.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao,
-                    new[] { "Passageiro", "Passageiro.TaxistasFavoritos" });
-
-                Log.Information(string.Format("   {0} solicitações em andamento!", solicitacoes.Count()));
-
-                foreach (var solicitacao in solicitacoes)
+                using (var scope = scopeFactory.CreateScope())
                 {
-                    ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
+                    var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
+
+                    Log.Information("   Carregando solicitações vigentes...");
+                    // obtém solicitações vigentes
+                    var solicitacoes = solicitacaoCorridaRepo.Search(
+                        sol_corrida =>
+                            sol_corrida.Situacao == SituacaoSolicitacaoCorrida.Indefinido ||
+                            sol_corrida.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao,
+                        new[] { "Passageiro", "Passageiro.TaxistasFavoritos" });
+
+                    Log.Information(string.Format("   {0} solicitações em andamento!", solicitacoes.Count()));
+
+                    foreach (var solicitacao in solicitacoes)
                     {
-                        IdSolicitacaoCorrida = solicitacao.Id,
-                        JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
-                        JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
-                        serviceScopeFactory = scopeFactory
-                    });
+                        ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
+                        {
+                            IdSolicitacaoCorrida = solicitacao.Id,
+                            JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
+                            JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
+                            serviceScope = scopeFactory.CreateScope()
+                        });
+                    }
+
+                    // registra nos triggers de solicitação de corrida
+                    Triggers<SolicitacaoCorrida>.Inserted += insertingEntry =>
+                    {
+                        Log.Information(string.Format("Nova solicitação de corrida lançada: {0}", insertingEntry.Entity.Id));
+                        // nova solicitação
+                        ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
+                        {
+                            IdSolicitacaoCorrida = insertingEntry.Entity.Id,
+                            JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
+                            JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
+                            serviceScope = scopeFactory.CreateScope()
+                        });
+                    };
                 }
-
-                // registra nos triggers de solicitação de corrida
-                Triggers<SolicitacaoCorrida>.Inserted += insertingEntry =>
-                {
-                    Log.Information(string.Format("Nova solicitação de corrida lançada: {0}", insertingEntry.Entity.Id));
-                    // nova solicitação
-                    ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
-                    {
-                        IdSolicitacaoCorrida = insertingEntry.Entity.Id,
-                        JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
-                        JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
-                        serviceScopeFactory = scopeFactory
-                    });
-                };
             }
-            } catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex.Message + " | " + ex.StackTrace);
             }

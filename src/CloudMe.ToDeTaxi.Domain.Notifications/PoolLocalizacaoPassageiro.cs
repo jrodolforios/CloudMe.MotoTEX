@@ -2,6 +2,7 @@
 using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Text;

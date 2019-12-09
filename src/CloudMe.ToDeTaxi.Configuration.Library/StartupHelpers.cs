@@ -86,21 +86,15 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 
             services.AddSingleton<IUserIdProvider, UserIdProvider>();
 
-            services.AddTriggers();
+            services.AddHostedService<PoolLocalizacaoTaxista>();
+            services.AddHostedService<PoolLocalizacaoPassageiro>();
 
-            services.AddSingleton<PoolLocalizacaoTaxista>();
-            services.AddSingleton<IPoolLocalizacaoTaxista, PoolLocalizacaoTaxista>(serviceProvider =>serviceProvider.GetService<PoolLocalizacaoTaxista>());
-
-            services.AddSingleton<PoolLocalizacaoPassageiro>();
-            services.AddSingleton<IPoolLocalizacaoPassageiro, PoolLocalizacaoPassageiro>(serviceProvider => serviceProvider.GetService<PoolLocalizacaoPassageiro>());
-
-            services.AddSingleton<PoolSolicitacoesCorrida>();
-            services.AddSingleton<IHostedService, PoolSolicitacoesCorrida>(serviceProvider => serviceProvider.GetService<PoolSolicitacoesCorrida>());
-
-            services.AddSingleton<PoolCorridas>();
-            services.AddSingleton<IHostedService, PoolCorridas>(serviceProvider => serviceProvider.GetService<PoolCorridas>());
+            services.AddHostedService<PoolSolicitacoesCorrida>();
+            services.AddHostedService<PoolCorridas>();
 
             services.AddTransient<IProxyHubMensagens, ProxyHubMensagens>();
+
+            services.AddTriggers();
 
             return services;
         }
