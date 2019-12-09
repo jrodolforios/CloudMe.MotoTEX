@@ -226,13 +226,19 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                                     continue;
                                 }
 
+                            default:
                             case StatusMonitoramentoSolicitacaoCorrida.Encerramento:
                                 {
+                                    // caso particular... algum erro no fluxo não levou ao encerramento da solicitação
                                     Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][encerramento]", solicitacao.Id.ToString()));
 
+                                    if (solicitacao.Situacao != SituacaoSolicitacaoCorrida.Aceita && 
+                                        solicitacao.Situacao != SituacaoSolicitacaoCorrida.NaoAtendida)
+                                    {
+                                        // muda o status da solicitação para não atendida
+                                        await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.NaoAtendida);
+                                    }
                                 }
-                                break;
-                            default:
                                 break;
                         }
 
