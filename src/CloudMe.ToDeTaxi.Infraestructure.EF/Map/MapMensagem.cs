@@ -18,6 +18,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
             builder.Property(x => x.Assunto).IsRequired(false);
             builder.Property(x => x.Corpo).IsRequired(true);
 
+            builder.Property(x => x.Apagada).HasDefaultValue(false);
+
             builder.HasOne(x => x.Remetente).WithMany(x => x.MensagensEnviadas).HasForeignKey(x => x.IdRemetente);
         }
     }

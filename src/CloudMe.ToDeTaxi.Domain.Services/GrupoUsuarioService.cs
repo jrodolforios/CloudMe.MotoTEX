@@ -86,6 +86,18 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return await GetAllSummariesAsync(userGroups);
         }
 
+        public async Task<GrupoUsuarioSummary> GetSummaryByNameAsync(string name)
+        {
+            var grpUsr = _GrupoUsuarioRepository.Search(x => x.Nome == name).FirstOrDefault();
+            if (grpUsr == null)
+            {
+                AddNotification(new Notification("GetSummaryByNameAsync", string.Format("Grupo de usuários não encontrado com o nome {0}", name)));
+                return default;
+            }
+
+            return await CreateSummaryAsync(grpUsr);
+        }
+
         public override async Task<GrupoUsuario> CreateAsync(GrupoUsuarioSummary summary)
         {
             // verifica se existe outro grupo com o mesmo nome

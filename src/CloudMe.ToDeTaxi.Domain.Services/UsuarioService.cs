@@ -128,6 +128,18 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return await this._userManager.FindByIdAsync(id.ToString());
         }
 
+        public async Task<UsuarioSummary> GetSummaryByNameAsync(string name)
+        {
+            var usr = await _userManager.FindByNameAsync(name);
+            if (usr == null)
+            {
+                AddNotification(new Notification("GetSummaryByNameAsync", string.Format("Usuário não encontrado com o nome {0}", name)));
+                return default;
+            }
+
+            return await CreateSummaryAsync(usr);
+        }
+
         public override async Task<Usuario> CreateAsync(UsuarioSummary summary)
         {
             ValidateSummary(summary);

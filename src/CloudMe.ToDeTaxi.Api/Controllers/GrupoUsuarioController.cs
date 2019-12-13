@@ -32,6 +32,17 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Obtém um grupo de usuário por nome.
+        /// <param name="name">Nome do grupo de usuários</param>
+        /// </summary>
+        [HttpGet("by_name")]
+        [ProducesResponseType(typeof(Response<GrupoUsuarioSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<GrupoUsuarioSummary>> GetByName(string name)
+        {
+            return await base.ResponseAsync(await _GrupoUsuarioService.GetSummaryByNameAsync(name), _GrupoUsuarioService);
+        }
+
+        /// <summary>
         /// Obtém os grupos de usuários de um usuário específico.
         /// </summary>
         [HttpGet("by_user")]

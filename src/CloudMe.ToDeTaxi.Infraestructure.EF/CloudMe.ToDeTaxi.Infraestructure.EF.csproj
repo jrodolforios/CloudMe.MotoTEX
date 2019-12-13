@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Migrations\20191008223617_force_delete.cs" />
+    <Compile Remove="Migrations\20191212110118_MensagemApagada.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EntityFrameworkCore.Triggers" Version="1.2.2" />

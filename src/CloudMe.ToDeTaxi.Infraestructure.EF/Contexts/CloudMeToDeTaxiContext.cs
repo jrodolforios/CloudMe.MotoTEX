@@ -25,6 +25,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Contexts
         public DbSet<SolicitacaoCorrida> SolicitacoesCorrida { get; set; }
         public DbSet<Tarifa> Tarifas { get; set; }
         public DbSet<Taxista> Taxistas { get; set; }
+        public DbSet<PontoTaxi> PontosTaxi { get; set; }
         public DbSet<UsuarioGrupoUsuario> UsuariosGruposUsuarios { get; set; }
         public DbSet<Veiculo> Veiculos { get; set; }
         public DbSet<VeiculoTaxista> VeiculosTaxistas { get; set; }

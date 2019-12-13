@@ -10,6 +10,7 @@ namespace CloudMe.ToDeTaxi.Domain.Enums
         Enviada,
         Encaminhada,
         Recebida,
-        Lida
+        Lida,
+        Apagada
     }
 }

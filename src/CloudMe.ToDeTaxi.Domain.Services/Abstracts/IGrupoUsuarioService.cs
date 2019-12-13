@@ -9,5 +9,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
     public interface IGrupoUsuarioService : IServiceBase<GrupoUsuario, GrupoUsuarioSummary, Guid>
     {
         Task<IEnumerable<GrupoUsuarioSummary>> GetAllSummariesByUserAsync(Guid user_id);
+        Task<GrupoUsuarioSummary> GetSummaryByNameAsync(string name);
     }
 }

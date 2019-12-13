@@ -47,6 +47,17 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Obtém um usuário por nome.
+        /// <param name="name">Nome do usuário</param>
+        /// </summary>
+        [HttpGet("by_name")]
+        [ProducesResponseType(typeof(Response<UsuarioSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<UsuarioSummary>> GetByName(string name)
+        {
+            return await base.ResponseAsync(await _UsuarioService.GetSummaryByNameAsync(name), _UsuarioService);
+        }
+
+        /// <summary>
         /// Creates a new Usuario.
         /// </summary>
         /// <param name="UsuarioSummary">Usuario's summary</param>

@@ -76,6 +76,22 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return Task.FromResult(Mensagem);
         }
 
+        protected MensagemDestinatarioSummary CreateMsgDestSummary(MensagemDestinatario msgDest)
+        {
+            var summary = new MensagemDestinatarioSummary
+            {
+                Id = msgDest.Id,
+                IdMensagem = msgDest.IdMensagem,
+                IdUsuario = msgDest.IdUsuario,
+                IdGrupoUsuario = msgDest.IdGrupoUsuario,
+                DataLeitura = msgDest.DataLeitura,
+                DataRecebimento = msgDest.DataRecebimento,
+                Status = msgDest.Status
+            };
+
+            return summary;
+        }
+
         protected override Guid GetKeyFromSummary(MensagemSummary summary)
         {
             return summary.Id;
@@ -121,7 +137,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public async Task<bool> AlterarStatusMensagem(Guid id_mensagem, Guid id_usuario, StatusMensagem status)
         {
             var msgDst = mensagemDestinatarioRepository.Search(
-                x => x.IdMensagem == id_mensagem && x.IdUsuario == id_usuario).FirstOrDefault();
+                x => x.IdMensagem == id_mensagem && x.IdUsuario == id_usuario, new[] {"Mensagem"}).FirstOrDefault();
 
             if (msgDst is null)
             {
@@ -137,10 +153,14 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                     break;
                 case StatusMensagem.Enviada:
                 case StatusMensagem.Encaminhada:
-                    novoStatusValido = status == StatusMensagem.Recebida;
+                    novoStatusValido = status == StatusMensagem.Recebida || status == StatusMensagem.Lida || status == StatusMensagem.Apagada;
+                    //novoStatusValido = status == StatusMensagem.Recebida;
                     break;
                 case StatusMensagem.Recebida:
-                    novoStatusValido = status == StatusMensagem.Lida;
+                    novoStatusValido = status == StatusMensagem.Lida || status == StatusMensagem.Apagada;
+                    break;
+                case StatusMensagem.Lida:
+                    novoStatusValido = status == StatusMensagem.Apagada;
                     break;
                 default:
                     break;
@@ -149,7 +169,20 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             if (novoStatusValido)
             {
                 msgDst.Status = status;
-                return await mensagemDestinatarioRepository.ModifyAsync(msgDst);
+                switch (status)
+                {
+                    case StatusMensagem.Recebida:
+                        msgDst.DataRecebimento = DateTime.Now;
+                        break;
+                    case StatusMensagem.Lida:
+                        msgDst.DataLeitura = DateTime.Now;
+                        break;
+                }
+                await mensagemDestinatarioRepository.ModifyAsync(msgDst);
+                await unitOfWork.CommitAsync();
+
+                await proxyMensagens.MensagemAtualizada(CreateMsgDestSummary(msgDst));
+                return true;
             }
 
             return false;

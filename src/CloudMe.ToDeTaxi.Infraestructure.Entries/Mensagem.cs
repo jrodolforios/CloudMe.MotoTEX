@@ -12,6 +12,8 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Entries
         public string Assunto { get; set; }
         public string Corpo { get; set; }
 
+        public bool Apagada { get; set; } = false; // apagada pelo remetente
+
         public virtual IEnumerable<MensagemDestinatario> Destinatarios { get; set; }
     }
 }

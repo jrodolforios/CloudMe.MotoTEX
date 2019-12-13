@@ -34,5 +34,14 @@ namespace CloudMe.ToDeTaxi.Domain.Notifications
         {
             await hubContext.Clients.Group(grupoUsuario.Id.ToString()).SendAsync("msg_grp_usr", mensagem);
         }
+
+        public async Task MensagemAtualizada(MensagemDestinatarioSummary mensagemDestinatario)
+        {
+            await hubContext.Clients.Users(new[]
+            {
+                mensagemDestinatario.IdUsuario.ToString()
+            }).SendAsync("msg_upd", mensagemDestinatario);
+        }
+
     }
 }
