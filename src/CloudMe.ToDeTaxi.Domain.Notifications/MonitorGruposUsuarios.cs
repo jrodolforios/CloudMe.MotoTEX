@@ -50,35 +50,6 @@ namespace CloudMe.ToDeTaxi.Domain.Notifications
                 }
             };
 
-            Triggers<Taxista, CloudMeToDeTaxiContext>.Inserting += insertingEntry =>
-            {
-                // novo taxista...
-
-                // procura o grupo de taxistas (cria se não existir)
-                var grpUsr = insertingEntry.Context.GruposUsuario
-                    .Where(x => x.Nome == "Taxistas").FirstOrDefault();
-
-                if (grpUsr == null)
-                {
-                    grpUsr = new GrupoUsuario()
-                    {
-                        Nome = "Taxistas",
-                        Descricao = "Grupo de usuários taxistas"
-                    };
-
-                    insertingEntry.Context.Entry(grpUsr).State = EntityState.Added;
-                }
-
-                // inserir no grupo de taxistas
-                var usrGrpUsr = new UsuarioGrupoUsuario()
-                {
-                    IdUsuario = insertingEntry.Entity.IdUsuario.Value,
-                    IdGrupoUsuario = grpUsr.Id
-                };
-
-                insertingEntry.Context.Entry(usrGrpUsr).State = EntityState.Added;
-            };
-
             Triggers<Taxista, CloudMeToDeTaxiContext>.Deleting += deletingEntry =>
             {
                 // taxista removido...
@@ -98,28 +69,54 @@ namespace CloudMe.ToDeTaxi.Domain.Notifications
                 }
             };
 
-            Triggers<Taxista, CloudMeToDeTaxiContext>.Updating += updatingEntry =>
+            Triggers<Taxista, CloudMeToDeTaxiContext>.Updating += UpdatingEntry =>
             {
                 // taxista alterado...
-
-                if (updatingEntry.Original.IdPontoTaxi != updatingEntry.Entity.IdPontoTaxi) // alterou o ponto de taxi
+                if (!UpdatingEntry.Original.IdUsuario.HasValue && UpdatingEntry.Entity.IdUsuario.HasValue) // usuário foi associado ao taxista (criação)
                 {
-                    var ptTaxiAnterior = updatingEntry.Context.PontosTaxi.Where(x => x.Id == updatingEntry.Original.IdPontoTaxi).FirstOrDefault();
-                    var ptTaxiAtual = updatingEntry.Context.PontosTaxi.Where(x => x.Id == updatingEntry.Entity.IdPontoTaxi).FirstOrDefault();
+                    // procura o grupo de taxistas (cria se não existir)
+                    var grpUsr = UpdatingEntry.Context.GruposUsuario
+                        .Where(x => x.Nome == "Taxistas").FirstOrDefault();
+
+                    if (grpUsr == null)
+                    {
+                        grpUsr = new GrupoUsuario()
+                        {
+                            Nome = "Taxistas",
+                            Descricao = "Grupo de usuários taxistas"
+                        };
+
+                        UpdatingEntry.Context.Entry(grpUsr).State = EntityState.Added;
+                    }
+
+                    // inserir no grupo de taxistas
+                    var usrGrpUsr = new UsuarioGrupoUsuario()
+                    {
+                        IdUsuario = UpdatingEntry.Entity.IdUsuario.Value,
+                        IdGrupoUsuario = grpUsr.Id
+                    };
+
+                    UpdatingEntry.Context.Entry(usrGrpUsr).State = EntityState.Added;
+                }
+
+                if (UpdatingEntry.Original.IdPontoTaxi != UpdatingEntry.Entity.IdPontoTaxi) // alterou o ponto de taxi
+                {
+                    var ptTaxiAnterior = UpdatingEntry.Context.PontosTaxi.Where(x => x.Id == UpdatingEntry.Original.IdPontoTaxi).FirstOrDefault();
+                    var ptTaxiAtual = UpdatingEntry.Context.PontosTaxi.Where(x => x.Id == UpdatingEntry.Entity.IdPontoTaxi).FirstOrDefault();
 
                     if (ptTaxiAnterior != null)
                     {
                         // remove do grupo de usuários do ponto de taxi anterior
-                        var grpUsrAnt = updatingEntry.Context.GruposUsuario
+                        var grpUsrAnt = UpdatingEntry.Context.GruposUsuario
                             .Include(x => x.Usuarios)
                             .Where(x => x.Nome == ptTaxiAnterior.Nome).FirstOrDefault();
 
                         if (grpUsrAnt != null)
                         {
-                            var usrGrpUrs = grpUsrAnt.Usuarios.FirstOrDefault(x => x.IdUsuario == updatingEntry.Entity.IdUsuario.Value);
+                            var usrGrpUrs = grpUsrAnt.Usuarios.FirstOrDefault(x => x.IdUsuario == UpdatingEntry.Entity.IdUsuario.Value);
                             if (usrGrpUrs != null)
                             {
-                                updatingEntry.Context.Entry(usrGrpUrs).State = EntityState.Deleted;
+                                UpdatingEntry.Context.Entry(usrGrpUrs).State = EntityState.Deleted;
                             }
                         }
                     }
@@ -127,29 +124,29 @@ namespace CloudMe.ToDeTaxi.Domain.Notifications
                     if (ptTaxiAtual != null)
                     {
                         // adiciona no grupo de usuários do novo ponto de taxi (se houver)
-                        var grpUsr = updatingEntry.Context.GruposUsuario
+                        var grpUsr = UpdatingEntry.Context.GruposUsuario
                             .Where(x => x.Nome == ptTaxiAtual.Nome).FirstOrDefault();
 
                         if (grpUsr != null)
                         {
                             var usrGrpUsr = new UsuarioGrupoUsuario()
                             {
-                                IdUsuario = updatingEntry.Entity.IdUsuario.Value,
+                                IdUsuario = UpdatingEntry.Entity.IdUsuario.Value,
                                 IdGrupoUsuario = grpUsr.Id
                             };
 
-                            updatingEntry.Context.Entry(usrGrpUsr).State = EntityState.Added;
+                            UpdatingEntry.Context.Entry(usrGrpUsr).State = EntityState.Added;
                         }
                     }
                 }
             };
 
-            Triggers<Passageiro, CloudMeToDeTaxiContext>.Inserting += insertingEntry =>
+            Triggers<Passageiro, CloudMeToDeTaxiContext>.Inserted += InsertedEntry =>
             {
                 // novo passageiro...
 
                 // procura o grupo de passageiros (cria se não existir)
-                var grpUsr = insertingEntry.Context.GruposUsuario
+                var grpUsr = InsertedEntry.Context.GruposUsuario
                     .Where(x => x.Nome == "Passageiros").FirstOrDefault();
 
                 if (grpUsr == null)
@@ -160,17 +157,17 @@ namespace CloudMe.ToDeTaxi.Domain.Notifications
                         Descricao = "Grupo de usuários passageiros"
                     };
 
-                    insertingEntry.Context.Entry(grpUsr).State = EntityState.Added;
+                    InsertedEntry.Context.Entry(grpUsr).State = EntityState.Added;
                 }
 
                 // inserir no grupo de passageiros
                 var usrGrpUsr = new UsuarioGrupoUsuario()
                 {
-                    IdUsuario = insertingEntry.Entity.IdUsuario.Value,
+                    IdUsuario = InsertedEntry.Entity.IdUsuario.Value,
                     IdGrupoUsuario = grpUsr.Id
                 };
 
-                insertingEntry.Context.Entry(usrGrpUsr).State = EntityState.Added;
+                InsertedEntry.Context.Entry(usrGrpUsr).State = EntityState.Added;
             };
 
             Triggers<Passageiro, CloudMeToDeTaxiContext>.Deleting += deletingEntry =>

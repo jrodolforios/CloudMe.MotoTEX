@@ -260,10 +260,30 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
         IServiceScopeFactory scopeFactory = null;
         public IConfiguration configuration { get; }
 
-        public PoolSolicitacoesCorrida(IServiceScopeFactory _scopeFactory, IConfiguration _configuration) : base()
+        ISolicitacaoCorridaRepository solicitacaoCorridaRepo;
+        IUnitOfWork unitOfWork;
+        ICorridaService corridaService;
+        ITarifaService tarifaService;
+        IVeiculoTaxistaService veiculoTaxistaService;
+
+        public PoolSolicitacoesCorrida(
+            IServiceScopeFactory _scopeFactory,
+            IConfiguration _configuration,
+            ISolicitacaoCorridaRepository solicitacaoCorridaRepo,
+            IUnitOfWork unitOfWork,
+            ICorridaService corridaService,
+            ITarifaService tarifaService,
+            IVeiculoTaxistaService veiculoTaxistaService
+            ) : base()
         {
             scopeFactory = _scopeFactory;
             configuration = _configuration;
+
+            this.solicitacaoCorridaRepo = solicitacaoCorridaRepo;
+            this.unitOfWork = unitOfWork;
+            this.corridaService = corridaService;
+            this.tarifaService = tarifaService;
+            this.veiculoTaxistaService = veiculoTaxistaService;
         }
 
 
@@ -272,6 +292,195 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
             var paramMon = (ParametrosMonitoramento)stateInfo;
             Log.Information(string.Format("Iniciado monitoramento da solicitação de corrida: [{0}]", paramMon.IdSolicitacaoCorrida.ToString()));
             await new MonitorSolicitacaoCorrida(paramMon).Executar();
+        }
+
+        private async Task<int> ObterRespostasTaxistas(SolicitacaoCorrida solicitacao)
+        {
+            return await solicitacaoCorridaRepo.ObterNumeroAceitacoes(solicitacao);
+        }
+
+        private async Task<IEnumerable<Taxista>> ClassificarTaxistasEleitos(SolicitacaoCorrida solicitacao)
+        {
+            return await solicitacaoCorridaRepo.ClassificarTaxistas(solicitacao);
+        }
+
+        private async Task<bool> ElegerTaxista(SolicitacaoCorrida solicitacao, Taxista taxista)
+        {
+            var tarifaVigente = (await tarifaService.GetAll()).FirstOrDefault();
+
+            var veiculoTaxista = veiculoTaxistaService.Search(veicTx => veicTx.IdTaxista == taxista.Id && veicTx.Ativo).FirstOrDefault();
+
+            var corrida = await corridaService.CreateAsync(new CorridaSummary()
+            {
+                IdSolicitacao = solicitacao.Id,
+                IdTaxista = taxista.Id,
+                Status = solicitacao.TipoAtendimento == TipoAtendimento.Agendado ? StatusCorrida.Agendada : StatusCorrida.Solicitada,
+                IdTarifa = tarifaVigente.Id,
+                IdVeiculo = veiculoTaxista.IdVeiculo,
+                Inicio = solicitacao.TipoAtendimento == TipoAtendimento.Agendado ? solicitacao.Data : (DateTime?)null
+            });
+
+            return await unitOfWork.CommitAsync();
+        }
+
+        private async Task<bool> AlterarStatusMonitoramento(SolicitacaoCorrida solicitacao, StatusMonitoramentoSolicitacaoCorrida status)
+        {
+            return await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, status);
+        }
+
+        private async Task<bool> AlterarSituacaoSolicitacao(SolicitacaoCorrida solicitacao, SituacaoSolicitacaoCorrida situacao)
+        {
+            return await solicitacaoCorridaRepo.AlterarSituacao(solicitacao, situacao);
+        }
+
+        public async Task Monitorar(Guid IdSolicitacaoCorrida, int JanelaAcumulacao, int JanelaDisponibilidade)
+        {
+            /*
+             * Fluxo:
+             * 
+             * 1 - A solicitação de corrida é gerada (capturada pelo trigger de insert);
+             * 2 - Inicia a janela de acumulação de taxistas interessados na solicitação (10s)
+             * 3 - Findo o perído compreendido no passo 2, é realizada a filtragem e classificação (ordenação) 
+             *     dos taxistas que aceitaram a solicitação, de acordo com os critérios de favoritagem 
+             *     e distância da origem da solicitação
+             * 4 - Se no passo 2 nenhum taxista se candidatar, inicia a janela de disponibilidade (50s), que
+             *     concede a corrida ao primeiro taxista que aceitar solicitação
+             * 5 - Se foi eleito um taxista para a solicitação, esta é marcada como 'aceita' e a corrida é gerada
+             * 6 - Se não foi eleito um taxista para a solicitação, esta é marcada como 'não atendida'
+             */
+
+            try
+            {
+                SolicitacaoCorrida solicitacao = null;
+                Log.Information("Buscando dados da solicitação corrida");
+
+                solicitacao = await solicitacaoCorridaRepo.FindByIdAsync(IdSolicitacaoCorrida, new[] { "LocalizacaoOrigem" });
+
+                Log.Information("Solicitação Corrida após Busca em banco (nulo?): " + (solicitacao is null));
+
+                if (solicitacao is null)
+                {
+                    return;
+                }
+
+                if (solicitacao.Situacao == SituacaoSolicitacaoCorrida.Indefinido)
+                {
+                    // passa a avaliar a solicitação de corrida
+                    await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.EmAvaliacao);
+                }
+
+                IEnumerable<Taxista> taxistasEleitos = null;
+
+                while (solicitacao.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao)
+                {
+                    switch (solicitacao.StatusMonitoramento)
+                    {
+                        case StatusMonitoramentoSolicitacaoCorrida.Indefinido:
+                            {
+                                await AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Acumulacao);
+                                continue;
+                            }
+                        case StatusMonitoramentoSolicitacaoCorrida.Acumulacao:
+                            {
+                                Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][acumulação]", solicitacao.Id.ToString()));
+                                Thread.Sleep(JanelaAcumulacao);
+
+                                taxistasEleitos = await ClassificarTaxistasEleitos(solicitacao);
+                                await AlterarStatusMonitoramento(solicitacao,
+                                    taxistasEleitos.Count() == 0 ?
+                                    StatusMonitoramentoSolicitacaoCorrida.Disponibilidade : // nenhum taxista aceitou a solicitacao
+                                    StatusMonitoramentoSolicitacaoCorrida.Conclusao // algum taxista aceitou a solicitacao
+                                    );
+
+                                continue;
+                            }
+                        case StatusMonitoramentoSolicitacaoCorrida.Disponibilidade:
+                            {
+                                Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][disponibilidade]", solicitacao.Id.ToString()));
+                                // dentro da janela de disponibilidade (aguardando taxista)
+
+                                int num_taxistas = 0;
+
+                                int accumTime = 0;
+                                var currTime = DateTime.Now;
+
+                                do
+                                {
+                                    num_taxistas = await ObterRespostasTaxistas(solicitacao); // operação mais 'barata' que a classificação
+                                    if (num_taxistas > 0)
+                                    {
+                                        taxistasEleitos = await ClassificarTaxistasEleitos(solicitacao);
+                                        if (taxistasEleitos.Count() > 0)
+                                        {
+                                            break;
+                                        }
+                                    }
+
+                                    Thread.Sleep(500);
+
+                                    accumTime += (DateTime.Now - currTime).Milliseconds;
+                                    currTime = DateTime.Now;
+                                }
+                                while (accumTime < JanelaDisponibilidade);
+
+                                // countdown atingido ou algum taxista aceitou a solicitação
+                                await AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Conclusao);
+
+                                continue;
+                            }
+
+                        case StatusMonitoramentoSolicitacaoCorrida.Conclusao:
+                            {
+                                Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][conclusão]", solicitacao.Id.ToString()));
+                                if (taxistasEleitos == null)
+                                {
+                                    // caso tenha chegado aqui após uma queda do sistema, por exemplo
+                                    taxistasEleitos = await ClassificarTaxistasEleitos(solicitacao);
+                                }
+
+                                if (taxistasEleitos.Count() > 0)
+                                {
+                                    // cria registro de corrida para o primeiro taxista da classificação
+                                    await ElegerTaxista(solicitacao, taxistasEleitos.First());
+
+                                    // muda o status da solicitação para aceita
+                                    await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.Aceita);
+                                }
+                                else
+                                {
+                                    // muda o status da solicitação para não atendida
+                                    await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.NaoAtendida);
+                                }
+
+                                await AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Encerramento);
+                                continue;
+                            }
+
+                        default:
+                        case StatusMonitoramentoSolicitacaoCorrida.Encerramento:
+                            {
+                                // caso particular... algum erro no fluxo não levou ao encerramento da solicitação
+                                Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][encerramento]", solicitacao.Id.ToString()));
+
+                                if (solicitacao.Situacao != SituacaoSolicitacaoCorrida.Aceita &&
+                                    solicitacao.Situacao != SituacaoSolicitacaoCorrida.NaoAtendida)
+                                {
+                                    // muda o status da solicitação para não atendida
+                                    await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.NaoAtendida);
+                                }
+                            }
+                            break;
+                    }
+
+                    Thread.Sleep(200);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(string.Format("ERRO no monitoramento de solicitações de corrida: MSG [{0}] INNER [{0}]", e.Message, e.InnerException));
+            }
+
+            Log.Information("Saindo do monitoramento da solicitação (public async Task Executar())");
         }
 
         private void Inicializar()
@@ -295,13 +504,22 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
 
                     foreach (var solicitacao in solicitacoes)
                     {
-                        ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
+                        Task.Factory.StartNew(async () =>
+                        {
+                            await this.Monitorar(
+                                solicitacao.Id,
+                                configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
+                                configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade")
+                            );
+                        });
+
+                        /*ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
                         {
                             IdSolicitacaoCorrida = solicitacao.Id,
                             JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
                             JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
                             serviceScope = scopeFactory.CreateScope()
-                        });
+                        });*/
                     }
 
                     // registra nos triggers de solicitação de corrida
@@ -309,13 +527,22 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                     {
                         Log.Information(string.Format("Nova solicitação de corrida lançada: {0}", insertingEntry.Entity.Id));
                         // nova solicitação
-                        ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
+                        Task.Factory.StartNew(async () =>
+                        {
+                            await this.Monitorar(
+                                insertingEntry.Entity.Id,
+                                configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
+                                configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade")
+                            );
+                        });
+
+                        /*ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
                         {
                             IdSolicitacaoCorrida = insertingEntry.Entity.Id,
                             JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
                             JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
                             serviceScope = scopeFactory.CreateScope()
-                        });
+                        });*/
                     };
                 }
             }
