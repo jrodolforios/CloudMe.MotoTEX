@@ -24,7 +24,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
         private class ParametrosMonitoramento
         {
             public Guid IdSolicitacaoCorrida { get; set; }
-            public IServiceScope serviceScope { get; set; }
+            public IServiceProvider serviceProvider { get; set; }
             public int JanelaAcumulacao { get; set; } = 10000; // default = 10s
             public int JanelaDisponibilidade { get; set; } = 50000; // default = 50s
         }
@@ -32,75 +32,62 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
         private class MonitorSolicitacaoCorrida
         {
             ParametrosMonitoramento parametros { get; set; }
-            IServiceScope serviceScope { get; set; }
+
+            ISolicitacaoCorridaRepository solicitacaoCorridaRepo;
+            IUnitOfWork unitOfWork;
+            ICorridaService corridaService;
+            ITarifaService tarifaService;
+            IVeiculoTaxistaService veiculoTaxistaService;
 
             public MonitorSolicitacaoCorrida(ParametrosMonitoramento parametros)
             {
                 this.parametros = parametros;
-                serviceScope = parametros.serviceScope;
+                var serviceScope = parametros.serviceProvider.CreateScope();
+
+                solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
+                unitOfWork = serviceScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                corridaService = serviceScope.ServiceProvider.GetRequiredService<ICorridaService>();
+                tarifaService = serviceScope.ServiceProvider.GetRequiredService<ITarifaService>();
+                veiculoTaxistaService = serviceScope.ServiceProvider.GetRequiredService<IVeiculoTaxistaService>();
             }
 
             private async Task<int> ObterRespostasTaxistas(SolicitacaoCorrida solicitacao)
             {
-                //using (var scope = parametros.serviceScope.CreateScope())
-                {
-                    var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
-                    return await solicitacaoCorridaRepo.ObterNumeroAceitacoes(solicitacao);
-                }
-            }
+                return await solicitacaoCorridaRepo.ObterNumeroAceitacoes(solicitacao);
+           }
 
             private async Task<IEnumerable<Taxista>> ClassificarTaxistasEleitos(SolicitacaoCorrida solicitacao)
             {
-                //using (var scope = parametros.serviceScope.CreateScope())
-                {
-                    var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
-                    return await solicitacaoCorridaRepo.ClassificarTaxistas(solicitacao);
-                }
+                return await solicitacaoCorridaRepo.ClassificarTaxistas(solicitacao);
             }
 
             private async Task<bool> ElegerTaxista(SolicitacaoCorrida solicitacao, Taxista taxista)
             {
-                //using (var scope = parametros.serviceScope.CreateScope())
+                var tarifaVigente = (await tarifaService.GetAll()).FirstOrDefault();
+
+                var veiculoTaxista = veiculoTaxistaService.Search(veicTx => veicTx.IdTaxista == taxista.Id && veicTx.Ativo).FirstOrDefault();
+
+                var corrida = await corridaService.CreateAsync(new CorridaSummary()
                 {
-                    var unitOfWork = serviceScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                    var corridaService = serviceScope.ServiceProvider.GetRequiredService<ICorridaService>();
-                    var tarifaService = serviceScope.ServiceProvider.GetRequiredService<ITarifaService>();
-                    var veiculoTaxistaService = serviceScope.ServiceProvider.GetRequiredService<IVeiculoTaxistaService>();
+                    IdSolicitacao = solicitacao.Id,
+                    IdTaxista = taxista.Id,
+                    Status = solicitacao.TipoAtendimento == TipoAtendimento.Agendado ? StatusCorrida.Agendada : StatusCorrida.Solicitada,
+                    IdTarifa = tarifaVigente.Id,
+                    IdVeiculo = veiculoTaxista.IdVeiculo,
+                    Inicio = solicitacao.TipoAtendimento == TipoAtendimento.Agendado ? solicitacao.Data : (DateTime?)null
+                });
 
-                    var tarifaVigente = (await tarifaService.GetAll()).FirstOrDefault();
-
-                    var veiculoTaxista = veiculoTaxistaService.Search(veicTx => veicTx.IdTaxista == taxista.Id && veicTx.Ativo).FirstOrDefault();
-
-                    var corrida = await corridaService.CreateAsync(new CorridaSummary()
-                    {
-                        IdSolicitacao = solicitacao.Id,
-                        IdTaxista = taxista.Id,
-                        Status = solicitacao.TipoAtendimento == TipoAtendimento.Agendado ? StatusCorrida.Agendada : StatusCorrida.Solicitada,
-                        IdTarifa = tarifaVigente.Id,
-                        IdVeiculo = veiculoTaxista.IdVeiculo,
-                        Inicio = solicitacao.TipoAtendimento == TipoAtendimento.Agendado ? solicitacao.Data : (DateTime?)null
-                    });
-
-                    return await unitOfWork.CommitAsync();
-                }
+                return await unitOfWork.CommitAsync();
             }
 
             private async Task<bool> AlterarStatusMonitoramento(SolicitacaoCorrida solicitacao, StatusMonitoramentoSolicitacaoCorrida status)
             {
-                //using (var scope = parametros.serviceScope.CreateScope())
-                {
-                    var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
-                    return await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, status);
-                }
+                return await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, status);
             }
 
             private async Task<bool> AlterarSituacaoSolicitacao(SolicitacaoCorrida solicitacao, SituacaoSolicitacaoCorrida situacao)
             {
-                //using (var scope = parametros.serviceScope.CreateScope())
-                {
-                    var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
-                    return await solicitacaoCorridaRepo.AlterarSituacao(solicitacao, situacao);
-                }
+                return await solicitacaoCorridaRepo.AlterarSituacao(solicitacao, situacao);
             }
 
             public async Task Executar()
@@ -123,13 +110,23 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                 {
                     SolicitacaoCorrida solicitacao = null;
                     Log.Information("Buscando dados da solicitação corrida");
-                    //using (var scope = parametros.serviceScope.CreateScope())
-                    {
-                        var solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
-                        solicitacao = await solicitacaoCorridaRepo.FindByIdAsync(parametros.IdSolicitacaoCorrida, new[] { "LocalizacaoOrigem" });
-                    }
 
-                    Log.Information("Solicitação Corrida após Busca em banco (nulo?): " + (solicitacao is null));
+                    var retries = 10;
+                    do
+                    {
+                        solicitacao = await solicitacaoCorridaRepo.FindByIdAsync(parametros.IdSolicitacaoCorrida, new[] { "LocalizacaoOrigem" });
+                        if (solicitacao is null)
+                        {
+                            retries--;
+                        }
+                        else
+                        {
+                            retries = 0;
+                        }
+                        Log.Information(string.Format("Solicitação Corrida após Busca em banco (nulo?) - Tentativas restantes {0}: {1}", retries.ToString(), (solicitacao is null).ToString()));
+                        Thread.Sleep(500);
+                    }
+                    while (retries > 0);
 
                     if (solicitacao is null)
                     {
@@ -259,11 +256,17 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
 
         IServiceScopeFactory scopeFactory = null;
         public IConfiguration configuration { get; }
+        IServiceProvider serviceProvider;
 
-        public PoolSolicitacoesCorrida(IServiceScopeFactory _scopeFactory, IConfiguration _configuration) : base()
+        public PoolSolicitacoesCorrida(
+            IServiceScopeFactory _scopeFactory,
+            IConfiguration _configuration,
+            IServiceProvider serviceProvider
+            ) : base()
         {
             scopeFactory = _scopeFactory;
             configuration = _configuration;
+            this.serviceProvider = serviceProvider;
         }
 
 
@@ -279,29 +282,43 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
             Log.Information("Iniciando monitoramento de solicitações de corrida...");
             try
             {
+                var janelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao");
+                var janelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao");
+
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
 
                     Log.Information("   Carregando solicitações vigentes...");
                     // obtém solicitações vigentes
-                    var solicitacoes = solicitacaoCorridaRepo.Search(
+                    var idsSolicitacoes = solicitacaoCorridaRepo.Search(
                         sol_corrida =>
                             sol_corrida.Situacao == SituacaoSolicitacaoCorrida.Indefinido ||
-                            sol_corrida.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao,
-                        new[] { "Passageiro", "Passageiro.TaxistasFavoritos" });
+                            sol_corrida.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao).Select(x => x.Id);
 
-                    Log.Information(string.Format("   {0} solicitações em andamento!", solicitacoes.Count()));
+                    Log.Information(string.Format("   {0} solicitações em andamento!", idsSolicitacoes.Count()));
 
-                    foreach (var solicitacao in solicitacoes)
+                    foreach (var idSolicitacao in idsSolicitacoes)
                     {
-                        ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
+                        Task.Factory.StartNew(async () =>
+                        {
+                            Log.Information(string.Format("Iniciado monitoramento da solicitação de corrida: [{0}]", idSolicitacao));
+                            await new MonitorSolicitacaoCorrida(new ParametrosMonitoramento
+                            {
+                                IdSolicitacaoCorrida = idSolicitacao,
+                                JanelaAcumulacao = janelaAcumulacao,
+                                JanelaDisponibilidade = janelaDisponibilidade,
+                                serviceProvider = serviceProvider
+                            }).Executar();
+                        });
+
+                        /*ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
                         {
                             IdSolicitacaoCorrida = solicitacao.Id,
                             JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
                             JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
                             serviceScope = scopeFactory.CreateScope()
-                        });
+                        });*/
                     }
 
                     // registra nos triggers de solicitação de corrida
@@ -309,13 +326,25 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Background
                     {
                         Log.Information(string.Format("Nova solicitação de corrida lançada: {0}", insertingEntry.Entity.Id));
                         // nova solicitação
-                        ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
+                        Task.Factory.StartNew(async () =>
+                        {
+                            Log.Information(string.Format("Iniciado monitoramento da solicitação de corrida: [{0}]", insertingEntry.Entity.Id));
+                            await new MonitorSolicitacaoCorrida(new ParametrosMonitoramento
+                            {
+                                IdSolicitacaoCorrida = insertingEntry.Entity.Id,
+                                JanelaAcumulacao = janelaAcumulacao,
+                                JanelaDisponibilidade = janelaDisponibilidade,
+                                serviceProvider = serviceProvider
+                            }).Executar();
+                        });
+
+                        /*ThreadPool.QueueUserWorkItem(MonitorarSolicitacaoCorrida, new ParametrosMonitoramento()
                         {
                             IdSolicitacaoCorrida = insertingEntry.Entity.Id,
                             JanelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao"),
                             JanelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaDisponibilidade"),
                             serviceScope = scopeFactory.CreateScope()
-                        });
+                        });*/
                     };
                 }
             }

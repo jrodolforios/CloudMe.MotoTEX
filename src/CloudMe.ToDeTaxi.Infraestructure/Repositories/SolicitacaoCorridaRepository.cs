@@ -93,7 +93,7 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
                 orderby tx_fav.pref_favorito, tx_fav.distancia
                 select tx_fav.taxista;
 
-            return await resultado.Distinct().ToListAsync();
+            return await resultado.ToListAsync();
         }
     }
 }
