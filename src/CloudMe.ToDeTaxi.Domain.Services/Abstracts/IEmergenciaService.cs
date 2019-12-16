@@ -9,7 +9,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
 {
     public interface IEmergenciaService : IServiceBase<Emergencia, EmergenciaSummary, Guid>
     {
-        Task<bool> Panico(Guid id_taxista, string longitude, string latitude);
+        Task<bool> Panico(Guid id_taxista, string latitude, string longitude);
         Task<bool> AlterarStatus(Guid id_emergencia, StatusEmergencia status);
     }
 }

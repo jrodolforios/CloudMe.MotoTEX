@@ -141,33 +141,36 @@ namespace CloudMe.ToDeTaxi.Domain.Notifications
                 }
             };
 
-            Triggers<Passageiro, CloudMeToDeTaxiContext>.Inserted += InsertedEntry =>
+            Triggers<Passageiro, CloudMeToDeTaxiContext>.Updating += updatingEntry =>
             {
                 // novo passageiro...
 
-                // procura o grupo de passageiros (cria se não existir)
-                var grpUsr = InsertedEntry.Context.GruposUsuario
-                    .Where(x => x.Nome == "Passageiros").FirstOrDefault();
-
-                if (grpUsr == null)
+                if (!updatingEntry.Original.IdUsuario.HasValue && updatingEntry.Entity.IdUsuario.HasValue) // usuário foi associado ao taxista (criação)
                 {
-                    grpUsr = new GrupoUsuario()
+                    // procura o grupo de taxistas (cria se não existir)
+                    var grpUsr = updatingEntry.Context.GruposUsuario
+                        .Where(x => x.Nome == "Passageiros").FirstOrDefault();
+
+                    if (grpUsr == null)
                     {
-                        Nome = "Passageiros",
-                        Descricao = "Grupo de usuários passageiros"
+                        grpUsr = new GrupoUsuario()
+                        {
+                            Nome = "Passageiros",
+                            Descricao = "Grupo de usuários passageiros"
+                        };
+
+                        updatingEntry.Context.Entry(grpUsr).State = EntityState.Added;
+                    }
+
+                    // inserir no grupo de passageiros
+                    var usrGrpUsr = new UsuarioGrupoUsuario()
+                    {
+                        IdUsuario = updatingEntry.Entity.IdUsuario.Value,
+                        IdGrupoUsuario = grpUsr.Id
                     };
 
-                    InsertedEntry.Context.Entry(grpUsr).State = EntityState.Added;
+                    updatingEntry.Context.Entry(usrGrpUsr).State = EntityState.Added;
                 }
-
-                // inserir no grupo de passageiros
-                var usrGrpUsr = new UsuarioGrupoUsuario()
-                {
-                    IdUsuario = InsertedEntry.Entity.IdUsuario.Value,
-                    IdGrupoUsuario = grpUsr.Id
-                };
-
-                InsertedEntry.Context.Entry(usrGrpUsr).State = EntityState.Added;
             };
 
             Triggers<Passageiro, CloudMeToDeTaxiContext>.Deleting += deletingEntry =>
