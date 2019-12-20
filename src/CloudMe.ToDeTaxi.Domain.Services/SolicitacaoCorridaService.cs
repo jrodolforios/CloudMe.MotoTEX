@@ -51,7 +51,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 ValorEstimado = summary.ValorEstimado,
                 ValorProposto = summary.ValorProposto,
                 Situacao = summary.Situacao,
-                IsInterUrbano = summary.IsInterUrbano                
+                IsInterUrbano = summary.IsInterUrbano
             };
             return Task.FromResult(SolicitacaoCorrida);
         }
@@ -168,6 +168,21 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             }
 
             return await _SolicitacaoCorridaRepository.RegistrarAcaoTaxista(solicitacao, taxista, acao);
+        }
+
+        public async Task<IList<SolicitacaoCorridaSummary>> RecuperarSolicitacoesEmEspera()
+        {
+            var solicitacoesSumaries = new List<SolicitacaoCorridaSummary>();
+
+            var solicitacoesEntries = _SolicitacaoCorridaRepository.FindAll().Where(x => x.Situacao == SituacaoSolicitacaoCorrida.Indefinido || x.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao).ToList();
+
+            foreach (var item in solicitacoesEntries)
+            {
+                var solicitacaoSummary = await CreateSummaryAsync(item);
+                solicitacoesSumaries.Add(solicitacaoSummary);
+            }
+
+            return solicitacoesSumaries;
         }
     }
 }

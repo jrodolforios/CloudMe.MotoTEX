@@ -96,5 +96,16 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         {
             return await base.ResponseAsync(await this._SolicitacaoCorridaService.RegistrarAcaoTaxista(id_solicitacao, id_taxista, acao), _SolicitacaoCorridaService);
         }
+
+        /// <summary>
+        /// Recupera Solicitações ainda não atendidas
+        /// </summary>
+        [HttpPost("recuperar_solicitacoes_em_espera")]
+        //[ValidateAntiForgeryToken]
+        [ProducesResponseType(typeof(Response<IList<SolicitacaoCorridaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IList<SolicitacaoCorridaSummary>>>   RecuperarSolicitacoesEmEspera()
+        {
+            return await base.ResponseAsync(await this._SolicitacaoCorridaService.RecuperarSolicitacoesEmEspera(), _SolicitacaoCorridaService);
+        }
     }
 }
