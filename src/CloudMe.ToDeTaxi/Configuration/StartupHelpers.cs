@@ -16,8 +16,14 @@ using System.Globalization;
 using System.Reflection;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using CloudMe.Auth.Admin.Configuration.IdentityServer;
+using CloudMe.ToDeTaxi.Helpers;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using CloudMe.ToDeTaxi.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using CloudMe.ToDeTaxi.Helpers.Localization;
+using CloudMe.ToDeTaxi.Configuration.ApplicationParts;
 
-namespace CloudMe.ToDeTaxi.Helpers
+namespace CloudMe.ToDeTaxi.Configuration
 {
     public static class StartupHelpers
     {
@@ -25,7 +31,12 @@ namespace CloudMe.ToDeTaxi.Helpers
         {
             services.AddLocalization(opts => { opts.ResourcesPath = ConfigurationConsts.ResourcesPath; });
 
-            services.AddMvc()
+            services.TryAddTransient(typeof(IGenericControllerLocalizer<>), typeof(GenericControllerLocalizer<>));
+
+            services.AddMvc(o =>
+                {
+                    o.Conventions.Add(new GenericControllerRouteConvention());
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddViewLocalization(
                     LanguageViewLocationExpanderFormat.Suffix,
@@ -37,9 +48,7 @@ namespace CloudMe.ToDeTaxi.Helpers
                 {
                     var supportedCultures = new[]
                     {
-                        new CultureInfo("ru"),
                         new CultureInfo("en"),
-                        new CultureInfo("zh"),
                         new CultureInfo("pt")
                     };
 
@@ -66,9 +75,16 @@ namespace CloudMe.ToDeTaxi.Helpers
             var connectionString = configuration.GetConnectionString(ConfigurationConsts.AdminConnectionStringKey);
             var migrationsAssembly = typeof(TContext).GetTypeInfo().Assembly.GetName().Name;
 
-            services.AddIdentity<TUser, TUserRole>()
-                .AddEntityFrameworkStores<TContext>()
-                .AddDefaultTokenProviders();
+            services.AddIdentity<TUser, TUserRole>(options =>
+            {
+                options.Password.RequiredLength = 8;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = false;
+            })
+            .AddEntityFrameworkStores<TContext>()
+            .AddDefaultTokenProviders();
 
             services.Configure<IISOptions>(iis =>
             {
@@ -111,6 +127,21 @@ namespace CloudMe.ToDeTaxi.Helpers
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
+        }
+
+        public static void AddEmailSenders(this IServiceCollection services, IConfiguration configuration)
+        {
+            var smtpConfiguration = configuration.GetSection(nameof(SmtpConfiguration)).Get<SmtpConfiguration>();
+
+            if (smtpConfiguration != null && !string.IsNullOrWhiteSpace(smtpConfiguration.Host))
+            {
+                services.AddSingleton(smtpConfiguration);
+                services.AddTransient<IEmailSender, SmtpEmailSender>();
+            }
+            else
+            {
+                services.AddSingleton<IEmailSender, EmailSender>();
+            }
         }
     }
 }

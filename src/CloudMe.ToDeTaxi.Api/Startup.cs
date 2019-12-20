@@ -91,7 +91,7 @@ namespace CloudMe.ToDeTaxi.Api
             .AddDefaultTokenProviders();
 
             services.AddAdminAspNetIdentityServices<CloudMeToDeTaxiContext, UserDto<Guid>, Guid, RoleDto<Guid>, Guid, Guid, Guid,
-                                CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,
+                                Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,
                                  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>();
 
             var authorityBaseUrl = Configuration["Identity:Authority"];
