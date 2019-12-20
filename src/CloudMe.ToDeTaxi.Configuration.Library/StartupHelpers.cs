@@ -149,12 +149,12 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 
         public static void AddAuthorizationPolicies(this IServiceCollection services)
         {
-            services.AddAuthorization();
-            /*services.AddAuthorization(options =>
+            //services.AddAuthorization();
+            services.AddAuthorization(options =>
             {
                 options.AddPolicy(AuthorizationConsts.AdministrationPolicy,
                     policy => policy.RequireRole(AuthorizationConsts.AdministrationRole));
-            });*/
+            });
         }
 
         public static void ConfigureSignalR<TContext>(IApplicationBuilder app) where TContext: DbContext

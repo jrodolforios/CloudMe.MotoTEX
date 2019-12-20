@@ -3,19 +3,20 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using CloudMe.ToDeTaxi.Configuration.Library.Helpers;
-using CloudMe.ToDeTaxi.Helpers;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+using CloudMe.ToDeTaxi.Helpers.Localization;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using CloudMe.ToDeTaxi.Configuration;
 
 namespace CloudMe.ToDeTaxi
 {
@@ -59,6 +60,7 @@ namespace CloudMe.ToDeTaxi
                 .PersistKeysToFileSystem(new DirectoryInfo(theDirectoryPath));    
             
             services.AddDbContexts<CloudMeToDeTaxiContext>(Configuration);
+            services.AddEmailSenders(Configuration);
             services.AddAuthenticationServices<CloudMeToDeTaxiContext, CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario, IdentityRole<Guid>>(Environment, Configuration, Logger);
             services.AddMvcLocalization();
             services.Configure<IISServerOptions>(iisoptions =>

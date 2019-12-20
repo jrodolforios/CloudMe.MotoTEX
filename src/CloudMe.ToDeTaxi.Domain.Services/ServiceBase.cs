@@ -59,6 +59,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         public async Task<TEntrySummary> GetSummaryAsync(TEntry entry)
         {
+            if (entry == null) return default;
             return await CreateSummaryAsync(entry);
         }
 

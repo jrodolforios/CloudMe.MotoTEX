@@ -35,8 +35,25 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                 /*new ApiResource("callcenterapi","CallCenter API")
                 {
                     ApiSecrets = { new Secret("callcenterapisecret".Sha256())}
-                },*/
-			};
+                },*/,
+                /*new ApiResource
+                {
+                    Name = adminConfiguration.IdentityAdminApiScope,
+                    Scopes = new List<Scope>
+                    {
+                        new Scope
+                        {
+                            Name = adminConfiguration.IdentityAdminApiScope,
+                            DisplayName = adminConfiguration.IdentityAdminApiScope,
+                            UserClaims = new List<string>
+                            {
+                                "role"
+                            },
+                            Required = true
+                        }
+                    }
+                }*/
+            };
         }
     }
 }

@@ -11,6 +11,7 @@ using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Services.Interfaces;
 using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
 using Microsoft.AspNetCore.Identity;
+using CloudMe.ToDeTaxi.Domain.Enums;
 
 namespace CloudMe.ToDeTaxi.Domain.Services
 {
@@ -174,6 +175,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
                 if (createResult.Succeeded)
                 {
+                    if (user.tipo == TipoUsuario.Administrador)
+                    {
+                        await _userManager.AddToRoleAsync(user, "Administrator");
+                    }
+
                     return user;
                 }
                 else
@@ -307,6 +313,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 var updateResult = await this._userManager.UpdateAsync(usuario);
                 if(updateResult.Succeeded)
                 {
+                    if (usuario.tipo == TipoUsuario.Administrador)
+                    {
+                        await _userManager.AddToRoleAsync(usuario, "Administrator");
+                    }
                     return usuario;
                 }
                 else
