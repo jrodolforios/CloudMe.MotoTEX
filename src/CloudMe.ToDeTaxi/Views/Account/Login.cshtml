@@ -33,7 +33,7 @@
 <!--===============================================================================================-->
 </head>
 <body>
-	@if (Model.EnableLocalLogin)
+    @if (Model.EnableLocalLogin)
     {
         <div class="limiter">
             <div class="container-login100">
@@ -48,21 +48,26 @@
                         </span>
 
                         <div class="wrap-input100 validate-input m-t-60 m-b-35" data-validate="Entre com um usuário">
-                            <input class="input100" placeholder="@Localizer["Username"]" asp-for="Username" aria-label="Username" aria-describedby="input-username" type="text" name="username">
+                            <input class="input100" asp-for="Username" aria-label="Username" aria-describedby="input-username" type="text" name="username">
                             <span class="focus-input100" data-placeholder="@Localizer["Username"]"></span>
                         </div>
 
                         <div class="wrap-input100 validate-input m-b-50" data-validate="Entre com uma senha">
-                            <input class="input100" type="password" placeholder="@Localizer["Password"]" aria-label="Password" aria-describedby="input-password" asp-for="Password">
+                            <input class="input100" type="password" aria-label="Password" aria-describedby="input-password" asp-for="Password">
                             <span class="focus-input100" data-placeholder="@Localizer["Password"]"></span>
                         </div>
 
                         @if (Model.AllowRememberLogin)
                         {
                             <div class="form-group login-remember row">
-                                <div class="col-sm-9">
+                                <div class="col-sm-12">
                                     <div>
                                         @Localizer["Remember"] &nbsp;&nbsp;<input asp-for="RememberLogin" type="checkbox">
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div>
+                                        <a asp-action="ForgotPassword" asp-controller="Account" name="button" data-target="#modalExemplo" value="forgot">@Localizer["Forgot"]</a>
                                     </div>
                                 </div>
                             </div>
@@ -72,30 +77,49 @@
                             <button class="login100-form-btn" name="button" value="login">@Localizer["Login"]</button>
                         </div>
                         <br>
-                        <a asp-action="ForgotPassword" asp-controller="Account" name="button" value="forgot">@Localizer["Forgot"]</a>
                     </form>
                 </div>
             </div>
-        </div>	
+        </div>
     }
-	<div id="dropDownSelect1"></div>
-	
-<!--===============================================================================================-->
-	<script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
-<!--===============================================================================================-->
-	<script src="/vendor/animsition/js/animsition.min.js"></script>
-<!--===============================================================================================-->
-	<script src="/vendor/bootstrap/js/popper.js"></script>
-	<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
-<!--===============================================================================================-->
-	<script src="/vendor/select2/select2.min.js"></script>
-<!--===============================================================================================-->
-	<script src="/vendor/daterangepicker/moment.min.js"></script>
-	<script src="/vendor/daterangepicker/daterangepicker.js"></script>
-<!--===============================================================================================-->
-	<script src="/vendor/countdowntime/countdowntime.js"></script>
-<!--===============================================================================================-->
-	<script src="/js/main.js"></script>
+    <div id="dropDownSelect1"></div>
+
+    <div class="modal fade" id="modalExemplo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Título do modal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary">Salvar mudanças</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--===============================================================================================-->
+    <script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="/vendor/animsition/js/animsition.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="/vendor/bootstrap/js/popper.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="/vendor/select2/select2.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="/vendor/daterangepicker/moment.min.js"></script>
+    <script src="/vendor/daterangepicker/daterangepicker.js"></script>
+    <!--===============================================================================================-->
+    <script src="/vendor/countdowntime/countdowntime.js"></script>
+    <!--===============================================================================================-->
+    <script src="/js/main.js"></script>
 
 </body>
 </html>

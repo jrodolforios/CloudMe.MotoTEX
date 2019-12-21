@@ -37,14 +37,14 @@
 		<h3 class="menu-logo my-0 mr-md-auto font-weight-normal"><a class="logo" asp-area="" asp-controller="Home" asp-action="Index">TôDeTaxi</a></h3>
 
 		<!--Menu item -->
-		<div class="menu-item my-2 my-md-0 mr-md-3 dropdown">
+		@*<div class="menu-item my-2 my-md-0 mr-md-3 dropdown">
 			<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
 				@Localizer["Settings"]
 			</button>
 			<div class="dropdown-menu">
 				<a class="dropdown-item" asp-area="" asp-controller="Grants" asp-action="Index">@Localizer["Grants"]</a>
 			</div>
-		</div>
+		</div>*@
 
 		<!--Menu item -->
 		@if (User.Identity.IsAuthenticated)
