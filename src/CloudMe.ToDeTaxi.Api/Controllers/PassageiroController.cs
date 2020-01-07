@@ -87,6 +87,19 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         }
 
         /// <summary>
+        /// Verificar email em uso
+        /// </summary>
+        /// <param name="login">Id from taxist</param>
+        /// <returns>passenger</returns>
+        [AllowAnonymous]
+        [HttpGet("email_em_uso")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> ChecarEmailEmUso(string email)
+        {
+            return await base.ResponseAsync(await _usuarioService.CheckEmail(email), _usuarioService);
+        }
+
+        /// <summary>
         /// Creates a new Passageiro.
         /// </summary>
         /// <param name="passageiroSummary">Passageiro's summary</param>

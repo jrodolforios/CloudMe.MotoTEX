@@ -395,5 +395,10 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         {
             return Task.FromResult(_userRepository.FindAll().Any(x => x.UserName == login));
         }
+
+        public Task<bool> CheckEmail(string email)
+        {
+            return Task.FromResult(this._userManager.Users.Any(x => x.Email == email));
+        }
     }
 }
