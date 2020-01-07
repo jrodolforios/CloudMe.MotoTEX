@@ -103,9 +103,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [HttpPost("recuperar_solicitacoes_em_espera")]
         //[ValidateAntiForgeryToken]
         [ProducesResponseType(typeof(Response<IList<SolicitacaoCorridaSummary>>), (int)HttpStatusCode.OK)]
-        public async Task<Response<IList<SolicitacaoCorridaSummary>>>   RecuperarSolicitacoesEmEspera()
+        public async Task<Response<IList<SolicitacaoCorridaSummary>>>   RecuperarSolicitacoesEmEspera(string IdTaxista)
         {
-            return await base.ResponseAsync(await this._SolicitacaoCorridaService.RecuperarSolicitacoesEmEspera(), _SolicitacaoCorridaService);
+            return await base.ResponseAsync(await this._SolicitacaoCorridaService.RecuperarSolicitacoesEmEspera(IdTaxista), _SolicitacaoCorridaService);
         }
+
     }
 }

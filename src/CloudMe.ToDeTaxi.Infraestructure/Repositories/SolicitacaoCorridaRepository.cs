@@ -95,5 +95,10 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Repositories
 
             return await resultado.ToListAsync();
         }
+
+        public AcaoTaxistaSolicitacaoCorrida buscarAcaoTaxista(string idTaxista, Guid idSolicitacaoCorrida)
+        {
+            return Context.SolicitacoesCorridaTaxistas.FirstOrDefault(x => x.IdTaxista.ToString() == idTaxista && x.IdSolicitacaoCorrida == idSolicitacaoCorrida)?.Acao ?? AcaoTaxistaSolicitacaoCorrida.Indefinido;
+        }
     }
 }
