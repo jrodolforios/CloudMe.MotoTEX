@@ -35,8 +35,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<IEnumerable<UsuarioSummary>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<UsuarioSummary>>> GetAll()
         {
-            var usuarios = await _UsuarioService.GetAll();
-            return await base.ResponseAsync(await _UsuarioService.GetAllSummariesAsync(usuarios), _UsuarioService);
+            var usuariosSummaries = await _UsuarioService.GetAllSummariesAsync(await _UsuarioService.GetAll());
+            var response = await base.ResponseAsync(usuariosSummaries, _UsuarioService);
+            response.count = usuariosSummaries.Count();
+            return response;
         }
 
         /// <summary>
@@ -47,8 +49,10 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<IEnumerable<UsuarioSummary>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<UsuarioSummary>>> GetAllAdmin()
         {
-            var usuarios = _UsuarioService.Search(x => x.tipo == TipoUsuario.Administrador);
-            return await base.ResponseAsync(await _UsuarioService.GetAllSummariesAsync(usuarios), _UsuarioService);
+            var usuariosSummaries = await _UsuarioService.GetAllSummariesAsync(_UsuarioService.Search(x => x.tipo == TipoUsuario.Administrador));
+            var response = await base.ResponseAsync(usuariosSummaries, _UsuarioService);
+            response.count = usuariosSummaries.Count();
+            return response;
         }
 
         /// <summary>
