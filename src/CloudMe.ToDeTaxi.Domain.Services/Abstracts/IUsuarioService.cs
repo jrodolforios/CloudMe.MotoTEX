@@ -14,5 +14,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
         Task<bool> ChangePasswordAsync(Guid key, string old_password, string new_password);
         Task<bool> CheckLogin(string login);
         Task<UsuarioSummary> GetSummaryByNameAsync(string name);
+        Task<bool> CheckEmail(string email);
     }
 }

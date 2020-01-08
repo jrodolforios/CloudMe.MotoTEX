@@ -43,6 +43,8 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
         public bool IsTaxiAtivoEmUsoPorOutroTaxista(Guid id)
         {
+
+            if(_VeiculoTaxistaRepository.FindAll().Any(x => x.IdTaxista == id)) { 
             var veiculosTaxista = _VeiculoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id && x.Ativo).ToList();
 
             var veiculoTaxistas = _VeiculoTaxistaRepository.FindAll().Where(x => veiculosTaxista.Any(y => y.IdVeiculo == x.IdVeiculo && y.IdTaxista != id && y.Ativo)).ToList();
@@ -50,6 +52,11 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
 
             return _taxistaRepository.FindAll().Any(x => veiculoTaxistas.Any(y => y.IdTaxista == x.Id && x.Ativo && x.Disponivel));
+            }
+            else
+            {
+                return true;
+            }
         }
 
         protected override Task<VeiculoTaxista> CreateEntryAsync(VeiculoTaxistaSummary summary)

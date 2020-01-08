@@ -170,7 +170,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             return await _SolicitacaoCorridaRepository.RegistrarAcaoTaxista(solicitacao, taxista, acao);
         }
 
-        public async Task<IList<SolicitacaoCorridaSummary>> RecuperarSolicitacoesEmEspera()
+        public async Task<IList<SolicitacaoCorridaSummary>> RecuperarSolicitacoesEmEspera(string idTaxista)
         {
             var solicitacoesSumaries = new List<SolicitacaoCorridaSummary>();
 
@@ -178,8 +178,13 @@ namespace CloudMe.ToDeTaxi.Domain.Services
 
             foreach (var item in solicitacoesEntries)
             {
-                var solicitacaoSummary = await CreateSummaryAsync(item);
-                solicitacoesSumaries.Add(solicitacaoSummary);
+                AcaoTaxistaSolicitacaoCorrida acao = _SolicitacaoCorridaRepository.buscarAcaoTaxista(idTaxista, item.Id);
+
+                if (acao != AcaoTaxistaSolicitacaoCorrida.Recusada)
+                {
+                    var solicitacaoSummary = await CreateSummaryAsync(item);
+                    solicitacoesSumaries.Add(solicitacaoSummary);
+                }
             }
 
             return solicitacoesSumaries;

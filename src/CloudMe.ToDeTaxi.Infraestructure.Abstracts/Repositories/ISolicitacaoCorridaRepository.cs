@@ -13,5 +13,6 @@ namespace CloudMe.ToDeTaxi.Infraestructure.Abstracts.Repositories
         Task<IEnumerable<Taxista>> ClassificarTaxistas(SolicitacaoCorrida solicitacao);
         Task<bool> AlterarStatusMonitoramento(SolicitacaoCorrida solicitacao, StatusMonitoramentoSolicitacaoCorrida status);
         Task<bool> AlterarSituacao(SolicitacaoCorrida solicitacao, SituacaoSolicitacaoCorrida situacao);
+        AcaoTaxistaSolicitacaoCorrida buscarAcaoTaxista(string idTaxista, Guid idSolicitacaoCorrida);
     }
 }
