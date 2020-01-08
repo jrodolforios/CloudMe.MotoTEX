@@ -17,6 +17,8 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 using CloudMe.ToDeTaxi.Helpers.Localization;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using CloudMe.ToDeTaxi.Configuration;
+using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace CloudMe.ToDeTaxi
 {
@@ -41,7 +43,7 @@ namespace CloudMe.ToDeTaxi
 
             Configuration = builder.Build();
             Environment = environment;
-            Logger = loggerFactory.CreateLogger<Startup>();
+            //Logger = loggerFactory.CreateLogger<Startup>();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -82,7 +84,11 @@ namespace CloudMe.ToDeTaxi
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, CloudMeToDeTaxiContext CloudMeToDeTaxiContext)
         {
-            app.AddLogging(loggerFactory, Configuration);
+            //app.AddLogging(loggerFactory, Configuration);
+
+            Log.Logger = new LoggerConfiguration()
+                            .WriteTo.File(AppDomain.CurrentDomain.BaseDirectory + "/Logs/CLOUDME_TODETAXI_AUTH_.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: null)
+                            .CreateLogger();
 
             var supportedCultures = new[] { new CultureInfo("pt-BR") };
             app.UseRequestLocalization(new RequestLocalizationOptions

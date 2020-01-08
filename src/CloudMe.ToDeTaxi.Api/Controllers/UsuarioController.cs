@@ -31,24 +31,28 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// Gets all Usuarios.
         /// </summary>
         [HttpGet]
-        //[Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
+        [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
         [ProducesResponseType(typeof(Response<IEnumerable<UsuarioSummary>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<UsuarioSummary>>> GetAll()
         {
-            var usuarios = _UsuarioService.Search(x => x.tipo != TipoUsuario.Administrador);
-            return await base.ResponseAsync(await _UsuarioService.GetAllSummariesAsync(usuarios), _UsuarioService);
+            var usuariosSummaries = await _UsuarioService.GetAllSummariesAsync(await _UsuarioService.GetAll());
+            var response = await base.ResponseAsync(usuariosSummaries, _UsuarioService);
+            response.count = usuariosSummaries.Count();
+            return response;
         }
 
         /// <summary>
-        /// Obtém usuários admnistradores.
+        /// Gets all admin.
         /// </summary>
-        [HttpGet("get_all_admin")]
+        [HttpGet("admins")]
         [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
         [ProducesResponseType(typeof(Response<IEnumerable<UsuarioSummary>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<UsuarioSummary>>> GetAllAdmin()
         {
-            var usuarios = _UsuarioService.Search(x => x.tipo == TipoUsuario.Administrador);
-            return await base.ResponseAsync(await _UsuarioService.GetAllSummariesAsync(usuarios), _UsuarioService);
+            var usuariosSummaries = await _UsuarioService.GetAllSummariesAsync(_UsuarioService.Search(x => x.tipo == TipoUsuario.Administrador));
+            var response = await base.ResponseAsync(usuariosSummaries, _UsuarioService);
+            response.count = usuariosSummaries.Count();
+            return response;
         }
 
         /// <summary>
@@ -59,33 +63,35 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<UsuarioSummary>), (int)HttpStatusCode.OK)]
         public async Task<Response<UsuarioSummary>> Get(Guid id)
         {
-            var usuario = _UsuarioService.Search(x => x.Id == id && x.tipo != TipoUsuario.Administrador).FirstOrDefault();
+            var isAdmin = User.IsInRole(AuthorizationConsts.AdministrationRole);
+            Usuario reqUser = await GetRequestUser(_UsuarioService);
+
+            var usuario = await _UsuarioService.Get(id);
+            if (usuario == null)
+            {
+                unitOfWork.AddNotification(new Notification("Usuários", "Usuário não encontrado"));
+                return await ErrorResponseAsync<UsuarioSummary>(unitOfWork, HttpStatusCode.NotFound);
+            }
+
+            if (reqUser.Id != usuario.Id && !isAdmin) // somente o próprio usuário pode obter suas informações, exceto administradores
+            {
+                unitOfWork.AddNotification(new Notification("Usuários", "Usuário não autorizado"));
+                return await ErrorResponseAsync<UsuarioSummary>(unitOfWork, HttpStatusCode.Forbidden);
+            }
+
             return await base.ResponseAsync(await _UsuarioService.GetSummaryAsync(usuario), _UsuarioService);
         }
 
         /// <summary>
-        /// Gets um usuário administrador.
-        /// <param name="id">Usuario's ID</param>
+        /// Verifica se um login está disponível.
+        /// <param name="login">Login a ser testado</param>
         /// </summary>
-        [HttpGet("get_admin/{id}")]
-        [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
-        [ProducesResponseType(typeof(Response<UsuarioSummary>), (int)HttpStatusCode.OK)]
-        public async Task<Response<UsuarioSummary>> GetAdmin(Guid id)
+        [HttpGet("login_disponivel")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> LoginDisponivel(string login)
         {
-            var usuario = _UsuarioService.Search(x => x.Id == id && x.tipo == TipoUsuario.Administrador).FirstOrDefault();
-            return await base.ResponseAsync(await _UsuarioService.GetSummaryAsync(usuario), _UsuarioService);
-        }
-
-        /// <summary>
-        /// Obtém um usuário por nome.
-        /// <param name="name">Nome do usuário</param>
-        /// </summary>
-        [HttpGet("by_name")]
-        [ProducesResponseType(typeof(Response<UsuarioSummary>), (int)HttpStatusCode.OK)]
-        public async Task<Response<UsuarioSummary>> GetByName(string name)
-        {
-            var usuario = _UsuarioService.Search(x => x.Nome == name && x.tipo != TipoUsuario.Administrador).FirstOrDefault();
-            return await base.ResponseAsync(await _UsuarioService.GetSummaryAsync(usuario), _UsuarioService);
+            var usuario = _UsuarioService.Search(x => x.Nome == login).FirstOrDefault();
+            return await base.ResponseAsync(usuario == null, _UsuarioService);
         }
 
         /// <summary>
@@ -93,36 +99,11 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="UsuarioSummary">Usuario's summary</param>
         [HttpPost]
+        [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
         [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
         //[ValidateAntiForgeryToken]
         public async Task<Response<Guid>> Post([FromBody] UsuarioSummary UsuarioSummary)
         {
-            if (UsuarioSummary.Tipo == TipoUsuario.Administrador)
-            {
-                _UsuarioService.AddNotification(new Notification("Novo usuário", "ação não autorizada"));
-                return await base.ErrorResponseAsync<Guid>(_UsuarioService);
-            }
-
-            var entity = await this._UsuarioService.CreateAsync(UsuarioSummary);
-            if (_UsuarioService.IsInvalid())
-            {
-                return await base.ErrorResponseAsync<Guid>(_UsuarioService);
-            }
-            return await base.ResponseAsync(entity.Id, _UsuarioService);
-        }
-
-        /// <summary>
-        /// Creates a new Usuario.
-        /// </summary>
-        /// <param name="UsuarioSummary">Usuario's summary</param>
-        [HttpPost("post_admin")]
-        [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
-        [ProducesResponseType(typeof(Response<Guid>), (int)HttpStatusCode.OK)]
-        //[ValidateAntiForgeryToken]
-        public async Task<Response<Guid>> PostAdmin([FromBody] UsuarioSummary UsuarioSummary)
-        {
-            UsuarioSummary.Tipo = TipoUsuario.Administrador;
-
             var entity = await this._UsuarioService.CreateAsync(UsuarioSummary);
             if (_UsuarioService.IsInvalid())
             {
@@ -140,26 +121,22 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         public async Task<Response<bool>> Put([FromBody] UsuarioSummary UsuarioSummary)
         {
-            var usuario = _UsuarioService.Search(x => x.Id == UsuarioSummary.Id).FirstOrDefault();
+            var isAdmin = User.IsInRole(AuthorizationConsts.AdministrationRole);
+            Usuario reqUser = await GetRequestUser(_UsuarioService);
 
-            if ((usuario != null && usuario.tipo == TipoUsuario.Administrador) ||  UsuarioSummary.Tipo == TipoUsuario.Administrador)
+            var usuario = await _UsuarioService.Get(UsuarioSummary.Id.Value);
+            if (usuario == null)
             {
-                _UsuarioService.AddNotification(new Notification("Atualizar usuário", "ação não autorizada"));
-                return await base.ErrorResponseAsync<bool>(_UsuarioService);
+                unitOfWork.AddNotification(new Notification("Usuários", "Usuário não encontrado"));
+                return await ErrorResponseAsync<bool>(unitOfWork, HttpStatusCode.NotFound);
             }
 
-            return await base.ResponseAsync(await this._UsuarioService.UpdateAsync(UsuarioSummary) != null, _UsuarioService);
-        }
+            if (reqUser.Id != usuario.Id && !isAdmin) // somente o próprio usuário pode alterar suas informações, exceto administradores
+            {
+                unitOfWork.AddNotification(new Notification("Usuários", "Usuário não autorizado"));
+                return await ErrorResponseAsync<bool>(unitOfWork, HttpStatusCode.Forbidden);
+            }
 
-        /// <summary>
-        /// Modifies an existing Usuario.
-        /// </summary>
-        /// <param name="UsuarioSummary">Modified Usuario list's properties summary</param>
-        [HttpPut("put_admin")]
-        [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
-        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
-        public async Task<Response<bool>> PutAdmin([FromBody] UsuarioSummary UsuarioSummary)
-        {
             return await base.ResponseAsync(await this._UsuarioService.UpdateAsync(UsuarioSummary) != null, _UsuarioService);
         }
 
@@ -168,28 +145,9 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         /// <param name="id">DialList's ID</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
-        public async Task<Response<bool>> Delete(Guid id)
-        {
-            var usuario = _UsuarioService.Search(x => x.Id == id).FirstOrDefault();
-
-            if (usuario != null && usuario.tipo == TipoUsuario.Administrador)
-            {
-                _UsuarioService.AddNotification(new Notification("Remover usuário", "ação não autorizada"));
-                return await base.ErrorResponseAsync<bool>(_UsuarioService);
-            }
-
-            return await base.ResponseAsync(await this._UsuarioService.DeleteAsync(id), _UsuarioService);
-        }
-
-        /// <summary>
-        /// Removes an existing Usuario.
-        /// </summary>
-        /// <param name="id">DialList's ID</param>
-        [HttpDelete("delete_admin{id}")]
         [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
-        public async Task<Response<bool>> DeleteAdmin(Guid id)
+        public async Task<Response<bool>> Delete(Guid id)
         {
             return await base.ResponseAsync(await this._UsuarioService.DeleteAsync(id), _UsuarioService);
         }
@@ -202,22 +160,25 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         public async Task<Response<bool>> AlterarCredenciais(Guid id, [FromBody] CredenciaisUsuario credenciais)
         {
-            var usuario= await _UsuarioService.Get(id);
+            Usuario reqUser = await GetRequestUser(_UsuarioService);
+
+            var usuario = await _UsuarioService.Get(id);
             if(usuario == null)
             {
-                unitOfWork.AddNotification(new Notification("Alterar credenciais", "Usuário não encontrado"));
-                return await ErrorResponseAsync<bool>(unitOfWork);
+                unitOfWork.AddNotification(new Notification("Usuários", "Usuário não encontrado"));
+                return await ErrorResponseAsync<bool>(unitOfWork, HttpStatusCode.NotFound);
             }
 
-            if (usuario.tipo == TipoUsuario.Administrador && (User.Identity as Usuario).tipo != TipoUsuario.Administrador)
+            if (reqUser.Id != usuario.Id && usuario.tipo != TipoUsuario.Administrador) // somente o próprio usuário pode alterar suas credenciais, exceto o administrador
             {
-
+                unitOfWork.AddNotification(new Notification("Usuários", "Usuário não autorizado"));
+                return await ErrorResponseAsync<bool>(unitOfWork, HttpStatusCode.Forbidden);
             }
 
             if(credenciais.Senha != credenciais.ConfirmarSenha)
             {
-                unitOfWork.AddNotification(new Notification("Alterar credenciais", "Senhas não correspondem"));
-                return await ErrorResponseAsync<bool>(unitOfWork);
+                unitOfWork.AddNotification(new Notification("Usuários", "Senhas não correspondem"));
+                return await ErrorResponseAsync<bool>(unitOfWork, HttpStatusCode.PreconditionRequired);
             }
 
             if (usuario.UserName != credenciais.Login)
@@ -241,6 +202,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// <param name="id">ID do usuário</param>
         /// <param name="bloquear">Indica se o usuário será ou não bloqueado</param>
         [HttpPost("bloquear/{id}")]
+        [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         public async Task<Response<bool>> Bloquear(Guid id, bool bloquear)
         {

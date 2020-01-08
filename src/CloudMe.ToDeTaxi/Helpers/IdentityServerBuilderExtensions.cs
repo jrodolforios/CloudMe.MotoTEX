@@ -4,9 +4,9 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using CloudMe.ToDeTaxi.Configuration;
 using CloudMe.ToDeTaxi.Configuration.Library.Configuration;
+using Serilog;
 
 namespace CloudMe.ToDeTaxi.Helpers
 {
@@ -66,7 +66,7 @@ namespace CloudMe.ToDeTaxi.Helpers
                     }
                     catch (CryptographicException e)
                     {
-                        logger.LogError($"There was an error adding the key file - during the creation of the signing key {e.Message}");
+                        Log.Error($"There was an error adding the key file - during the creation of the signing key {e.Message}");
                     }
                 }
                 else
@@ -131,7 +131,7 @@ namespace CloudMe.ToDeTaxi.Helpers
                     }
                     catch (CryptographicException e)
                     {
-                        logger.LogError($"There was an error adding the key file - during the creation of the validation key {e.Message}");
+                        Log.Error($"There was an error adding the key file - during the creation of the validation key {e.Message}");
                     }
                 }
                 else

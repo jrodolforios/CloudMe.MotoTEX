@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Net;
 using prmToolkit.NotificationPattern;
 
 namespace CloudMe.ToDeTaxi.Api.Models
@@ -18,11 +19,16 @@ namespace CloudMe.ToDeTaxi.Api.Models
         /// <summary> 
         /// Dados vinculados à resposta da operação (de qualquer formato)
         /// </summary> 
-        public T data;
+        public T data { get; set; }
 
         /// <summary> 
         /// Utilizado para paginação de resultados
         /// </summary> 
-        public int count;
+        public int count { get; set; }
+
+        /// <summary> 
+        /// Código HTTP correspondente
+        /// </summary> 
+        public HttpStatusCode responseCode { get; set; } = HttpStatusCode.OK;
     }
 }

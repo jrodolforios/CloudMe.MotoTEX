@@ -8,6 +8,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CloudMe.ToDeTaxi.Api.Models;
 using System.Collections.Generic;
+using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
+using CloudMe.ToDeTaxi.Infraestructure.Entries;
+using System.Net;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -77,12 +80,13 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             }
         }
 
-        protected async Task<Response<T>> ErrorResponseAsync<T>(INotifiable notifiable)
+        protected async Task<Response<T>> ErrorResponseAsync<T>(INotifiable notifiable, HttpStatusCode code = HttpStatusCode.OK)
         {
             return new Response<T>()
             {
                 success = false,
-                notifications = notifiable.Notifications
+                notifications = notifiable.Notifications,
+                responseCode = code
             };
         }
 
@@ -101,6 +105,16 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
+        }
+
+        protected async Task<Usuario> GetRequestUser(IUsuarioService usuarioService)
+        {
+            if (Guid.TryParse(User.FindFirst("sub")?.Value, out Guid usrId))
+            {
+                return await usuarioService.Get(usrId);
+            }
+
+            return null;
         }
     }
 }

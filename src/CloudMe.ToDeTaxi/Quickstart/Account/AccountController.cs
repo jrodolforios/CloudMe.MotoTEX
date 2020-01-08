@@ -22,6 +22,8 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace CloudMe.ToDeTaxi.Quickstart.Account
 {
@@ -37,6 +39,7 @@ namespace CloudMe.ToDeTaxi.Quickstart.Account
         private readonly IEventService _events;
         private readonly IEmailSender _emailSender;
         private readonly IGenericControllerLocalizer<AccountController> _localizer;
+        ILogger<AccountController> _logger;
 
         public AccountController(
             UserManager<Usuario> userManager,
@@ -46,7 +49,8 @@ namespace CloudMe.ToDeTaxi.Quickstart.Account
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
             IGenericControllerLocalizer<AccountController> localizer,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -56,6 +60,7 @@ namespace CloudMe.ToDeTaxi.Quickstart.Account
             _events = events;
             _emailSender = emailSender;
             _localizer = localizer;
+            _logger = logger;
         }
 
         /// <summary>
@@ -269,11 +274,13 @@ namespace CloudMe.ToDeTaxi.Quickstart.Account
             if (user == null)
             {
                 // Don't reveal that the user does not exist
+                _logger.LogInformation("AccountController.ResetPassword: usuário não encontrado");
                 return RedirectToAction(nameof(ResetPasswordConfirmation), "Account");
             }
             var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
             if (result.Succeeded)
             {
+                _logger.LogInformation("AccountController.ResetPassword: senha alterada com sucesso");
                 return RedirectToAction(nameof(ResetPasswordConfirmation), "Account");
             }
 
@@ -287,6 +294,7 @@ namespace CloudMe.ToDeTaxi.Quickstart.Account
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
+                _logger.LogInformation("AccountController ERROR: " + error.Description);
             }
         }
 
