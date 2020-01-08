@@ -52,19 +52,45 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<IEnumerable<MarcaVeiculo>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<MarcaVeiculo>>> GetMarcas()
         {
-            var client = new RestClient("https://parallelum.com.br/fipe/");
-            var request = new RestRequest("api/v1/carros/marcas", Method.GET);
+            //var client = new RestClient("https://parallelum.com.br/fipe/");
+            //var request = new RestRequest("api/v1/carros/marcas", Method.GET);
+            //var result = await client.ExecuteTaskAsync(request);
 
-            var result = await client.ExecuteTaskAsync(request);
-            if (result.StatusCode == HttpStatusCode.OK)
+            var client = new RestClient("https://veiculos.fipe.org.br/");
+            var requestTabelaReferencia = new RestRequest("api/veiculos/ConsultarTabelaDeReferencia", Method.POST);
+            var result = await client.ExecuteTaskAsync(requestTabelaReferencia);
+            var tabelasReferencia = JsonConvert.DeserializeObject<List<TabelaReferencia>>(result.Content);
+
+            if (tabelasReferencia.Count > 0)
             {
-                var marcas = JsonConvert.DeserializeObject<IEnumerable<MarcaVeiculo>>(result.Content);
+                var tabela = tabelasReferencia[0];
+                var requestMarcas = new RestRequest("api/veiculos/ConsultarMarcas", Method.POST);
 
-                return await ResponseAsync(marcas, unitOfWork);
+                var requestMarcasBody = new
+                {
+                    codigoTabelaReferencia = tabela.Codigo,
+                    codigoTipoVeiculo = TipoVeiculo.CarrosUtilPequenos
+                };
+                requestMarcas.AddJsonBody(requestMarcasBody);
+                result = await client.ExecuteTaskAsync(requestMarcas);
+
+                if (result.StatusCode == HttpStatusCode.OK)
+                {
+                    var marcas = JsonConvert.DeserializeObject<IEnumerable<MarcaVeiculo>>(result.Content);
+
+                    var response = await ResponseAsync(marcas, unitOfWork);
+                    response.count = (marcas as List<MarcaVeiculo>).Count;
+                    return response;
+                }
+                else
+                {
+                    unitOfWork.AddNotification("Consulta marcas de veículos", "Erro ao obter marcas de veículos");
+                    return await ErrorResponseAsync<IEnumerable<MarcaVeiculo>>(unitOfWork);
+                }
             }
             else
             {
-                unitOfWork.AddNotification("Consulta marcas de veículos", result.ErrorMessage);
+                unitOfWork.AddNotification("Consulta marcas de veículos", "Tabela de referência não encontrada");
                 return await ErrorResponseAsync<IEnumerable<MarcaVeiculo>>(unitOfWork);
             }
         }
@@ -76,7 +102,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<IEnumerable<ModeloVeiculo>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<ModeloVeiculo>>> GetModelos(string codigo_marca)
         {
-            var client = new RestClient("https://parallelum.com.br/fipe/");
+            /*var client = new RestClient("https://parallelum.com.br/fipe/");
             var request = new RestRequest(string.Format("/api/v1/carros/marcas/{0}/modelos", codigo_marca), Method.GET);
 
             var result = await client.ExecuteTaskAsync(request);
@@ -90,6 +116,45 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             {
                 unitOfWork.AddNotification("Consulta modelos de veículos", result.ErrorMessage);
                 return await ErrorResponseAsync<IEnumerable<ModeloVeiculo>>(unitOfWork);
+            }*/
+
+            var client = new RestClient("https://veiculos.fipe.org.br/");
+            var requestTabelaReferencia = new RestRequest("api/veiculos/ConsultarTabelaDeReferencia", Method.POST);
+            var result = await client.ExecuteTaskAsync(requestTabelaReferencia);
+            var tabelasReferencia = JsonConvert.DeserializeObject<List<TabelaReferencia>>(result.Content);
+
+            if (tabelasReferencia.Count > 0)
+            {
+                var tabela = tabelasReferencia[0];
+                var requestModelosMarca = new RestRequest("api/veiculos/ConsultarModelos", Method.POST);
+
+                var requestMarcasBody = new
+                {
+                    codigoTabelaReferencia = tabela.Codigo,
+                    codigoTipoVeiculo = TipoVeiculo.CarrosUtilPequenos,
+                    codigoMarca = codigo_marca
+                };
+                requestModelosMarca.AddJsonBody(requestMarcasBody);
+                result = await client.ExecuteTaskAsync(requestModelosMarca);
+
+                if (result.StatusCode == HttpStatusCode.OK)
+                {
+                    var info_marca = JsonConvert.DeserializeObject<InfoMarca>(result.Content);
+
+                    var response = await ResponseAsync(info_marca.modelos, unitOfWork);
+                    response.count = (info_marca.modelos as List<ModeloVeiculo>).Count;
+                    return response;
+                }
+                else
+                {
+                    unitOfWork.AddNotification("Consulta marcas de veículos", "Erro ao obter modelos de veículos");
+                    return await ErrorResponseAsync<IEnumerable<ModeloVeiculo>>(unitOfWork);
+                }
+            }
+            else
+            {
+                unitOfWork.AddNotification("Consulta marcas de veículos", "Tabela de referência não encontrada");
+                return await ErrorResponseAsync<IEnumerable<ModeloVeiculo>>(unitOfWork);
             }
         }
 
@@ -100,7 +165,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         [ProducesResponseType(typeof(Response<IEnumerable<AnoVersao>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<AnoVersao>>> GetAnosVersoes(string codigo_marca, string codigo_modelo)
         {
-            var client = new RestClient("https://parallelum.com.br/fipe/");
+            /*var client = new RestClient("https://parallelum.com.br/fipe/");
             var request = new RestRequest(string.Format("/api/v1/carros/marcas/{0}/modelos/{1}/anos", codigo_marca, codigo_modelo), Method.GET);
 
             var result = await client.ExecuteTaskAsync(request);
@@ -122,6 +187,56 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             else
             {
                 unitOfWork.AddNotification("Consulta modelos de veículos", result.ErrorMessage);
+                return await ErrorResponseAsync<IEnumerable<AnoVersao>>(unitOfWork);
+            }*/
+
+            var client = new RestClient("https://veiculos.fipe.org.br/");
+            var requestTabelaReferencia = new RestRequest("api/veiculos/ConsultarTabelaDeReferencia", Method.POST);
+            var result = await client.ExecuteTaskAsync(requestTabelaReferencia);
+            var tabelasReferencia = JsonConvert.DeserializeObject<List<TabelaReferencia>>(result.Content);
+
+            if (tabelasReferencia.Count > 0)
+            {
+                var tabela = tabelasReferencia[0];
+                var requestAnoModelo = new RestRequest("api/veiculos/ConsultarAnoModelo", Method.POST);
+
+                requestAnoModelo.AddJsonBody(new
+                {
+                    codigoTabelaReferencia = tabela.Codigo,
+                    codigoTipoVeiculo = TipoVeiculo.CarrosUtilPequenos,
+                    codigoMarca = codigo_marca,
+                    codigoModelo = codigo_modelo
+                });
+                result = await client.ExecuteTaskAsync(requestAnoModelo);
+
+                if (result.StatusCode == HttpStatusCode.OK)
+                {
+                    var anos_modelos = JsonConvert.DeserializeObject<IEnumerable<AnoVersao>>(result.Content);
+
+                    foreach (var ano_modelo in anos_modelos)
+                    {
+                        string[] tokens = ano_modelo.nome.Split(' ');
+                        if (tokens.Length == 2)
+                        {
+                            ano_modelo.ano = tokens[0];
+                            ano_modelo.versao = tokens[1];
+                        }
+                    }
+
+                    var response = await ResponseAsync(anos_modelos, unitOfWork);
+                    response.count = (anos_modelos as List<AnoVersao>).Count;
+                    return response;
+
+                }
+                else
+                {
+                    unitOfWork.AddNotification("Consulta marcas de veículos", "Erro ao obter anos de modelos de veículos");
+                    return await ErrorResponseAsync<IEnumerable<AnoVersao>>(unitOfWork);
+                }
+            }
+            else
+            {
+                unitOfWork.AddNotification("Consulta marcas de veículos", "Tabela de referência não encontrada");
                 return await ErrorResponseAsync<IEnumerable<AnoVersao>>(unitOfWork);
             }
         }

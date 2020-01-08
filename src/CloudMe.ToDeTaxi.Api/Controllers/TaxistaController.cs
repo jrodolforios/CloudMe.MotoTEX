@@ -12,6 +12,8 @@ using CloudMe.ToDeTaxi.Infraestructure.Abstracts.Transactions;
 using CloudMe.ToDeTaxi.Api.Models;
 using prmToolkit.NotificationPattern;
 using CloudMe.ToDeTaxi.Domain.Model.Localizacao;
+using CloudMe.ToDeTaxi.Configuration.Library.Constants;
+using Microsoft.AspNetCore.Identity;
 
 namespace CloudMe.ToDeTaxi.Api.Controllers
 {
@@ -44,7 +46,7 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(Response<IEnumerable<TaxistaSummary>>), (int)HttpStatusCode.OK)]
-        public async Task<Response<IEnumerable<TaxistaSummary>>> GetAll()
+        public async Task<Response<IEnumerable<TaxistaSummary>>> GetAll([FromServices] RoleManager<IdentityRole<Guid>> roleManager)
         {
             return await base.ResponseAsync(await _TaxistaService.GetAllSummariesAsync(), _TaxistaService);
         }

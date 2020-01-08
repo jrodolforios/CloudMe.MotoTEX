@@ -14,7 +14,7 @@ using Serilog;
 using CloudMe.ToDeTaxi.Configuration.Library.Constants;
 using System.Globalization;
 using System.Reflection;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
+using ILogger = Serilog.ILogger;
 using CloudMe.Auth.Admin.Configuration.IdentityServer;
 using CloudMe.ToDeTaxi.Helpers;
 using Microsoft.AspNetCore.Identity.UI.Services;

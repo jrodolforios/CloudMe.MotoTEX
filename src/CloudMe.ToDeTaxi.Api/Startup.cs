@@ -31,6 +31,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Threading.Tasks;
 using IdentityModel.AspNetCore.OAuth2Introspection;
 using Serilog;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 
 public class AuthorizeCheckOperationFilter : IOperationFilter
 {
@@ -87,6 +89,8 @@ namespace CloudMe.ToDeTaxi.Api
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = false;
             })
+            //.AddRoleManager<RoleManager<IdentityRole<Guid>>>()
+            .AddDefaultUI()
             .AddEntityFrameworkStores<CloudMeToDeTaxiContext>()
             .AddDefaultTokenProviders();
 
@@ -162,6 +166,17 @@ namespace CloudMe.ToDeTaxi.Api
                     options.AllowAnyMethod();
                 });
             });*/
+
+            services.Configure<BrotliCompressionProviderOptions>(options =>
+            {
+                options.Level = CompressionLevel.Optimal;
+            });
+
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.Providers.Add<BrotliCompressionProvider>();
+            });
 
             services.AddMvc()
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
@@ -287,12 +302,14 @@ namespace CloudMe.ToDeTaxi.Api
                 options.EnableDetailedErrors = true;
             });
 
-            services.AddTriggers();
+            services.AddTriggers();//
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseResponseCompression();
+
             Log.Logger = new LoggerConfiguration()
                             .WriteTo.File(AppDomain.CurrentDomain.BaseDirectory + "/Logs/CLOUDME_TODETAXI_API_.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: null)
                             .CreateLogger();

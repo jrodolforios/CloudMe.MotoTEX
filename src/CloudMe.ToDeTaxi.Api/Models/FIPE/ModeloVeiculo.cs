@@ -7,7 +7,9 @@ namespace CloudMe.ToDeTaxi.Api.Models.FIPE
 {
     public class ModeloVeiculo
     {
-        public string codigo { get; set; }
-        public string nome { get; set; }
+        public string codigo { get { return Value; } }
+        public string nome { get { return Label; } }
+        public string Label { get; set; }
+        public string Value { get; set; }
     }
 }

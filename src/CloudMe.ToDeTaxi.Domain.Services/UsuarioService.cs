@@ -152,6 +152,12 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 AddNotification("Usuários", string.Format("CPF '{0}' está sendo utilizado por outro usuário", summary.CPF));
             }
 
+            var usrEmail = _userRepository.Search(usr => usr.Email == summary.Email).FirstOrDefault();
+            if (usrEmail != null && !string.IsNullOrEmpty(summary.Email))
+            {
+                AddNotification("Usuários", string.Format("Email '{0}' está sendo utilizado por outro usuário", summary.Email));
+            }
+
             if (IsInvalid())
             {
                 return null;
