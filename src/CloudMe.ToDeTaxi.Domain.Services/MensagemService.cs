@@ -137,7 +137,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
         public async Task<bool> AlterarStatusMensagem(Guid id_mensagem, Guid id_usuario, StatusMensagem status)
         {
             var msgDst = mensagemDestinatarioRepository.Search(
-                x => x.IdMensagem == id_mensagem && x.IdUsuario == id_usuario, new[] {"Mensagem"}).FirstOrDefault();
+                x => x.IdMensagem == id_mensagem && x.IdUsuario == id_usuario, new[] { "Mensagem" }).FirstOrDefault();
 
             if (msgDst is null)
             {
@@ -226,7 +226,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             var usuarios = usuarioRepository.FindAll()
                 .Where(x => destinatarios.IdsUsuarios.Contains(x.Id));
 
-            var grupos = grupoUsuarioRepository.FindAll(new[] {"Usuarios"})
+            var grupos = grupoUsuarioRepository.FindAll(new[] { "Usuarios" })
                 .Where(x => destinatarios.IdsGruposUsuarios.Contains(x.Id));
 
             var idsGruposEnviados = new List<Guid>();
@@ -258,7 +258,7 @@ namespace CloudMe.ToDeTaxi.Domain.Services
             }
 
             // envia para os grupos
-            if(grupos.Count() > 0)
+            if (grupos.Count() > 0)
             {
                 foreach (var grupo in grupos)
                 {
@@ -355,6 +355,41 @@ namespace CloudMe.ToDeTaxi.Domain.Services
                 .Take(pagination.itensPerPage);
 
             return Task.FromResult(msgs.Select(msg => detalharMensagem(msg)));
+        }
+
+        public Task<List<DetalhesMensagem>> ObterMensagensEnviadasEMarcarLidas(Guid id_usuario)
+        {
+            var listaDeMensagens = mensagemDestinatarioRepository.FindAll().Where(x => x.IdUsuario == id_usuario).ToList();
+            var mensagensParaExibir = new List<DetalhesMensagem>();
+            listaDeMensagens.ForEach(async x =>
+            {
+                if (x.Status == StatusMensagem.Enviada || x.Status == StatusMensagem.Recebida)
+                {
+                    x.Status = StatusMensagem.Lida;
+
+                    await mensagemDestinatarioRepository.ModifyAsync(x);
+
+                    var mensagem = await mensagemRepository.FindByIdAsync(x.IdMensagem);
+
+                    var diasEnviado = (DateTime.Now - mensagem.Inserted).TotalDays;
+
+                    if (diasEnviado < 3)
+                        mensagensParaExibir.Add(new DetalhesMensagem()
+                        {
+                            Assunto = mensagem.Assunto,
+                            Corpo = mensagem.Corpo,
+                            DataEnvio = mensagem.Inserted,
+                            DataRecebimento = x.DataRecebimento,
+                            DataLeitura = x.DataLeitura,
+                            destinatarios = null,
+                            IdMensagem = mensagem.Id,
+                            IdRemetente = mensagem.IdRemetente
+                        });
+
+                }
+            });
+
+            return Task.FromResult(mensagensParaExibir);
         }
 
         #endregion

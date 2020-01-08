@@ -33,6 +33,7 @@ using CloudMe.ToDeTaxi.Domain.Notifications.Hubs;
 using Microsoft.Extensions.Hosting;
 using CloudMe.ToDeTaxi.Domain.Notifications.Abstracts;
 using CloudMe.ToDeTaxi.Domain.Notifications.Abstract;
+using CloudMe.ToDeTaxi.Domain.Model;
 
 namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
 {
@@ -182,6 +183,7 @@ namespace CloudMe.ToDeTaxi.Configuration.Library.Helpers
                 routes.MapHub<EntityNotifier<IUsuarioGrupoUsuarioService, UsuarioGrupoUsuario, UsuarioGrupoUsuarioSummary, Guid>>("/notifications/usuario_grupo_usuario");
                 routes.MapHub<EntityNotifier<IVeiculoService, Veiculo, VeiculoSummary, Guid>>("/notifications/veiculo");
                 routes.MapHub<EntityNotifier<IVeiculoTaxistaService, VeiculoTaxista, VeiculoTaxistaSummary, Guid>>("/notifications/veiculo_taxista");
+                routes.MapHub<EntityNotifier<IContatoService, Contato, ContatoSummary, Guid>>("/notifications/contato");
 
                 routes.MapHub<HubLocalizacaoTaxista>("/notifications/localizacao_taxista");
                 routes.MapHub<HubLocalizacaoPassageiro>("/notifications/localizacao_passageiro");

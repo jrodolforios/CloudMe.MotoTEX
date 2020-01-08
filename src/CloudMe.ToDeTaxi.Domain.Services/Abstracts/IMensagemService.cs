@@ -19,5 +19,6 @@ namespace CloudMe.ToDeTaxi.Domain.Services.Abstracts
 
         Task<IEnumerable<MensagemDestinatarioSummary>> ObterRecibosMensagem(Guid id_mensagem, Guid id_usuario);
         Task<bool> AlterarStatusMensagem(Guid id_mensagem, Guid id_usuario, StatusMensagem status);
+        Task<List<DetalhesMensagem>> ObterMensagensEnviadasEMarcarLidas(Guid id_usuario);
     }
 }

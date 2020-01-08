@@ -41,6 +41,21 @@ namespace CloudMe.ToDeTaxi.Api.Controllers
             return response;
         }
 
+        [HttpPost("obter_enviadas_marcar_idas")]
+        [ProducesResponseType(typeof(Response<List<DetalhesMensagem>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<List<DetalhesMensagem>>> ObterMensagensEnviadasEMarcarLidas(Guid id_usuario)
+        {
+            int count = 0;
+            var response = await base.ResponseAsync(
+                await _MensagemService.ObterMensagensEnviadasEMarcarLidas(id_usuario), _MensagemService);
+
+            if (response.success)
+            {
+                response.count = count;
+            }
+            return response;
+        }
+
         /// <summary>
         /// Obtém as mensagens recebidas por um usuário.
         /// </summary>
