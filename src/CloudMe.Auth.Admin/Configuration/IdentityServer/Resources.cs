@@ -31,7 +31,7 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
         {
             return new List<ApiResource>
 			{
-                new ApiResource("todetaxiapi", "todetaxiapi")
+                new ApiResource("mototexapi", "mototexapi")
                 /*new ApiResource("callcenterapi","CallCenter API")
                 {
                     ApiSecrets = { new Secret("callcenterapisecret".Sha256())}

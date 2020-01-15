@@ -109,7 +109,7 @@ namespace CloudMe.MotoTEX.Api
                 {
                     options.Authority = authorityBaseUrl;
                     options.RequireHttpsMetadata = false;
-                    options.ApiName = "todetaxiapi";
+                    options.ApiName = "mototexapi";
 
                     options.TokenRetriever = request =>
                     {
@@ -140,7 +140,7 @@ namespace CloudMe.MotoTEX.Api
                     AuthorizationUrl = authorityBaseUrl + "/connect/authorize",
                     Scopes = new Dictionary<string, string>
                     {
-                        { "todetaxiapi", "todetaxiapi" } 
+                        { "mototexapi", "mototexapi" } 
                     }
                 });
 
@@ -344,7 +344,7 @@ namespace CloudMe.MotoTEX.Api
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "CloudMe MotoTEX - V1");
                 c.RoutePrefix = "swagger";
-                c.OAuthClientId("ToDeTaxiAPI_swagger");
+                c.OAuthClientId("MotoTEXAPI_swagger");
                 c.OAuthAppName("MotoTEX API - Swagger");
             });
 

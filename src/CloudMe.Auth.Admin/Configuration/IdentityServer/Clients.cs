@@ -38,7 +38,7 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                 },
                 new Client
                 {
-                    ClientId = "ToDeTaxiAPI_admin",
+                    ClientId = "MotoTEXAPI_admin",
                     ClientName = "Portal admnistrativo do sistema MotoTEX",
                     Enabled = true,
                     //AllowedGrantTypes = GrantTypes.Implicit,
@@ -49,7 +49,7 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         IdentityServerConstants.StandardScopes.Email,
                         "roles",
                         "nome",
-                        "todetaxiapi"
+                        "mototexapi"
                     },
                     AlwaysSendClientClaims = true,
                     AccessTokenType = AccessTokenType.Jwt,
@@ -83,13 +83,13 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 				},
 				new Client
 				{
-					ClientId = "ToDeTaxiAPI_mobile",
+					ClientId = "MotoTEXAPI_mobile",
 					ClientName = "Aplicativo mobile do sistema MotoTEX",
                     AllowedScopes = {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "todetaxiapi",
+                        "mototexapi",
                         "nome"
                     },
                     AlwaysSendClientClaims = true,
@@ -134,9 +134,9 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                 },
 				new Client
 				{
-					ClientId = "ToDeTaxiAPI_swagger",
+					ClientId = "MotoTEXAPI_swagger",
 					ClientName = "API swagger do sistema MotoTEX",
-					AllowedScopes = {"todetaxiapi"},
+					AllowedScopes = {"mototexapi"},
 					AllowedGrantTypes = GrantTypes.Implicit,
                     RequireConsent = false,
                     AllowRememberConsent = false,
