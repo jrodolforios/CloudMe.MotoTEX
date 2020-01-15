@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="prmToolkit.NotificationPattern" Version="1.1.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CloudMe.MotoTEX.Infraestructure.Abstracts\CloudMe.MotoTEX.Infraestructure.Abstracts.csproj" />
+    <ProjectReference Include="..\CloudMe.MotoTEX.Infraestructure.EF\CloudMe.MotoTEX.Infraestructure.EF.csproj" />
+    <ProjectReference Include="..\CloudMe.MotoTEX.Infraestructure.Entries\CloudMe.MotoTEX.Infraestructure.Entries.csproj" />
+  </ItemGroup>
+</Project>

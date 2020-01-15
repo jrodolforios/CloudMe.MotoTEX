@@ -7,7 +7,7 @@ using Skoruba.IdentityServer4.Admin.BusinessLogic.Helpers;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Services.Interfaces;
 using CloudMe.Auth.Admin.Configuration.Constants;
 using CloudMe.Auth.Admin.ExceptionHandling;
-using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
+using CloudMe.MotoTEX.Infraestructure.EF.Contexts;
 using System.Threading.Tasks;
 
 namespace CloudMe.Auth.Admin.Controllers
@@ -16,14 +16,14 @@ namespace CloudMe.Auth.Admin.Controllers
     [TypeFilter(typeof(ControllerExceptionFilterAttribute))]
     public class ConfigurationController : BaseController
     {
-        private readonly IIdentityResourceService<CloudMeToDeTaxiContext> _identityResourceService;
-        private readonly IApiResourceService<CloudMeToDeTaxiContext> _apiResourceService;
-        private readonly IClientService<CloudMeToDeTaxiContext> _clientService;
+        private readonly IIdentityResourceService<CloudMeMotoTEXContext> _identityResourceService;
+        private readonly IApiResourceService<CloudMeMotoTEXContext> _apiResourceService;
+        private readonly IClientService<CloudMeMotoTEXContext> _clientService;
         private readonly IStringLocalizer<ConfigurationController> _localizer;
 
-        public ConfigurationController(IIdentityResourceService<CloudMeToDeTaxiContext> identityResourceService,
-            IApiResourceService<CloudMeToDeTaxiContext> apiResourceService,
-            IClientService<CloudMeToDeTaxiContext> clientService,
+        public ConfigurationController(IIdentityResourceService<CloudMeMotoTEXContext> identityResourceService,
+            IApiResourceService<CloudMeMotoTEXContext> apiResourceService,
+            IClientService<CloudMeMotoTEXContext> clientService,
             IStringLocalizer<ConfigurationController> localizer,
             ILogger<ConfigurationController> logger)
             : base(logger)

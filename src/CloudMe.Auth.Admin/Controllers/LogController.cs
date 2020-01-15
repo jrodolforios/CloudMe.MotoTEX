@@ -5,16 +5,16 @@ using Microsoft.Extensions.Logging;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Services.Interfaces;
 using CloudMe.Auth.Admin.Configuration.Constants;
 using Skoruba.IdentityServer4.Admin.EntityFramework.DbContexts;
-using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
+using CloudMe.MotoTEX.Infraestructure.EF.Contexts;
 
 namespace CloudMe.Auth.Admin.Controllers
 {
     [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
     public class LogController : BaseController
     {
-        private readonly ILogService<CloudMeToDeTaxiContext> _logService;
+        private readonly ILogService<CloudMeMotoTEXContext> _logService;
 
-        public LogController(ILogService<CloudMeToDeTaxiContext> logService,
+        public LogController(ILogService<CloudMeMotoTEXContext> logService,
             ILogger<ConfigurationController> logger) : base(logger)
         {
             _logService = logService;

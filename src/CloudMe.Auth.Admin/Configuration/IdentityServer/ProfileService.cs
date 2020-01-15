@@ -1,4 +1,4 @@
-﻿using CloudMe.ToDeTaxi.Infraestructure.Entries;
+﻿using CloudMe.MotoTEX.Infraestructure.Entries;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;

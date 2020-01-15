@@ -35,9 +35,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\CloudMe.ToDeTaxi.Domain.Services\CloudMe.ToDeTaxi.Domain.Services.csproj" />
-	  <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure.EF\CloudMe.ToDeTaxi.Infraestructure.EF.csproj" />
-	  <ProjectReference Include="..\CloudMe.ToDeTaxi.Infraestructure\CloudMe.ToDeTaxi.Infraestructure.csproj" />
+	  <ProjectReference Include="..\CloudMe.MotoTEX.Domain.Services\CloudMe.MotoTEX.Domain.Services.csproj" />
+	  <ProjectReference Include="..\CloudMe.MotoTEX.Infraestructure.EF\CloudMe.MotoTEX.Infraestructure.EF.csproj" />
+	  <ProjectReference Include="..\CloudMe.MotoTEX.Infraestructure\CloudMe.MotoTEX.Infraestructure.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

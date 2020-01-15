@@ -8,12 +8,12 @@ using Microsoft.Extensions.Logging;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Extensions;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Extensions;
-using CloudMe.ToDeTaxi.Domain.Services;
-using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
+using CloudMe.MotoTEX.Domain.Services;
+using CloudMe.MotoTEX.Domain.Services.Abstracts;
 using CloudMe.Auth.Admin.Configuration.Interfaces;
 using CloudMe.Auth.Admin.Helpers;
 using CloudMe.Auth.Admin.Model;
-using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
+using CloudMe.MotoTEX.Infraestructure.EF.Contexts;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -50,14 +50,14 @@ namespace CloudMe.Auth.Admin
             services.ConfigureRootConfiguration(Configuration);
             var rootConfiguration = services.BuildServiceProvider().GetService<IRootConfiguration>();
 
-            services.AddDbContexts<CloudMeToDeTaxiContext>(HostingEnvironment, Configuration);
-            services.AddAuthenticationServices<CloudMeToDeTaxiContext, CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>>(HostingEnvironment, rootConfiguration.AdminConfiguration);
+            services.AddDbContexts<CloudMeMotoTEXContext>(HostingEnvironment, Configuration);
+            services.AddAuthenticationServices<CloudMeMotoTEXContext, CloudMe.MotoTEX.Infraestructure.Entries.Usuario,IdentityRole<Guid>>(HostingEnvironment, rootConfiguration.AdminConfiguration);
             services.AddMvcExceptionFilters();
 
-            services.AddAdminServices<CloudMeToDeTaxiContext>();
+            services.AddAdminServices<CloudMeMotoTEXContext>();
 
-            services.AddAdminAspNetIdentityServices<CloudMeToDeTaxiContext, CloudMeUserDto, Guid, RoleDto<Guid>, Guid, Guid, Guid,
-                                CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,
+            services.AddAdminAspNetIdentityServices<CloudMeMotoTEXContext, CloudMeUserDto, Guid, RoleDto<Guid>, Guid, Guid, Guid,
+                                CloudMe.MotoTEX.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,
                                  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>();
 
             services.AddMvcLocalization();

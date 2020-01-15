@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/CloudMe.ToDeTaxi.Api/bin/Debug/netcoreapp2.2/CloudMe.ToDeTaxi.Api.dll",
+            "program": "${workspaceFolder}/src/CloudMe.MotoTEX.Api/bin/Debug/netcoreapp2.2/CloudMe.MotoTEX.Api.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/CloudMe.ToDeTaxi.Api",
+            "cwd": "${workspaceFolder}/src/CloudMe.MotoTEX.Api",
             "stopAtEntry": false,
             "serverReadyAction": {
                 "action": "openExternally",

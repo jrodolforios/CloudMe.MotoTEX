@@ -12,8 +12,8 @@ using CloudMe.Auth.Admin.Configuration.IdentityServer;
 using CloudMe.Auth.Admin.Configuration.Interfaces;
 using Skoruba.IdentityServer4.Admin.EntityFramework.DbContexts;
 using Skoruba.IdentityServer4.Admin.EntityFramework.Identity.Entities.Identity;
-using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
-using CloudMe.ToDeTaxi.Domain.Services.Abstracts;
+using CloudMe.MotoTEX.Infraestructure.EF.Contexts;
+using CloudMe.MotoTEX.Domain.Services.Abstracts;
 
 namespace CloudMe.Auth.Admin.Helpers
 {
@@ -21,8 +21,8 @@ namespace CloudMe.Auth.Admin.Helpers
     {
         /// <summary>
         /// Generate migrations before running this method, you can use command bellow:
-        /// Nuget package manager: Add-Migration DbInit -context CloudMeToDeTaxiContext -output Data/Migrations
-        /// Dotnet CLI: dotnet ef migrations add DbInit -c CloudMeToDeTaxiContext -o Data/Migrations
+        /// Nuget package manager: Add-Migration DbInit -context CloudMeMotoTEXContext -output Data/Migrations
+        /// Dotnet CLI: dotnet ef migrations add DbInit -c CloudMeMotoTEXContext -o Data/Migrations
         /// </summary>
         /// <param name="host"></param>
         public static async Task EnsureSeedData(IWebHost host)
@@ -39,8 +39,8 @@ namespace CloudMe.Auth.Admin.Helpers
         {
             using (var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                var context = scope.ServiceProvider.GetRequiredService<CloudMeToDeTaxiContext>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario>>();
+                var context = scope.ServiceProvider.GetRequiredService<CloudMeMotoTEXContext>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<CloudMe.MotoTEX.Infraestructure.Entries.Usuario>>();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
                 var rootConfiguration = scope.ServiceProvider.GetRequiredService<IRootConfiguration>();
 
@@ -53,7 +53,7 @@ namespace CloudMe.Auth.Admin.Helpers
         /// <summary>
         /// Generate default admin user / role
         /// </summary>
-        private static async Task EnsureSeedIdentityData(UserManager<CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario> userManager,
+        private static async Task EnsureSeedIdentityData(UserManager<CloudMe.MotoTEX.Infraestructure.Entries.Usuario> userManager,
             RoleManager<IdentityRole<Guid>> roleManager)
         {
             // Create admin role
@@ -68,7 +68,7 @@ namespace CloudMe.Auth.Admin.Helpers
             /*var user = await userManager.FindByNameAsync(Users.AdminUserName);
             if (user == null)
             {
-                user = new ToDeTaxi.Infraestructure.Entries.Usuario
+                user = new MotoTEX.Infraestructure.Entries.Usuario
                 {
                     UserName = Users.AdminUserName,
                     Email = Users.AdminEmail,
@@ -89,7 +89,7 @@ namespace CloudMe.Auth.Admin.Helpers
             // Create admin user
             if (await userManager.FindByNameAsync(Users.AdminUserName) != null) return;
 
-            var user = new ToDeTaxi.Infraestructure.Entries.Usuario
+            var user = new MotoTEX.Infraestructure.Entries.Usuario
             {
                 UserName = Users.AdminUserName,
                 Email = Users.AdminEmail,
@@ -109,7 +109,7 @@ namespace CloudMe.Auth.Admin.Helpers
         /// <summary>
         /// Generate default clients, identity and api resources
         /// </summary>
-        private static async Task EnsureSeedIdentityServerData(CloudMeToDeTaxiContext context, IAdminConfiguration adminConfiguration)
+        private static async Task EnsureSeedIdentityServerData(CloudMeMotoTEXContext context, IAdminConfiguration adminConfiguration)
         {
             if (!context.Clients.Any())
             {

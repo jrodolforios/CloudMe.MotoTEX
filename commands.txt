@@ -1,8 +1,8 @@
 MIGRATIONS:
 
 - no projeto Infraestructure.EF:
-dotnet ef migrations add endereco -c CloudMeToDeTaxiContext -s ./../CloudMe.ToDeTaxi.Api
-dotnet ef database update -c CloudMeToDeTaxiContext -s ./../CloudMe.ToDeTaxi.Api
+dotnet ef migrations add endereco -c CloudMeMotoTEXContext -s ./../CloudMe.MotoTEX.Api
+dotnet ef database update -c CloudMeMotoTEXContext -s ./../CloudMe.MotoTEX.Api
 
 EXECUCAO:
 

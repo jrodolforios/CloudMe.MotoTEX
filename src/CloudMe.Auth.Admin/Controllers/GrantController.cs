@@ -10,7 +10,7 @@ using CloudMe.Auth.Admin.Helpers;
 using CloudMe.Auth.Admin.Configuration.Constants;
 using Skoruba.IdentityServer4.Admin.EntityFramework.DbContexts;
 using Skoruba.IdentityServer4.Admin.EntityFramework.Identity.Entities.Identity;
-using CloudMe.ToDeTaxi.Infraestructure.EF.Contexts;
+using CloudMe.MotoTEX.Infraestructure.EF.Contexts;
 using Microsoft.AspNetCore.Identity;
 using System;
 
@@ -20,10 +20,10 @@ namespace CloudMe.Auth.Admin.Controllers
     [TypeFilter(typeof(ControllerExceptionFilterAttribute))]
     public class GrantController : BaseController
     {
-        private readonly IPersistedGrantAspNetIdentityService<CloudMeToDeTaxiContext, CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>> _persistedGrantService;
+        private readonly IPersistedGrantAspNetIdentityService<CloudMeMotoTEXContext, CloudMe.MotoTEX.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>> _persistedGrantService;
         private readonly IStringLocalizer<GrantController> _localizer;
 
-        public GrantController(IPersistedGrantAspNetIdentityService<CloudMeToDeTaxiContext, CloudMe.ToDeTaxi.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>> persistedGrantService,
+        public GrantController(IPersistedGrantAspNetIdentityService<CloudMeMotoTEXContext, CloudMe.MotoTEX.Infraestructure.Entries.Usuario,IdentityRole<Guid>, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,  IdentityUserLogin<Guid>,IdentityRoleClaim<Guid>, IdentityUserToken<Guid>> persistedGrantService,
             ILogger<ConfigurationController> logger,
             IStringLocalizer<GrantController> localizer) : base(logger)
         {
