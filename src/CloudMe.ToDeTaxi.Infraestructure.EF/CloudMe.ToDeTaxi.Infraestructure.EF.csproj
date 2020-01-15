@@ -6,6 +6,9 @@
   <ItemGroup>
     <Compile Remove="Migrations\20191008223617_force_delete.cs" />
     <Compile Remove="Migrations\20191212110118_MensagemApagada.cs" />
+    <Compile Remove="Migrations\20200115012425_Auditoria_Usuario.cs" />
+    <Compile Remove="Migrations\20200115013448_Auditoria_Usuario.cs" />
+    <Compile Remove="Migrations\20200115030902_Auditoria_Usuario.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EntityFrameworkCore.Triggers" Version="1.2.2" />

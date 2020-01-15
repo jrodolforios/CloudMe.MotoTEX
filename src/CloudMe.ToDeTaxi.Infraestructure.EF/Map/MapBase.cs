@@ -15,6 +15,10 @@ namespace CloudMe.ToDeTaxi.Infraestructure.EF.Map
             builder.Property(x => x.Updated).IsRequired(true);
             builder.Property(x => x.Deleted).IsRequired(false);
 
+            builder.HasOne(x => x.InsertUser).WithMany().HasForeignKey(x => x.InsertUserId);
+            builder.HasOne(x => x.UpdateUser).WithMany().HasForeignKey(x => x.UpdateUserId);
+            builder.HasOne(x => x.DeleteUser).WithMany().HasForeignKey(x => x.DeleteUserId);
+
             builder.HasQueryFilter(x => !x.IsSoftDeleted);
         }
     }
