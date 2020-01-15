@@ -68,17 +68,17 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					RedirectUris = {
 						"http://localhost:4200/auth/callback",
                         "http://localhost:4200/auth/silent-refresh.html",
-                        "http://admin.MotoTEX.com.br/auth/callback",
-                        "http://admin.MotoTEX.com.br/auth/silent-refresh.html",
+                        "http://admin.mototex.com.br/auth/callback",
+                        "http://admin.mototex.com.br/auth/silent-refresh.html",
 
                         "https://localhost:4200/auth/callback",
                         "https://localhost:4200/auth/silent-refresh.html",
-                        "https://admin.MotoTEX.com.br/auth/callback",
-                        "https://admin.MotoTEX.com.br/auth/silent-refresh.html",
+                        "https://admin.mototex.com.br/auth/callback",
+                        "https://admin.mototex.com.br/auth/silent-refresh.html",
                     },
 					PostLogoutRedirectUris = {
 						"http://localhost:4200",
-						"https://admin.MotoTEX.com.br",
+						"https://admin.mototex.cloudme.com.br",
                     }
 				},
 				new Client
@@ -107,29 +107,29 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         "http://localhost:8100/auth/callback",
                         "http://localhost:8100/#/callback/?",
                         "http://localhost:8100/auth/silent-refresh.html",
-                        "http://passenger.MotoTEX.com.br/auth/callback",
-                        "http://driver.MotoTEX.com.br/auth/callback",
-                        "http://driver.MotoTEX.com.br/#/callback/?",
-                        "http://passenger.MotoTEX.com.br/auth/silent-refresh.html",
-                        "http://driver.MotoTEX.com.br/auth/silent-refresh.html",
+                        "http://passenger.mototex.com.br/auth/callback",
+                        "http://driver.mototex.com.br/auth/callback",
+                        "http://driver.MotomototexTEX.com.br/#/callback/?",
+                        "http://passenger.mototex.com.br/auth/silent-refresh.html",
+                        "http://driver.mototex.com.br/auth/silent-refresh.html",
 
                         "https://localhost:8100/auth/callback",
                         "https://localhost:8100/#/callback/?",
                         "https://localhost:8100/auth/silent-refresh.html",
-                        "https://passenger.MotoTEX.com.br/auth/callback",
-                        "https://driver.MotoTEX.com.br/auth/callback",
-                        "https://driver.MotoTEX.com.br/#/callback/?",
-                        "https://passenger.MotoTEX.com.br/auth/silent-refresh.html",
-                        "https://driver.MotoTEX.com.br/auth/silent-refresh.html"
+                        "https://passenger.mototex.com.br/auth/callback",
+                        "https://driver.mototex.com.br/auth/callback",
+                        "https://driver.mototex.com.br/#/callback/?",
+                        "https://passenger.mototex.com.br/auth/silent-refresh.html",
+                        "https://driver.mototex.com.br/auth/silent-refresh.html"
                     },
                     PostLogoutRedirectUris = {
                         "http://localhost:8100",
-                        "http://passenger.MotoTEX.com.br",
-                        "http://driver.MotoTEX.com.br",
+                        "http://passenger.mototex.com.br",
+                        "http://driver.mototex.com.br",
 
                         "https://localhost:8100",
-                        "https://passenger.MotoTEX.com.br",
-                        "https://driver.MotoTEX.com.br"
+                        "https://passenger.mototex.com.br",
+                        "https://driver.mototex.com.br"
                     }
                 },
 				new Client
@@ -149,12 +149,12 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 						"http://localhost:5002/o2c.html",
 						"http://localhost:5002/signin-oidc",
 
-                        "https://api.MotoTEX.com.br/swagger/oauth2-redirect.html",
-                        "https://api.MotoTEX.com.br/swagger/o2c.html",
-                        "https://api.MotoTEX.com.br/swagger/signin-oidc",
-                        "https://api.MotoTEX.com.br/oauth2-redirect.html",
-                        "https://api.MotoTEX.com.br/o2c.html",
-                        "https://api.MotoTEX.com.br/signin-oidc"
+                        "https://api.mototex.com.br/swagger/oauth2-redirect.html",
+                        "https://api.mototex.com.br/swagger/o2c.html",
+                        "https://api.mototex.com.br/swagger/signin-oidc",
+                        "https://api.mototex.com.br/oauth2-redirect.html",
+                        "https://api.mototex.com.br/o2c.html",
+                        "https://api.mototex.com.br/signin-oidc"
                     },
 				}
 			};
