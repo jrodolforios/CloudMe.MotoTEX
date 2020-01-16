@@ -69,7 +69,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
                 var requestMarcasBody = new
                 {
                     codigoTabelaReferencia = tabela.Codigo,
-                    codigoTipoVeiculo = TipoVeiculo.CarrosUtilPequenos
+                    codigoTipoVeiculo = TipoVeiculo.Motos
                 };
                 requestMarcas.AddJsonBody(requestMarcasBody);
                 result = await client.ExecuteTaskAsync(requestMarcas);
@@ -131,7 +131,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
                 var requestMarcasBody = new
                 {
                     codigoTabelaReferencia = tabela.Codigo,
-                    codigoTipoVeiculo = TipoVeiculo.CarrosUtilPequenos,
+                    codigoTipoVeiculo = TipoVeiculo.Motos,
                     codigoMarca = codigo_marca
                 };
                 requestModelosMarca.AddJsonBody(requestMarcasBody);
@@ -203,7 +203,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
                 requestAnoModelo.AddJsonBody(new
                 {
                     codigoTabelaReferencia = tabela.Codigo,
-                    codigoTipoVeiculo = TipoVeiculo.CarrosUtilPequenos,
+                    codigoTipoVeiculo = TipoVeiculo.Motos,
                     codigoMarca = codigo_marca,
                     codigoModelo = codigo_modelo
                 });

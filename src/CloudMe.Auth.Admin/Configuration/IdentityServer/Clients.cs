@@ -149,12 +149,12 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 						"http://localhost:5002/o2c.html",
 						"http://localhost:5002/signin-oidc",
 
-                        "https://api.mototex.com.br/swagger/oauth2-redirect.html",
-                        "https://api.mototex.com.br/swagger/o2c.html",
-                        "https://api.mototex.com.br/swagger/signin-oidc",
-                        "https://api.mototex.com.br/oauth2-redirect.html",
-                        "https://api.mototex.com.br/o2c.html",
-                        "https://api.mototex.com.br/signin-oidc"
+                        "https://api.mototex.cloudme.com.br/swagger/oauth2-redirect.html",
+                        "https://api.mototex.cloudme.com.br/swagger/o2c.html",
+                        "https://api.mototex.cloudme.com.br/swagger/signin-oidc",
+                        "https://api.mototex.cloudme.com.br/oauth2-redirect.html",
+                        "https://api.mototex.cloudme.com.br/o2c.html",
+                        "https://api.mototex.cloudme.com.br/signin-oidc"
                     },
 				}
 			};
