@@ -33,5 +33,9 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
         public StatusCorrida Status { get; set; }
 
         public int TempoEmEspera { get; set; }
+
+        public Guid IdFaturamentoTaxista { get; set; }
+
+        public FaturamentoTaxista FaturamentoTaxista { get; set; }
     }
 }

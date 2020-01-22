@@ -27,6 +27,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Map
             builder.HasOne(x => x.Veiculo).WithMany(x => x.Corridas).HasForeignKey(x => x.IdVeiculo);
             builder.HasOne(x => x.RotaExecutada).WithMany().HasForeignKey(x => x.IdRotaExecutada);
             builder.HasOne(x => x.Tarifa).WithMany().HasForeignKey(x => x.IdTarifa);
+            builder.HasOne(x => x.FaturamentoTaxista).WithMany(x => x.Corrida).HasForeignKey(x => x.IdFaturamentoTaxista);
+
         }
     }
 }

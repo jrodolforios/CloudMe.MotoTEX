@@ -32,5 +32,6 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
         public virtual IEnumerable<SolicitacaoCorridaTaxista> SolicitacoesCorrida { get; set; }
         public virtual IEnumerable<Favorito> Favoritos { get; set; }
         public virtual IEnumerable<Contato> Contatos { get; set; }
+        public virtual IEnumerable<FaturamentoTaxista> FaturamentoTaxista { get; set; }
     }
 }

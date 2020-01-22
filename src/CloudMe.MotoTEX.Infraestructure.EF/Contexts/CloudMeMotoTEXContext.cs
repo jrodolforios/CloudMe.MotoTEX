@@ -41,6 +41,9 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Contexts
         public DbSet<Emergencia> Emergencias { get; set; }
         public DbSet<Contato> Contatos { get; set; }
 
+        public DbSet<Faturamento> Faturamento { get; set; }
+        public DbSet<FaturamentoTaxista> FaturamentoTaxista { get; set; }
+
 
         public CloudMeMotoTEXContext(
             DbContextOptions<CloudMeMotoTEXContext> options,
