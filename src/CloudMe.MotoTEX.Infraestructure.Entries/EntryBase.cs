@@ -1,5 +1,4 @@
 ﻿using EntityFrameworkCore.Triggers;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,14 +18,6 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries {
         public virtual DateTime Updated { get; private set; }
         public virtual DateTime? Deleted { get; private set; }
 
-        public Guid? InsertUserId { get; private set; }
-        public Guid? UpdateUserId { get; private set; }
-        public Guid? DeleteUserId { get; private set; }
-
-        public virtual Usuario InsertUser { get; set; }
-        public virtual Usuario UpdateUser { get; set; }
-        public virtual Usuario DeleteUser { get; set; }
-
         public bool IsSoftDeleted => Deleted.HasValue;
         public void SoftDelete() => Deleted = DateTime.UtcNow;
         public void SoftRestore() => Deleted = null;
@@ -37,59 +28,29 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries {
 
         static EntryBase()
         {
-            Triggers<EntryBase<TEntryKey>>.GlobalInserting.Add<IHttpContextAccessor>(insertingEntry =>
+            Triggers<EntryBase<TEntryKey>>.Inserting += entry =>
             {
-                insertingEntry.Entity.Inserted = insertingEntry.Entity.Updated = DateTime.UtcNow;
-                Guid.TryParse(insertingEntry.Service.HttpContext.User?.FindFirst("sub").Value, out Guid userID);
-                insertingEntry.Entity.UpdateUserId = insertingEntry.Entity.InsertUserId = userID;
-                OnInsert?.Invoke(insertingEntry.Entity);
-            });
+                entry.Entity.Inserted = entry.Entity.Updated = DateTime.UtcNow;
+                OnInsert?.Invoke(entry.Entity);
+            };
 
             /*Triggers<EntryBase<TEntryKey>>.Inserted += entry =>
             {
                 entry.Entity.OnInsert(entry.Entity);
             };*/
 
-            /*Triggers<EntryBase<TEntryKey>>.Inserting += entry =>
-            {
-                entry.Entity.Inserted = entry.Entity.Updated = DateTime.UtcNow;
-                OnInsert?.Invoke(entry.Entity);
-            };*/
-
-            Triggers<EntryBase<TEntryKey>>.GlobalUpdating.Add<IHttpContextAccessor>(updatingEntry =>
-            {
-                updatingEntry.Entity.Updated = DateTime.UtcNow;
-                Guid.TryParse(updatingEntry.Service.HttpContext.User?.FindFirst("sub").Value, out Guid userID);
-                updatingEntry.Entity.UpdateUserId = userID;
-                OnUpdate?.Invoke(updatingEntry.Entity);
-            });
-
-            /*Triggers<EntryBase<TEntryKey>>.Updating += entry =>
+            Triggers<EntryBase<TEntryKey>>.Updating += entry =>
             {
                 entry.Entity.Updated = DateTime.UtcNow;
                 OnUpdate?.Invoke(entry.Entity);
-            };*/
+            };
 
             /*Triggers<EntryBase<TEntryKey>>.Updated += entry =>
             {
                 entry.Entity.OnUpdate(entry.Entity);
             };*/
 
-            Triggers<EntryBase<TEntryKey>>.GlobalDeleting.Add<IHttpContextAccessor>(deletingEntry =>
-            {
-                if (!deletingEntry.Entity.ForceDelete)
-                {
-                    Guid.TryParse(deletingEntry.Service.HttpContext.User?.FindFirst("sub").Value, out Guid userID);
-                    deletingEntry.Entity.DeleteUserId = userID;
-
-                    deletingEntry.Entity.SoftDelete();
-                    deletingEntry.Cancel = true; // Cancels the deletion, but will persist changes with the same effects as EntityState.Modified
-                }
-
-                OnDelete?.Invoke(deletingEntry.Entity);
-            });
-
-            /*Triggers<EntryBase<TEntryKey>>.Deleting += entry =>
+            Triggers<EntryBase<TEntryKey>>.Deleting += entry =>
             {
                 if (!entry.Entity.ForceDelete)
                 {
@@ -98,7 +59,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries {
                 }
 
                 OnDelete?.Invoke(entry.Entity);
-            };*/
+            };
 
             /*Triggers<EntryBase<TEntryKey>>.Deleted += entry =>
             {
