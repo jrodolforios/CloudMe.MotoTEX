@@ -11,7 +11,7 @@ namespace CloudMe.MotoTEX.Domain.Model.Faturamento
 
         public int Mes { get; set; }
 
-        public decimal Total { get; set; }
+        public decimal? Total { get; set; }
 
         public decimal PercentualComissao { get; set; }
 

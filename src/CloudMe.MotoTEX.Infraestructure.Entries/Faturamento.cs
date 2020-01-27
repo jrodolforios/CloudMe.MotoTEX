@@ -12,7 +12,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
 
         public int Mes { get; set; }
 
-        public decimal Total { get; set; }
+        public decimal? Total { get; set; }
 
         public decimal PercentualComissao { get; set; }
 

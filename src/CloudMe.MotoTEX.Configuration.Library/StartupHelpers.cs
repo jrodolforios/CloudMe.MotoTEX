@@ -34,6 +34,7 @@ using Microsoft.Extensions.Hosting;
 using CloudMe.MotoTEX.Domain.Notifications.Abstracts;
 using CloudMe.MotoTEX.Domain.Notifications.Abstract;
 using CloudMe.MotoTEX.Domain.Model;
+using CloudMe.MotoTEX.Domain.Model.Faturamento;
 
 namespace CloudMe.MotoTEX.Configuration.Library.Helpers
 {
@@ -184,6 +185,8 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
                 routes.MapHub<EntityNotifier<IVeiculoService, Veiculo, VeiculoSummary, Guid>>("/notifications/veiculo");
                 routes.MapHub<EntityNotifier<IVeiculoTaxistaService, VeiculoTaxista, VeiculoTaxistaSummary, Guid>>("/notifications/veiculo_taxista");
                 routes.MapHub<EntityNotifier<IContatoService, Contato, ContatoSummary, Guid>>("/notifications/contato");
+                routes.MapHub<EntityNotifier<IFaturamentoService, Faturamento, FaturamentoSummary, Guid>>("/notifications/Faturamento");
+                routes.MapHub<EntityNotifier<IFaturamentoTaxistaService, FaturamentoTaxista, FaturamentoTaxistaSummary, Guid>>("/notifications/FaturamentoTaxista");
 
                 routes.MapHub<HubLocalizacaoTaxista>("/notifications/localizacao_taxista");
                 routes.MapHub<HubLocalizacaoPassageiro>("/notifications/localizacao_passageiro");

@@ -15,7 +15,6 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Map
 
             builder.Property(x => x.Ano).IsRequired();
             builder.Property(x => x.Mes).IsRequired();
-            builder.Property(x => x.Total).IsRequired();
 
             builder.HasMany(x => x.FaturamentoTaxista).WithOne(x => x.Faturamento).HasForeignKey(x => x.IdFaturamento);
         }
