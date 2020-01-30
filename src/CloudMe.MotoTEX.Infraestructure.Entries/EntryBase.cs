@@ -19,7 +19,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries {
         public virtual DateTime? Deleted { get; private set; }
 
         public bool IsSoftDeleted => Deleted.HasValue;
-        public void SoftDelete() => Deleted = DateTime.UtcNow;
+        public void SoftDelete() => Deleted = DateTime.Now;
         public void SoftRestore() => Deleted = null;
 
         public static event OnInsertCallback OnInsert;
@@ -30,7 +30,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries {
         {
             Triggers<EntryBase<TEntryKey>>.Inserting += entry =>
             {
-                entry.Entity.Inserted = entry.Entity.Updated = DateTime.UtcNow;
+                entry.Entity.Inserted = entry.Entity.Updated = DateTime.Now;
                 OnInsert?.Invoke(entry.Entity);
             };
 
@@ -41,7 +41,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries {
 
             Triggers<EntryBase<TEntryKey>>.Updating += entry =>
             {
-                entry.Entity.Updated = DateTime.UtcNow;
+                entry.Entity.Updated = DateTime.Now;
                 OnUpdate?.Invoke(entry.Entity);
             };
 
