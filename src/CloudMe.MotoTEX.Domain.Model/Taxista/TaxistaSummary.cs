@@ -8,6 +8,7 @@ namespace CloudMe.MotoTEX.Domain.Model.Taxista
     public class TaxistaSummary
     {
         public Guid Id { get; set; }
+        public int? NumeroIdentificacao { get; set; }
         public bool Ativo { get; set; }
         public bool Disponivel { get; set; }
 

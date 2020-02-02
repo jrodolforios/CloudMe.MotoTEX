@@ -38,7 +38,7 @@ namespace CloudMe.MotoTEX.Domain.Services
 
             RestRequest request = new RestRequest(string.Empty, Method.GET);
             request.AddQueryParameter("ano", DateTime.Now.Year.ToString());
-            request.AddQueryParameter("cidade", "TEOFILO_OTONI");
+            request.AddQueryParameter("cidade", "TEIXEIRA_DE_FREITAS");
             request.AddQueryParameter("token", "cm9kb2xmby5yaW9zQGNsb3VkbWUuY29tLmJyJmhhc2g9NTQ5MjMxMzA");
             request.AddQueryParameter("json", "true");
 
@@ -50,13 +50,14 @@ namespace CloudMe.MotoTEX.Domain.Services
                 if (feriados.Any(x => x.Date == date.ToString("dd/MM/yyyy") && (x.Type.ToLower() == "feriado nacional" || x.Type.ToLower() == "feriado municipal"))
                     || date.DayOfWeek == DayOfWeek.Sunday || HorarioNoturno(date))
                 {
-                    valorAPagar += kilometers * (decimal)tarifa.KmRodadoBandeira2;
+                    valorAPagar += (decimal)tarifa.KmRodadoBandeira2;
 
                     return valorAPagar;
                 }
                 else
                 {
-                    valorAPagar += kilometers * (decimal)tarifa.KmRodadoBandeira1;
+                    if (kilometers > 5)
+                        valorAPagar += (decimal)tarifa.KmRodadoBandeira1;
 
                     return valorAPagar;
                 }

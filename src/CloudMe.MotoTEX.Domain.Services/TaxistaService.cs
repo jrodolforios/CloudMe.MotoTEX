@@ -54,6 +54,7 @@ namespace CloudMe.MotoTEX.Domain.Services
             var Taxista = new Taxista
             {
                 Id = summary.Id,
+                NumeroIdentificacao = summary.NumeroIdentificacao,
                 Ativo = summary.Ativo,
                 IdUsuario = summary.Usuario.Id,
                 IdFoto = summary.IdFoto,
@@ -70,6 +71,7 @@ namespace CloudMe.MotoTEX.Domain.Services
             {
                 Id = entry.Id,
                 Ativo = entry.Ativo,
+                NumeroIdentificacao = entry.NumeroIdentificacao,
                 IdFoto = entry.IdFoto,
                 IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
                 IdPontoTaxi = entry.IdPontoTaxi,
@@ -121,6 +123,7 @@ namespace CloudMe.MotoTEX.Domain.Services
         protected override void UpdateEntry(Taxista entry, TaxistaSummary summary)
         {
             entry.Ativo = summary.Ativo;
+            entry.NumeroIdentificacao = summary.NumeroIdentificacao;
 
             if (!entry.IdUsuario.HasValue || entry.IdUsuario.Value == Guid.Empty)
             {
