@@ -84,7 +84,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
                     codigoTipoVeiculo = TipoVeiculo.Motos
                 };
                 requestMarcas.AddJsonBody(requestMarcasBody);
-                result = await client.ExecuteTaskAsync(requestMarcas);
+                result = await client.ExecuteAsync(requestMarcas);
 
                 if (result.StatusCode == HttpStatusCode.OK)
                 {
@@ -133,7 +133,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
             var client = new RestClient("https://veiculos.fipe.org.br/");
             var requestTabelaReferencia = new RestRequest("api/veiculos/ConsultarTabelaDeReferencia", Method.POST);
             AddFIPERequestHeaders(requestTabelaReferencia);
-            var result = await client.ExecuteTaskAsync(requestTabelaReferencia);
+            var result = await client.ExecuteAsync(requestTabelaReferencia);
             var tabelasReferencia = JsonConvert.DeserializeObject<List<TabelaReferencia>>(result.Content);
 
             if (tabelasReferencia.Count > 0)
@@ -149,7 +149,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
                     codigoMarca = codigo_marca
                 };
                 requestModelosMarca.AddJsonBody(requestMarcasBody);
-                result = await client.ExecuteTaskAsync(requestModelosMarca);
+                result = await client.ExecuteAsync(requestModelosMarca);
 
                 if (result.StatusCode == HttpStatusCode.OK)
                 {
@@ -207,7 +207,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
             var client = new RestClient("https://veiculos.fipe.org.br/");
             var requestTabelaReferencia = new RestRequest("api/veiculos/ConsultarTabelaDeReferencia", Method.POST);
             AddFIPERequestHeaders(requestTabelaReferencia);
-            var result = await client.ExecuteTaskAsync(requestTabelaReferencia);
+            var result = await client.ExecuteAsync(requestTabelaReferencia);
             var tabelasReferencia = JsonConvert.DeserializeObject<List<TabelaReferencia>>(result.Content);
 
             if (tabelasReferencia.Count > 0)
@@ -223,7 +223,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
                     codigoMarca = codigo_marca,
                     codigoModelo = codigo_modelo
                 });
-                result = await client.ExecuteTaskAsync(requestAnoModelo);
+                result = await client.ExecuteAsync(requestAnoModelo);
 
                 if (result.StatusCode == HttpStatusCode.OK)
                 {
