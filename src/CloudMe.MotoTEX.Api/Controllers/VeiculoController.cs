@@ -45,6 +45,16 @@ namespace CloudMe.MotoTEX.Api.Controllers
             return await base.ResponseAsync(await _VeiculoService.GetSummaryAsync(id), _VeiculoService);
         }
 
+        private void AddFIPERequestHeaders(RestRequest request)
+        {
+            request.AddHeader("Accept", "application/json, text/javascript, /; q=0.01");
+            request.AddHeader("Accept-Language", "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7");
+            request.AddHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36");
+            request.AddHeader("X-Requested-With", "XMLHttpRequest");
+            request.AddHeader("Origin", "https://veiculos.fipe.org.br");
+            request.AddHeader("Referer", "https://veiculos.fipe.org.br/");
+        }
+
         /// <summary>
         /// Obtém marcas de veículos.
         /// </summary>
@@ -58,13 +68,15 @@ namespace CloudMe.MotoTEX.Api.Controllers
 
             var client = new RestClient("https://veiculos.fipe.org.br/");
             var requestTabelaReferencia = new RestRequest("api/veiculos/ConsultarTabelaDeReferencia", Method.POST);
-            var result = await client.ExecuteTaskAsync(requestTabelaReferencia);
+            AddFIPERequestHeaders(requestTabelaReferencia);
+            var result = await client.ExecuteAsync(requestTabelaReferencia);
             var tabelasReferencia = JsonConvert.DeserializeObject<List<TabelaReferencia>>(result.Content);
 
             if (tabelasReferencia.Count > 0)
             {
                 var tabela = tabelasReferencia[0];
                 var requestMarcas = new RestRequest("api/veiculos/ConsultarMarcas", Method.POST);
+                AddFIPERequestHeaders(requestMarcas);
 
                 var requestMarcasBody = new
                 {
@@ -120,6 +132,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
 
             var client = new RestClient("https://veiculos.fipe.org.br/");
             var requestTabelaReferencia = new RestRequest("api/veiculos/ConsultarTabelaDeReferencia", Method.POST);
+            AddFIPERequestHeaders(requestTabelaReferencia);
             var result = await client.ExecuteTaskAsync(requestTabelaReferencia);
             var tabelasReferencia = JsonConvert.DeserializeObject<List<TabelaReferencia>>(result.Content);
 
@@ -127,6 +140,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
             {
                 var tabela = tabelasReferencia[0];
                 var requestModelosMarca = new RestRequest("api/veiculos/ConsultarModelos", Method.POST);
+                AddFIPERequestHeaders(requestModelosMarca);
 
                 var requestMarcasBody = new
                 {
@@ -192,6 +206,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
 
             var client = new RestClient("https://veiculos.fipe.org.br/");
             var requestTabelaReferencia = new RestRequest("api/veiculos/ConsultarTabelaDeReferencia", Method.POST);
+            AddFIPERequestHeaders(requestTabelaReferencia);
             var result = await client.ExecuteTaskAsync(requestTabelaReferencia);
             var tabelasReferencia = JsonConvert.DeserializeObject<List<TabelaReferencia>>(result.Content);
 
@@ -199,6 +214,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
             {
                 var tabela = tabelasReferencia[0];
                 var requestAnoModelo = new RestRequest("api/veiculos/ConsultarAnoModelo", Method.POST);
+                AddFIPERequestHeaders(requestAnoModelo);
 
                 requestAnoModelo.AddJsonBody(new
                 {
