@@ -56,7 +56,7 @@ namespace CloudMe.MotoTEX.Domain.Services
                 }
                 else
                 {
-                    if (kilometers > 5)
+                    if (kilometers > 4)
 					{
                         valorAPagar += (decimal)tarifa.KmRodadoBandeira1;
 					}
@@ -73,7 +73,7 @@ namespace CloudMe.MotoTEX.Domain.Services
         private bool HorarioNoturno(DateTime date)
         {
             // convert everything to TimeSpan
-            TimeSpan start = new TimeSpan(22, 0, 0);
+            TimeSpan start = new TimeSpan(20, 0, 0);
             TimeSpan end = new TimeSpan(06, 0, 0);
             TimeSpan now = date.TimeOfDay;
             // see if start comes before end
