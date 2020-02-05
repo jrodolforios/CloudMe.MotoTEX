@@ -24,28 +24,33 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "forma_pagamento";
         }
 
-        protected override Task<FormaPagamento> CreateEntryAsync(FormaPagamentoSummary summary)
+        protected override async Task<FormaPagamento> CreateEntryAsync(FormaPagamentoSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var FormaPagamento = new FormaPagamento
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                Descricao = summary.Descricao
-            };
-            return Task.FromResult(FormaPagamento);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new FormaPagamento
+                {
+                    Id = summary.Id,
+                    Descricao = summary.Descricao
+                };
+            });
         }
 
-        protected override Task<FormaPagamentoSummary> CreateSummaryAsync(FormaPagamento entry)
+        protected override async Task<FormaPagamentoSummary> CreateSummaryAsync(FormaPagamento entry)
         {
-            var FormaPagamento = new FormaPagamentoSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Descricao = entry.Descricao
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(FormaPagamento);
+                return new FormaPagamentoSummary
+                {
+                    Id = entry.Id,
+                    Descricao = entry.Descricao
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(FormaPagamentoSummary summary)

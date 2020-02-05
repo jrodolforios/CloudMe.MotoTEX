@@ -30,13 +30,12 @@ namespace CloudMe.MotoTEX.Api.Controllers
         [ProducesResponseType(typeof(Response<IEnumerable<DetalhesMensagem>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<DetalhesMensagem>>> ObterMensagensEnviadas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination)
         {
-            int count = 0;
-            var response = await base.ResponseAsync(
-                await _MensagemService.ObterMensagensEnviadas(id_usuario, inicio, fim, pagination, out count), _MensagemService);
+            var result = await _MensagemService.ObterMensagensEnviadas(id_usuario, inicio, fim, pagination);
+            var response = await base.ResponseAsync(result.Item1, _MensagemService);
 
             if (response.success)
             {
-                response.count = count;
+                response.count = result.Item2;
             }
             return response;
         }
@@ -45,15 +44,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
         [ProducesResponseType(typeof(Response<List<DetalhesMensagem>>), (int)HttpStatusCode.OK)]
         public async Task<Response<List<DetalhesMensagem>>> ObterMensagensEnviadasEMarcarLidas(Guid id_usuario)
         {
-            int count = 0;
-            var response = await base.ResponseAsync(
-                await _MensagemService.ObterMensagensEnviadasEMarcarLidas(id_usuario), _MensagemService);
-
-            if (response.success)
-            {
-                response.count = count;
-            }
-            return response;
+            return await base.ResponseAsync( await _MensagemService.ObterMensagensEnviadasEMarcarLidas(id_usuario), _MensagemService);
         }
 
         /// <summary>
@@ -63,13 +54,12 @@ namespace CloudMe.MotoTEX.Api.Controllers
         [ProducesResponseType(typeof(Response<IEnumerable<DetalhesMensagem>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<DetalhesMensagem>>> ObterMensagensRecebidas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination)
         {
-            int count = 0;
-            var response = await base.ResponseAsync(
-                await _MensagemService.ObterMensagensRecebidas(id_usuario, inicio, fim, pagination, out count), _MensagemService);
+            var result = await _MensagemService.ObterMensagensRecebidasAsync(id_usuario, inicio, fim, pagination);
+            var response = await base.ResponseAsync(result.Item1, _MensagemService);
 
             if (response.success)
             {
-                response.count = count;
+                response.count = result.Item2;
             }
             return response;
         }

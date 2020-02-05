@@ -31,34 +31,39 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "emergencia";
         }
 
-        protected override Task<Emergencia> CreateEntryAsync(EmergenciaSummary summary)
+        protected override async Task<Emergencia> CreateEntryAsync(EmergenciaSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Emergencia = new Emergencia
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                IdTaxista = summary.IdTaxista,
-                Latitude = summary.Latitude,
-                Longitude = summary.Longitude,
-                Status = summary.Status,
-            };
-            return Task.FromResult(Emergencia);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Emergencia
+                {
+                    Id = summary.Id,
+                    IdTaxista = summary.IdTaxista,
+                    Latitude = summary.Latitude,
+                    Longitude = summary.Longitude,
+                    Status = summary.Status,
+                };
+            });
         }
 
-        protected override Task<EmergenciaSummary> CreateSummaryAsync(Emergencia entry)
+        protected override async Task<EmergenciaSummary> CreateSummaryAsync(Emergencia entry)
         {
-            var Emergencia = new EmergenciaSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                IdTaxista = entry.IdTaxista,
-                Latitude = entry.Latitude,
-                Longitude = entry.Longitude,
-                Status = entry.Status
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(Emergencia);
+                return new EmergenciaSummary
+                {
+                    Id = entry.Id,
+                    IdTaxista = entry.IdTaxista,
+                    Latitude = entry.Latitude,
+                    Longitude = entry.Longitude,
+                    Status = entry.Status
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(EmergenciaSummary summary)

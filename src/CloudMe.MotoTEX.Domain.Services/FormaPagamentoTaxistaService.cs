@@ -25,57 +25,53 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "forma_pagamento_taxista";
         }
         
-        public Task<bool> DeleteByTaxistId(Guid id)
+        public async Task<bool> DeleteByTaxistId(Guid id)
         {
-            var list = _FormaPagamentoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id);
+            var list = await _FormaPagamentoTaxistaRepository.Search(x => x.IdTaxista == id);
 
             list.ToList().ForEach(async x =>
             {
                 await _FormaPagamentoTaxistaRepository.DeleteAsync(x, false);
             });
 
-            return Task.FromResult(true);
+            return true;
         }
 
-        public Task<List<FormaPagamentoTaxistaSummary>> GetByTaxistId(Guid id)
+        public async Task<IEnumerable<FormaPagamentoTaxistaSummary>> GetByTaxistId(Guid id)
         {
-            var list = _FormaPagamentoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id);
+            var list = await _FormaPagamentoTaxistaRepository.Search(x => x.IdTaxista == id);
+            return await GetAllSummariesAsync(list);
+        }
 
-            var listaRetorno = new List<FormaPagamentoTaxistaSummary>();
-
-            list.ToList().ForEach(async x =>
+        protected override async Task<FormaPagamentoTaxista> CreateEntryAsync(FormaPagamentoTaxistaSummary summary)
+        {
+            return await Task.Run(() =>
             {
-                var summary = await CreateSummaryAsync(x);
-                listaRetorno.Add(summary);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new FormaPagamentoTaxista
+                {
+                    Id = summary.Id,
+                    IdFormaPagamento = summary.IdFormaPagamento,
+                    IdTaxista = summary.IdTaxista
+                };
             });
-
-            return Task.FromResult(listaRetorno);
         }
 
-        protected override Task<FormaPagamentoTaxista> CreateEntryAsync(FormaPagamentoTaxistaSummary summary)
+        protected override async Task<FormaPagamentoTaxistaSummary> CreateSummaryAsync(FormaPagamentoTaxista entry)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var FormaPagamentoTaxista = new FormaPagamentoTaxista
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                IdFormaPagamento = summary.IdFormaPagamento,
-                IdTaxista = summary.IdTaxista
-            };
-            return Task.FromResult(FormaPagamentoTaxista);
-        }
+                if (entry == null) return default;
 
-        protected override Task<FormaPagamentoTaxistaSummary> CreateSummaryAsync(FormaPagamentoTaxista entry)
-        {
-            var FormaPagamentoTaxista = new FormaPagamentoTaxistaSummary
-            {
-                Id = entry.Id,
-                IdFormaPagamento = entry.IdFormaPagamento,
-                IdTaxista = entry.IdTaxista
-            };
-
-            return Task.FromResult(FormaPagamentoTaxista);
+                return new FormaPagamentoTaxistaSummary
+                {
+                    Id = entry.Id,
+                    IdFormaPagamento = entry.IdFormaPagamento,
+                    IdTaxista = entry.IdTaxista
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(FormaPagamentoTaxistaSummary summary)

@@ -59,7 +59,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
         {
             return await ResponseAsync(
                 await taxistaService.GetAllSummariesAsync(
-                    taxistaService.Search(tx => tx.IdPontoTaxi == id, new[] { "PontoTaxi" })),
+                    await taxistaService.Search(tx => tx.IdPontoTaxi == id, new[] { "PontoTaxi" })),
                     taxistaService);
         }
 
@@ -125,7 +125,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
 
             // remove associações com os taxistas
             var taxistasSummaries = await taxistaService.GetAllSummariesAsync(
-                    taxistaService.Search(tx => tx.IdPontoTaxi == pontoTaxiSummary.Id)
+                    await taxistaService.Search(tx => tx.IdPontoTaxi == pontoTaxiSummary.Id)
                 );
 
             foreach (var txSummary in taxistasSummaries)

@@ -37,9 +37,9 @@ namespace CloudMe.MotoTEX.Domain.Services
             return await GetRepository().FindAllAsync(paths);
         }
 
-        public virtual IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null, Pagination pagination = null)
+        public virtual async Task<IEnumerable<TEntry>> Search(Expression<Func<TEntry, bool>> where, string[] paths = null, Pagination pagination = null)
         {
-            var rawItens = GetRepository().Search(where, paths);
+            var rawItens = await GetRepository().Search(where, paths);
             if(pagination != null)
             {
                 rawItens = rawItens

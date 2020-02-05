@@ -49,7 +49,8 @@ namespace CloudMe.MotoTEX.Api.Controllers
         [ProducesResponseType(typeof(Response<IEnumerable<UsuarioSummary>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<UsuarioSummary>>> GetAllAdmin()
         {
-            var usuariosSummaries = await _UsuarioService.GetAllSummariesAsync(_UsuarioService.Search(x => x.tipo == TipoUsuario.Administrador));
+            var usuarios = await _UsuarioService.Search(x => x.tipo == TipoUsuario.Administrador);
+            var usuariosSummaries = await _UsuarioService.GetAllSummariesAsync(usuarios);
             var response = await base.ResponseAsync(usuariosSummaries, _UsuarioService);
             response.count = usuariosSummaries.Count();
             return response;
@@ -90,7 +91,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
         [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
         public async Task<Response<bool>> LoginDisponivel(string login)
         {
-            var usuario = _UsuarioService.Search(x => x.Nome == login).FirstOrDefault();
+            var usuario = (await _UsuarioService.Search(x => x.Nome == login)).FirstOrDefault();
             return await base.ResponseAsync(usuario == null, _UsuarioService);
         }
 

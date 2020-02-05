@@ -30,6 +30,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<string>("Conteudo")
                         .IsRequired();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<string>("Email");
@@ -40,17 +42,27 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid?>("IdTaxista");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
 
                     b.Property<string>("Nome");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdPassageiro");
 
                     b.HasIndex("IdTaxista");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Contato");
                 });
@@ -63,9 +75,13 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<string>("Conteudo")
                         .IsRequired();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
+
+                    b.Property<Guid?>("InsertUserId");
 
                     b.Property<DateTime>("Inserted");
 
@@ -73,9 +89,17 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(false);
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Contrato");
                 });
@@ -85,18 +109,30 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
+
+                    b.Property<Guid?>("InsertUserId");
 
                     b.Property<DateTime>("Inserted");
 
                     b.Property<string>("Nome")
                         .IsRequired();
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("CorVeiculo");
                 });
@@ -113,6 +149,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<int?>("AvaliacaoTaxista")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
+
+                    b.Property<Guid?>("DeleteUserId");
 
                     b.Property<DateTime?>("Deleted");
 
@@ -134,6 +172,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<DateTime?>("Inicio");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
 
                     b.Property<int>("Status")
@@ -146,9 +186,13 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<DateTime?>("UltimaPausa");
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
 
                     b.HasIndex("IdFaturamentoTaxista");
 
@@ -163,6 +207,10 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.HasIndex("IdVeiculo");
 
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
+
                     b.ToTable("Corrida");
                 });
 
@@ -171,11 +219,15 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
 
                     b.Property<Guid>("IdTaxista");
+
+                    b.Property<Guid?>("InsertUserId");
 
                     b.Property<DateTime>("Inserted");
 
@@ -187,11 +239,19 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid?>("TaxistaId");
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("InsertUserId");
+
                     b.HasIndex("TaxistaId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Emergencias");
                 });
@@ -209,11 +269,15 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<string>("Complemento");
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
 
                     b.Property<Guid?>("IdLocalizacao");
+
+                    b.Property<Guid?>("InsertUserId");
 
                     b.Property<DateTime>("Inserted");
 
@@ -229,12 +293,20 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<string>("UF")
                         .IsRequired();
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdLocalizacao")
                         .IsUnique();
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Endereco");
                 });
@@ -244,19 +316,31 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<string>("Descricao");
 
                     b.Property<bool>("ForceDelete");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.Property<float>("Valor");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("FaixaDesconto");
                 });
@@ -266,6 +350,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
@@ -274,15 +360,25 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid>("IdTaxista");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdFaixaDesconto");
 
                     b.HasIndex("IdTaxista");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("FaixaDescontoTaxista");
                 });
@@ -296,9 +392,13 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<DateTime>("DataGeracao");
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
+
+                    b.Property<Guid?>("InsertUserId");
 
                     b.Property<DateTime>("Inserted");
 
@@ -308,9 +408,17 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<decimal?>("Total");
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Faturamento");
                 });
@@ -326,6 +434,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<DateTime>("DataVencimento");
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<Guid?>("FaturamentoId");
@@ -336,6 +446,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid>("IdTaxista");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
 
                     b.Property<string>("JsonBoletoAPI");
@@ -344,13 +456,21 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<decimal>("Total");
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("FaturamentoId");
 
                     b.HasIndex("IdTaxista");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("FaturamentoTaxista");
                 });
@@ -360,6 +480,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
@@ -368,17 +490,27 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid>("IdTaxista");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
 
                     b.Property<int>("Preferencia");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdPassageiro");
 
                     b.HasIndex("IdTaxista");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Favorito");
                 });
@@ -388,6 +520,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<string>("Descricao")
@@ -395,11 +529,21 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<bool>("ForceDelete");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("FormaPagamento");
                 });
@@ -409,6 +553,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
@@ -417,15 +563,25 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid>("IdTaxista");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdFormaPagamento");
 
                     b.HasIndex("IdTaxista");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("FormaPagamentoTaxista");
                 });
@@ -437,9 +593,13 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<byte[]>("Dados");
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
+
+                    b.Property<Guid?>("InsertUserId");
 
                     b.Property<DateTime>("Inserted");
 
@@ -447,9 +607,17 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<string>("NomeArquivo");
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Foto");
                 });
@@ -459,6 +627,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<string>("Descricao")
@@ -466,14 +636,24 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<bool>("ForceDelete");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
 
                     b.Property<string>("Nome")
                         .IsRequired();
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("GrupoUsuario");
                 });
@@ -483,6 +663,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<string>("Endereco");
@@ -490,6 +672,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<bool>("ForceDelete");
 
                     b.Property<Guid?>("IdUsuario");
+
+                    b.Property<Guid?>("InsertUserId");
 
                     b.Property<DateTime>("Inserted");
 
@@ -501,12 +685,20 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<string>("NomePublico");
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdUsuario")
                         .IsUnique();
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Localizacao");
                 });
@@ -525,19 +717,31 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<string>("Corpo")
                         .IsRequired();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
 
                     b.Property<Guid>("IdRemetente");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdRemetente");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Mensagem");
                 });
@@ -551,6 +755,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<DateTime?>("DataRecebimento");
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
@@ -561,21 +767,31 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid>("IdUsuario");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
 
                     b.HasIndex("IdGrupoUsuario");
 
                     b.HasIndex("IdMensagem");
 
                     b.HasIndex("IdUsuario");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("MensagemDestinatario");
                 });
@@ -586,6 +802,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Ativo");
+
+                    b.Property<Guid?>("DeleteUserId");
 
                     b.Property<DateTime?>("Deleted");
 
@@ -599,11 +817,17 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid?>("IdUsuario");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
 
                     b.HasIndex("IdEndereco")
                         .IsUnique();
@@ -617,6 +841,10 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.HasIndex("IdUsuario")
                         .IsUnique();
 
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
+
                     b.ToTable("Passageiro");
                 });
 
@@ -625,23 +853,35 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
 
                     b.Property<Guid>("IdEndereco");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
 
                     b.Property<string>("Nome")
                         .IsRequired();
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdEndereco")
                         .IsUnique();
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("PontoTaxi");
                 });
@@ -651,15 +891,27 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Rota");
                 });
@@ -670,6 +922,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<DateTime?>("Data");
+
+                    b.Property<Guid?>("DeleteUserId");
 
                     b.Property<DateTime?>("Deleted");
 
@@ -688,6 +942,12 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("IdPassageiro");
 
                     b.Property<Guid?>("IdRota");
+
+                    b.Property<int>("IdxFaixaBusca")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0);
+
+                    b.Property<Guid?>("InsertUserId");
 
                     b.Property<DateTime>("Inserted");
 
@@ -709,6 +969,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.Property<float?>("ValorEstimado");
@@ -716,6 +978,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<float?>("ValorProposto");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
 
                     b.HasIndex("IdFaixaDesconto");
 
@@ -729,6 +993,10 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.HasIndex("IdRota");
 
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
+
                     b.ToTable("SolicitacaoCorrida");
                 });
 
@@ -741,6 +1009,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
@@ -749,15 +1019,25 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid>("IdTaxista");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdSolicitacaoCorrida");
 
                     b.HasIndex("IdTaxista");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("SolicitacaoCorridaTaxista");
                 });
@@ -769,11 +1049,15 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<float>("Bandeirada");
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
 
                     b.Property<float>("HoraParada");
+
+                    b.Property<Guid?>("InsertUserId");
 
                     b.Property<DateTime>("Inserted");
 
@@ -781,9 +1065,17 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<float>("KmRodadoBandeira2");
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Tarifa");
                 });
@@ -794,6 +1086,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Ativo");
+
+                    b.Property<Guid?>("DeleteUserId");
 
                     b.Property<DateTime?>("Deleted");
 
@@ -813,13 +1107,19 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid?>("IdUsuario");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
 
                     b.Property<int?>("NumeroIdentificacao");
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeleteUserId");
 
                     b.HasIndex("IdEndereco")
                         .IsUnique();
@@ -834,6 +1134,10 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.HasIndex("IdUsuario")
                         .IsUnique();
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Taxista");
                 });
@@ -901,6 +1205,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
@@ -909,15 +1215,25 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid>("IdUsuario");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdGrupoUsuario");
 
                     b.HasIndex("IdUsuario");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("UsuarioGrupoUsuario");
                 });
@@ -934,6 +1250,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<string>("Cor");
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
@@ -941,6 +1259,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<Guid?>("IdCorVeiculo");
 
                     b.Property<Guid?>("IdFoto");
+
+                    b.Property<Guid?>("InsertUserId");
 
                     b.Property<DateTime>("Inserted");
 
@@ -953,16 +1273,24 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.Property<string>("Placa")
                         .IsRequired();
 
+                    b.Property<Guid?>("UpdateUserId");
+
                     b.Property<DateTime>("Updated");
 
                     b.Property<string>("Versao");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdCorVeiculo");
 
                     b.HasIndex("IdFoto")
                         .IsUnique();
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("Veiculo");
                 });
@@ -974,6 +1302,8 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<bool>("Ativo");
 
+                    b.Property<Guid?>("DeleteUserId");
+
                     b.Property<DateTime?>("Deleted");
 
                     b.Property<bool>("ForceDelete");
@@ -982,15 +1312,25 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
                     b.Property<Guid>("IdVeiculo");
 
+                    b.Property<Guid?>("InsertUserId");
+
                     b.Property<DateTime>("Inserted");
+
+                    b.Property<Guid?>("UpdateUserId");
 
                     b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("IdTaxista");
 
                     b.HasIndex("IdVeiculo");
+
+                    b.HasIndex("InsertUserId");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.ToTable("VeiculoTaxista");
                 });
@@ -1710,6 +2050,10 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Contato", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Passageiro", "Passageiro")
                         .WithMany("Contatos")
                         .HasForeignKey("IdPassageiro");
@@ -1717,10 +2061,52 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Taxista", "Taxista")
                         .WithMany("Contatos")
                         .HasForeignKey("IdTaxista");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
+                });
+
+            modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Contrato", b =>
+                {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
+                });
+
+            modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.CorVeiculo", b =>
+                {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Corrida", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.FaturamentoTaxista", "FaturamentoTaxista")
                         .WithMany("Corrida")
                         .HasForeignKey("IdFaturamentoTaxista");
@@ -1748,24 +2134,75 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .WithMany("Corridas")
                         .HasForeignKey("IdVeiculo")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Emergencia", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Taxista", "Taxista")
                         .WithMany()
                         .HasForeignKey("TaxistaId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Endereco", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Localizacao", "Localizacao")
                         .WithOne()
                         .HasForeignKey("CloudMe.MotoTEX.Infraestructure.Entries.Endereco", "IdLocalizacao");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
+                });
+
+            modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.FaixaDesconto", b =>
+                {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.FaixaDescontoTaxista", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.FaixaDesconto", "FaixaDesconto")
                         .WithMany("Taxistas")
                         .HasForeignKey("IdFaixaDesconto")
@@ -1775,10 +2212,37 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .WithMany("FaixasDesconto")
                         .HasForeignKey("IdTaxista")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
+                });
+
+            modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Faturamento", b =>
+                {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.FaturamentoTaxista", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Faturamento", "Faturamento")
                         .WithMany("FaturamentoTaxista")
                         .HasForeignKey("FaturamentoId");
@@ -1787,10 +2251,22 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .WithMany("FaturamentoTaxista")
                         .HasForeignKey("IdTaxista")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Favorito", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Passageiro", "Passageiro")
                         .WithMany("TaxistasFavoritos")
                         .HasForeignKey("IdPassageiro")
@@ -1800,10 +2276,37 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .WithMany("Favoritos")
                         .HasForeignKey("IdTaxista")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
+                });
+
+            modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.FormaPagamento", b =>
+                {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.FormaPagamentoTaxista", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.FormaPagamento", "FormaPagamento")
                         .WithMany("Taxistas")
                         .HasForeignKey("IdFormaPagamento")
@@ -1813,25 +2316,91 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .WithMany("FormasPagamento")
                         .HasForeignKey("IdTaxista")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
+                });
+
+            modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Foto", b =>
+                {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
+                });
+
+            modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.GrupoUsuario", b =>
+                {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Localizacao", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "Usuario")
                         .WithOne()
                         .HasForeignKey("CloudMe.MotoTEX.Infraestructure.Entries.Localizacao", "IdUsuario");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Mensagem", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "Remetente")
                         .WithMany("MensagensEnviadas")
                         .HasForeignKey("IdRemetente")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.MensagemDestinatario", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.GrupoUsuario", "GrupoUsuarios")
                         .WithMany("MensagensRecebidas")
                         .HasForeignKey("IdGrupoUsuario");
@@ -1845,10 +2414,22 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .WithMany("MensagensRecebidas")
                         .HasForeignKey("IdUsuario")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Passageiro", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Endereco", "Endereco")
                         .WithOne()
                         .HasForeignKey("CloudMe.MotoTEX.Infraestructure.Entries.Passageiro", "IdEndereco")
@@ -1866,18 +2447,57 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "Usuario")
                         .WithOne()
                         .HasForeignKey("CloudMe.MotoTEX.Infraestructure.Entries.Passageiro", "IdUsuario");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.PontoTaxi", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Endereco", "Endereco")
                         .WithOne()
                         .HasForeignKey("CloudMe.MotoTEX.Infraestructure.Entries.PontoTaxi", "IdEndereco")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
+                });
+
+            modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Rota", b =>
+                {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.SolicitacaoCorrida", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.FaixaDesconto", "FaixaDesconto")
                         .WithMany()
                         .HasForeignKey("IdFaixaDesconto");
@@ -1905,10 +2525,22 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Rota", "Rota")
                         .WithMany()
                         .HasForeignKey("IdRota");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.SolicitacaoCorridaTaxista", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.SolicitacaoCorrida", "SolicitacaoCorrida")
                         .WithMany("Taxistas")
                         .HasForeignKey("IdSolicitacaoCorrida")
@@ -1918,10 +2550,37 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .WithMany("SolicitacoesCorrida")
                         .HasForeignKey("IdTaxista")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
+                });
+
+            modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Tarifa", b =>
+                {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Taxista", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Endereco", "Endereco")
                         .WithOne()
                         .HasForeignKey("CloudMe.MotoTEX.Infraestructure.Entries.Taxista", "IdEndereco")
@@ -1943,10 +2602,22 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "Usuario")
                         .WithOne()
                         .HasForeignKey("CloudMe.MotoTEX.Infraestructure.Entries.Taxista", "IdUsuario");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.UsuarioGrupoUsuario", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.GrupoUsuario", "GrupoUsuario")
                         .WithMany("Usuarios")
                         .HasForeignKey("IdGrupoUsuario")
@@ -1956,10 +2627,22 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .WithMany("Grupos")
                         .HasForeignKey("IdUsuario")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.Veiculo", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.CorVeiculo", "CorVeiculo")
                         .WithMany()
                         .HasForeignKey("IdCorVeiculo");
@@ -1967,10 +2650,22 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Foto", "Foto")
                         .WithOne()
                         .HasForeignKey("CloudMe.MotoTEX.Infraestructure.Entries.Veiculo", "IdFoto");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("CloudMe.MotoTEX.Infraestructure.Entries.VeiculoTaxista", b =>
                 {
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId");
+
                     b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Taxista", "Taxista")
                         .WithMany("Veiculos")
                         .HasForeignKey("IdTaxista")
@@ -1980,6 +2675,14 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Migrations
                         .WithMany("Taxistas")
                         .HasForeignKey("IdVeiculo")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "InsertUser")
+                        .WithMany()
+                        .HasForeignKey("InsertUserId");
+
+                    b.HasOne("CloudMe.MotoTEX.Infraestructure.Entries.Usuario", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId");
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiResourceClaim", b =>

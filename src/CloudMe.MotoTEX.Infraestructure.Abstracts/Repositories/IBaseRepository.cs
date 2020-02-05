@@ -10,9 +10,9 @@ namespace CloudMe.MotoTEX.Infraestructure.Abstracts.Repositories
     {
         Task<int> CountAsync();
         Task<bool> DeleteAsync(TEntry entry, bool logical = true);
-        void Detach<TEntity>(TEntity entry) where TEntity : class;
-        IEnumerable<TEntry> FindAll();
-        IEnumerable<TEntry> FindAll(string[] paths);
+        Task Detach<TEntity>(TEntity entry) where TEntity : class;
+        Task<IEnumerable<TEntry>> FindAll();
+        Task<IEnumerable<TEntry>> FindAll(string[] paths);
         Task<IEnumerable<TEntry>> FindAllAsync();
         Task<IEnumerable<TEntry>> FindAllAsync(string[] paths);
         Task<TEntry> FindByIdAsync(object key);
@@ -20,6 +20,6 @@ namespace CloudMe.MotoTEX.Infraestructure.Abstracts.Repositories
         Task<TEntry> FindByIdAsync(object key, string[] paths);
         Task<bool> ModifyAsync(TEntry entry);
         Task<bool> SaveAsync(TEntry entry);
-        IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null);
+        Task<IEnumerable<TEntry>> Search(Expression<Func<TEntry, bool>> where, string[] paths = null);
     }
 }

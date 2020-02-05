@@ -15,10 +15,17 @@ namespace CloudMe.MotoTEX.Domain.Services
     public class ContatoService : ServiceBase<Contato, ContatoSummary, Guid>, IContatoService
     {
         private readonly IContatoRepository _contatoRepository;
+        private readonly IPassageiroRepository _passageiroRepository;
+        private readonly ITaxistaRepository _taxistaRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
 
-        public ContatoService(IContatoRepository contatoRepository)
+        public ContatoService(IContatoRepository contatoRepository, IPassageiroRepository passageiroRepository,
+            ITaxistaRepository taxistaRepository, IUsuarioRepository usuarioRepository)
         {
             _contatoRepository = contatoRepository;
+            _passageiroRepository = passageiroRepository;
+            _taxistaRepository = taxistaRepository;
+            _usuarioRepository = usuarioRepository;
         }
 
         public override string GetTag()
@@ -28,36 +35,58 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         protected override Task<Contato> CreateEntryAsync(ContatoSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var contato = new Contato
+            return Task.Run(() =>
             {
-                Id = summary.Id,
-                Conteudo = summary.Conteudo,
-                Assunto = summary.Assunto,
-                Email = summary.Email,
-                IdPassageiro = summary.IdPassageiro,
-                IdTaxista = summary.IdTaxista,
-                Nome = summary.Nome
-            };
-            return Task.FromResult(contato);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Contato
+                {
+                    Id = summary.Id,
+                    Conteudo = summary.Conteudo,
+                    Assunto = summary.Assunto,
+                    Email = summary.Email,
+                    IdPassageiro = summary.IdPassageiro,
+                    IdTaxista = summary.IdTaxista,
+                    Nome = summary.Nome
+                };
+            });
         }
 
-        protected override Task<ContatoSummary> CreateSummaryAsync(Contato entry)
+        protected override async Task<ContatoSummary> CreateSummaryAsync(Contato entry)
         {
-            var contato = new ContatoSummary
+            return await Task.Run(async () =>
             {
-                Id = entry.Id,
-                Conteudo = entry.Conteudo,
-                Assunto = entry.Assunto,
-                Email = entry.Email,
-                IdPassageiro = entry.IdPassageiro,
-                IdTaxista = entry.IdTaxista,
-                Nome = entry.Nome
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(contato);
+                if (entry.IdPassageiro.HasValue)
+                {
+                    var passageiro = (await _passageiroRepository.Search(x => x.Id == entry.IdPassageiro)).FirstOrDefault();
+                    var usuario = (await _usuarioRepository.Search(x => x.Id == passageiro.IdUsuario)).FirstOrDefault();
+
+                    entry.Email = usuario.Email;
+                    entry.Nome = usuario.Nome;
+                }
+                else if (entry.IdTaxista.HasValue)
+                {
+                    var taxista = (await _taxistaRepository.Search(x => x.Id == entry.IdTaxista)).FirstOrDefault();
+                    var usuario = (await _usuarioRepository.Search(x => x.Id == taxista.IdUsuario)).FirstOrDefault();
+
+                    entry.Email = usuario.Email;
+                    entry.Nome = usuario.Nome;
+                }
+
+                return new ContatoSummary
+                {
+                    Id = entry.Id,
+                    Conteudo = entry.Conteudo,
+                    Assunto = entry.Assunto,
+                    Email = entry.Email,
+                    IdPassageiro = entry.IdPassageiro,
+                    IdTaxista = entry.IdTaxista,
+                    Nome = entry.Nome
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(ContatoSummary summary)

@@ -30,77 +30,65 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         public async Task<IEnumerable<CorridaSummary>> GetAllSummariesByPassangerAsync(Guid id)
         {
-            List<CorridaSummary> corridaSummaries = new List<CorridaSummary>();
-
-            var solicitacoes = _SolicitacaoCorridaRepository.FindAll().Where(x => x.IdPassageiro == id);
-            var corridas = _CorridaRepository.FindAll().Where(x => solicitacoes.Any(y => y.Id == x.IdSolicitacao));
-
-            corridas.ToList().ForEach(async x =>
-            {
-                var summary = await CreateSummaryAsync(x);
-                corridaSummaries.Add(summary);
-            });
-
-            return corridaSummaries;
+            var corridas = await _CorridaRepository.Search(x => x.IdSolicitacao != null && x.Solicitacao.IdPassageiro == id, new[] {"Solicitacao"});
+            return await GetAllSummariesAsync(corridas);
         }
 
         public async Task<IEnumerable<CorridaSummary>> GetAllSummariesByTaxistAsync(Guid id)
         {
-            List<CorridaSummary> corridaSummaries = new List<CorridaSummary>();
+            var corridas = await _CorridaRepository.Search(x => x.IdTaxista == id);
+            return await GetAllSummariesAsync(corridas);
+        }
 
-            var corridas = _CorridaRepository.FindAll().Where(x => x.IdTaxista == id);
-
-            corridas.ToList().ForEach(async x =>
+        protected override async Task<Corrida> CreateEntryAsync(CorridaSummary summary)
+        {
+            return await Task.Run(() =>
             {
-                var summary = await CreateSummaryAsync(x);
-                corridaSummaries.Add(summary);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                var Corrida = new Corrida
+                {
+                    Id = summary.Id,
+                    IdSolicitacao = summary.IdSolicitacao,
+                    IdTaxista = summary.IdTaxista,
+                    IdVeiculo = summary.IdVeiculo,
+                    IdRotaExecutada = summary.IdRotaExecutada,
+                    IdTarifa = summary.IdTarifa,
+                    Inicio = summary.Inicio,
+                    Fim = summary.Fim,
+                    AvaliacaoPassageiro = summary.AvaliacaoPassageiro,
+                    AvaliacaoTaxista = summary.AvaliacaoTaxista,
+                    Status = summary.Status,
+                    TempoEmEspera = summary.TempoEmEspera
+                };
+
+                return Corrida;
             });
-
-            return corridaSummaries;
         }
 
-        protected override Task<Corrida> CreateEntryAsync(CorridaSummary summary)
+        protected override async Task<CorridaSummary> CreateSummaryAsync(Corrida entry)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Corrida = new Corrida
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                IdSolicitacao = summary.IdSolicitacao,
-                IdTaxista = summary.IdTaxista,
-                IdVeiculo = summary.IdVeiculo,
-                IdRotaExecutada = summary.IdRotaExecutada,
-                IdTarifa = summary.IdTarifa,
-                Inicio = summary.Inicio,
-                Fim = summary.Fim,
-                AvaliacaoPassageiro = summary.AvaliacaoPassageiro,
-                AvaliacaoTaxista = summary.AvaliacaoTaxista,
-                Status = summary.Status,
-                TempoEmEspera = summary.TempoEmEspera
-            };
-            return Task.FromResult(Corrida);
-        }
+                if (entry == null) return default;
 
-        protected override Task<CorridaSummary> CreateSummaryAsync(Corrida entry)
-        {
-            var Corrida = new CorridaSummary
-            {
-                Id = entry.Id,
-                IdSolicitacao = entry.IdSolicitacao,
-                IdTaxista = entry.IdTaxista,
-                IdVeiculo = entry.IdVeiculo,
-                IdRotaExecutada = entry.IdRotaExecutada,
-                IdTarifa = entry.IdTarifa,
-                Inicio = entry.Inicio,
-                Fim = entry.Fim,
-                AvaliacaoPassageiro = entry.AvaliacaoPassageiro,
-                AvaliacaoTaxista = entry.AvaliacaoTaxista,
-                Status = entry.Status,
-                TempoEmEspera = entry.TempoEmEspera
-            };
-
-            return Task.FromResult(Corrida);
+                return new CorridaSummary
+                {
+                    Id = entry.Id,
+                    IdSolicitacao = entry.IdSolicitacao,
+                    IdTaxista = entry.IdTaxista,
+                    IdVeiculo = entry.IdVeiculo,
+                    IdRotaExecutada = entry.IdRotaExecutada,
+                    IdTarifa = entry.IdTarifa,
+                    Inicio = entry.Inicio,
+                    Fim = entry.Fim,
+                    AvaliacaoPassageiro = entry.AvaliacaoPassageiro,
+                    AvaliacaoTaxista = entry.AvaliacaoTaxista,
+                    Status = entry.Status,
+                    TempoEmEspera = entry.TempoEmEspera
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(CorridaSummary summary)
@@ -143,11 +131,7 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         public async Task<CorridaSummary> GetBySolicitacaoCorrida(Guid id)
         {
-            CorridaSummary corrida = null;
-            if (_CorridaRepository.FindAll().Any(x => x.IdSolicitacao == id))
-                corrida = await CreateSummaryAsync(_CorridaRepository.FindAll().FirstOrDefault(x => x.IdSolicitacao == id));
-
-            return corrida;
+            return await CreateSummaryAsync((await _CorridaRepository.Search(x => x.IdSolicitacao == id)).FirstOrDefault());
         }
 
         public async Task<bool> ClassificaTaxista(Guid id, int classificacao)
@@ -227,17 +211,8 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         public async Task<List<CorridaSummary>> RecuperarAPartirDeData(DateTime data)
         {
-            var result = _SolicitacaoCorridaRepository.FindAll().Where(x => x.Data >= data).ToList();
-
-            var resultFinal = _CorridaRepository.FindAll().Where(x => result.Any(y => y.Id == x.IdSolicitacao)).ToList();
-            var resultEnviar = new List<CorridaSummary>();
-
-            foreach (var x in resultFinal)
-            {
-                resultEnviar.Add(await CreateSummaryAsync(x));
-            }
-
-            return resultEnviar;
+            var corridas = await _CorridaRepository.Search(x => x.Inicio >= data);
+            return (await GetAllSummariesAsync(corridas)).ToList();
         }
     }
 }

@@ -103,7 +103,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
         [HttpPost("recuperar_solicitacoes_em_espera")]
         //[ValidateAntiForgeryToken]
         [ProducesResponseType(typeof(Response<IList<SolicitacaoCorridaSummary>>), (int)HttpStatusCode.OK)]
-        public async Task<Response<IList<SolicitacaoCorridaSummary>>>   RecuperarSolicitacoesEmEspera(string IdTaxista)
+        public async Task<Response<IList<SolicitacaoCorridaSummary>>>   RecuperarSolicitacoesEmEspera(Guid IdTaxista)
         {
             return await base.ResponseAsync(await this._SolicitacaoCorridaService.RecuperarSolicitacoesEmEspera(IdTaxista), _SolicitacaoCorridaService);
         }

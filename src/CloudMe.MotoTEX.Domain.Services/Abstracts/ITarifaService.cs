@@ -7,6 +7,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Abstracts
 {
     public interface ITarifaService : IServiceBase<Tarifa, TarifaSummary, Guid>
     {
-        decimal GetValorCorrida(DateTime now, decimal kilometers);
+        Task<decimal> GetValorCorrida(DateTime now, decimal kilometers);
     }
 }

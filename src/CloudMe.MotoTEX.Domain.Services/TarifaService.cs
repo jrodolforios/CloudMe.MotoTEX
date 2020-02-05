@@ -29,9 +29,9 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "tarifa";
         }
 
-        public decimal GetValorCorrida(DateTime date, decimal kilometers)
+        public async Task<decimal> GetValorCorrida(DateTime date, decimal kilometers)
         {
-            var tarifa = _TarifaRepository.FindAll().FirstOrDefault();
+            var tarifa = (await _TarifaRepository.FindAll()).FirstOrDefault();
 
             RestClient client = new RestClient("https://api.calendario.com.br/");
             decimal valorAPagar = (decimal)tarifa.Bandeirada;
@@ -57,13 +57,17 @@ namespace CloudMe.MotoTEX.Domain.Services
                 else
                 {
                     if (kilometers > 5)
+					{
                         valorAPagar += (decimal)tarifa.KmRodadoBandeira1;
+					}
 
                     return valorAPagar;
                 }
             }
             else
+            {
                 return 0;
+            }
         }
 
         private bool HorarioNoturno(DateTime date)
@@ -74,39 +78,46 @@ namespace CloudMe.MotoTEX.Domain.Services
             TimeSpan now = date.TimeOfDay;
             // see if start comes before end
             if (start < end)
+            {
                 return start <= now && now <= end;
+            }
             // start is after end, so do the inverse comparison
             return !(end <= now && now <= start);
         }
 
-        protected override Task<Tarifa> CreateEntryAsync(TarifaSummary summary)
+        protected override async Task<Tarifa> CreateEntryAsync(TarifaSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Tarifa = new Tarifa
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                Bandeirada = summary.Bandeirada,
-                KmRodadoBandeira1 = summary.KmRodadoBandeira1,
-                KmRodadoBandeira2 = summary.KmRodadoBandeira2,
-                HoraParada = summary.HoraParada
-            };
-            return Task.FromResult(Tarifa);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Tarifa
+                {
+                    Id = summary.Id,
+                    Bandeirada = summary.Bandeirada,
+                    KmRodadoBandeira1 = summary.KmRodadoBandeira1,
+                    KmRodadoBandeira2 = summary.KmRodadoBandeira2,
+                    HoraParada = summary.HoraParada
+                };
+            });
         }
 
-        protected override Task<TarifaSummary> CreateSummaryAsync(Tarifa entry)
+        protected override async Task<TarifaSummary> CreateSummaryAsync(Tarifa entry)
         {
-            var Tarifa = new TarifaSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Bandeirada = entry.Bandeirada,
-                KmRodadoBandeira1 = entry.KmRodadoBandeira1,
-                KmRodadoBandeira2 = entry.KmRodadoBandeira2,
-                HoraParada = entry.HoraParada
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(Tarifa);
+                return new TarifaSummary
+                {
+                    Id = entry.Id,
+                    Bandeirada = entry.Bandeirada,
+                    KmRodadoBandeira1 = entry.KmRodadoBandeira1,
+                    KmRodadoBandeira2 = entry.KmRodadoBandeira2,
+                    HoraParada = entry.HoraParada
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(TarifaSummary summary)

@@ -39,7 +39,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
         [ProducesResponseType(typeof(Response<decimal>), (int)HttpStatusCode.OK)]
         public async Task<Response<decimal>> IsBandeira2(decimal kilometers)
         {
-            return await base.ResponseAsync(_TarifaService.GetValorCorrida(DateTime.Now, kilometers), _TarifaService);
+            return await base.ResponseAsync(await _TarifaService.GetValorCorrida(DateTime.Now, kilometers), _TarifaService);
         }
 
         /// <summary>

@@ -23,32 +23,37 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "foto";
         }
 
-        protected override Task<Foto> CreateEntryAsync(FotoSummary summary)
+        protected override async Task<Foto> CreateEntryAsync(FotoSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Foto = new Foto
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                Nome = summary.Nome,
-                NomeArquivo = summary.NomeArquivo,
-                Dados = summary.Dados != null ? summary.Dados.ToArray() : null
-            };
-            return Task.FromResult(Foto);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Foto
+                {
+                    Id = summary.Id,
+                    Nome = summary.Nome,
+                    NomeArquivo = summary.NomeArquivo,
+                    Dados = summary.Dados != null ? summary.Dados.ToArray() : null
+                };
+            });
         }
 
-        protected override Task<FotoSummary> CreateSummaryAsync(Foto entry)
+        protected override async Task<FotoSummary> CreateSummaryAsync(Foto entry)
         {
-            var Foto = new FotoSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Nome = entry.Nome,
-                NomeArquivo = entry.NomeArquivo,
-                Dados = entry.Dados?.ToArray()
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(Foto);
+                return new FotoSummary
+                {
+                    Id = entry.Id,
+                    Nome = entry.Nome,
+                    NomeArquivo = entry.NomeArquivo,
+                    Dados = entry.Dados?.ToArray()
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(FotoSummary summary)

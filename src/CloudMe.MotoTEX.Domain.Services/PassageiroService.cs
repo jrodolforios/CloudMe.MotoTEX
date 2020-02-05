@@ -42,91 +42,86 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "passageiro";
         }
 
-        public Task<int> ClassificacaoPassageiro(Guid id)
+        public async Task<int> ClassificacaoPassageiro(Guid id)
         {
-            int soma = 0;
-            int media = 0;
+            var avaliacoesPassageiro = await _corridaRepository.Search(
+                x =>
+                x.Solicitacao.IdPassageiro == id &&
+                x.AvaliacaoPassageiro != null && x.AvaliacaoPassageiro != Enums.AvaliacaoUsuario.Indefinido,
+                new []{ "Solicitacao" });
 
-            if (_solicitacaoCorridaRepository.FindAll().Any(x => x.IdPassageiro == id && x.Inserted >= DateTime.Now.AddMonths(-1)))
+            if (avaliacoesPassageiro.Any())
             {
-                var solicitacoes = _solicitacaoCorridaRepository.FindAll().Where(x => x.IdPassageiro == id && x.Inserted >= DateTime.Now.AddMonths(-1)).Select(x => x.Id).ToList();
+                return avaliacoesPassageiro.Sum(x => (int)x.AvaliacaoPassageiro) / avaliacoesPassageiro.Count();
+            }
 
-                if (_corridaRepository.FindAll().Any(x => solicitacoes.Any(y => y == x.IdSolicitacao) && x.Inserted >= DateTime.Now.AddMonths(-1) && x.AvaliacaoPassageiro != null && x.AvaliacaoPassageiro != Enums.AvaliacaoUsuario.Indefinido))
+            return 0;
+        }
+
+        protected override async Task<Passageiro> CreateEntryAsync(PassageiroSummary summary)
+        {
+            return await Task.Run(() =>
+            {
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Passageiro
                 {
-                    var avaliacoes = _corridaRepository.FindAll().Where(x => solicitacoes.Any(y => y == x.IdSolicitacao) && x.Inserted >= DateTime.Now.AddMonths(-1) && x.AvaliacaoPassageiro != null && x.AvaliacaoPassageiro != Enums.AvaliacaoUsuario.Indefinido).Select(x => (int)(x.AvaliacaoPassageiro)).ToList();
+                    Id = summary.Id,
+                    Ativo = summary.Ativo,
+                    IdUsuario = summary.Usuario.Id,
+                    IdEndereco = summary.Endereco.Id,
+                    IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
+                    IdFoto = summary.IdFoto,
+                };
+            });
+        }
 
-                    if (avaliacoes.Count > 0)
+        protected override async Task<PassageiroSummary> CreateSummaryAsync(Passageiro entry)
+        {
+            return await Task.Run(() =>
+            {
+                if (entry == null) return default;
+
+                var Passageiro = new PassageiroSummary
+                {
+                    Id = entry.Id,
+                    Ativo = entry.Ativo,
+                    IdFoto = entry.IdFoto,
+                    IdLocalizacaoAtual = entry.IdLocalizacaoAtual
+                };
+
+                if (entry.Endereco != null)
+                {
+                    Passageiro.Endereco = new EnderecoSummary()
                     {
-                        avaliacoes.ForEach(x =>
-                        {
-                            soma += x;
-                        });
-
-                        media = soma / avaliacoes.Count;
-                    }
+                        Id = entry.Endereco.Id,
+                        CEP = entry.Endereco.CEP,
+                        Logradouro = entry.Endereco.Logradouro,
+                        Numero = entry.Endereco.Numero,
+                        Complemento = entry.Endereco.Complemento,
+                        Bairro = entry.Endereco.Bairro,
+                        Localidade = entry.Endereco.Localidade,
+                        UF = entry.Endereco.UF,
+                        IdLocalizacao = entry.Endereco.IdLocalizacao
+                    };
                 }
-            }
 
-            return Task.FromResult(media);
-        }
-
-        protected override Task<Passageiro> CreateEntryAsync(PassageiroSummary summary)
-        {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Passageiro = new Passageiro
-            {
-                Id = summary.Id,
-                Ativo = summary.Ativo,
-                IdUsuario = summary.Usuario.Id,
-                IdEndereco = summary.Endereco.Id,
-                IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
-                IdFoto = summary.IdFoto,
-            };
-            return Task.FromResult(Passageiro);
-        }
-
-        protected override Task<PassageiroSummary> CreateSummaryAsync(Passageiro entry)
-        {
-            var Passageiro = new PassageiroSummary
-            {
-                Id = entry.Id,
-                Ativo = entry.Ativo,
-                IdFoto = entry.IdFoto,
-                IdLocalizacaoAtual = entry.IdLocalizacaoAtual
-            };
-
-            if (entry.Endereco != null)
-            {
-                Passageiro.Endereco = new EnderecoSummary()
+                if (entry.Usuario != null)
                 {
-                    Id = entry.Endereco.Id,
-                    CEP = entry.Endereco.CEP,
-                    Logradouro = entry.Endereco.Logradouro,
-                    Numero = entry.Endereco.Numero,
-                    Complemento = entry.Endereco.Complemento,
-                    Bairro = entry.Endereco.Bairro,
-                    Localidade = entry.Endereco.Localidade,
-                    UF = entry.Endereco.UF,
-                    IdLocalizacao = entry.Endereco.IdLocalizacao
-                };
-            }
+                    Passageiro.Usuario = new UsuarioSummary()
+                    {
+                        Id = entry.Usuario.Id,
+                        Nome = entry.Usuario.Nome,
+                        Email = entry.Usuario.Email,
+                        Telefone = entry.Usuario.PhoneNumber,
+                        CPF = entry.Usuario.CPF,
+                        RG = entry.Usuario.RG
+                    };
+                }
 
-            if (entry.Usuario != null)
-            {
-                Passageiro.Usuario = new UsuarioSummary()
-                {
-                    Id = entry.Usuario.Id,
-                    Nome = entry.Usuario.Nome,
-                    Email = entry.Usuario.Email,
-                    Telefone = entry.Usuario.PhoneNumber,
-                    CPF = entry.Usuario.CPF,
-                    RG = entry.Usuario.RG
-                };
-            }
-
-            return Task.FromResult(Passageiro);
+                return Passageiro;
+            });
         }
 
         protected override Guid GetKeyFromSummary(PassageiroSummary summary)
@@ -192,19 +187,19 @@ namespace CloudMe.MotoTEX.Domain.Services
             return await base.GetAll(paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
         }
 
-        public override IEnumerable<Passageiro> Search(Expression<Func<Passageiro, bool>> where, string[] paths = null, Pagination options = null)
+        public override Task<IEnumerable<Passageiro>> Search(Expression<Func<Passageiro, bool>> where, string[] paths = null, Pagination options = null)
         {
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
         }
 
         public async Task<PassageiroSummary> GetByUserId(Guid Key)
         {
-            return await CreateSummaryAsync(base.Search(x => x.IdUsuario == Key, defaultPaths, null).FirstOrDefault());
+            return await CreateSummaryAsync((await base.Search(x => x.IdUsuario == Key, defaultPaths, null)).FirstOrDefault());
         }
 
         public async Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao)
         {
-            var passageiro = Search(x => x.Id == Key).FirstOrDefault();
+            var passageiro = await Get(Key);
             if (passageiro is null)
             {
                 AddNotification(new Notification("Passageiros", "Informar localização: passageiro não localizado"));

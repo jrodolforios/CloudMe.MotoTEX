@@ -24,32 +24,37 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "favorito";
         }
 
-        protected override Task<Favorito> CreateEntryAsync(FavoritoSummary summary)
+        protected override async Task<Favorito> CreateEntryAsync(FavoritoSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Favorito = new Favorito
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                IdPassageiro = summary.IdPassageiro,
-                IdTaxista = summary.IdTaxista,
-                Preferencia = summary.Preferencia
-            };
-            return Task.FromResult(Favorito);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Favorito
+                {
+                    Id = summary.Id,
+                    IdPassageiro = summary.IdPassageiro,
+                    IdTaxista = summary.IdTaxista,
+                    Preferencia = summary.Preferencia
+                };
+            });
         }
 
-        protected override Task<FavoritoSummary> CreateSummaryAsync(Favorito entry)
+        protected override async Task<FavoritoSummary> CreateSummaryAsync(Favorito entry)
         {
-            var Favorito = new FavoritoSummary
-            {
-                Id = entry.Id,
-                IdPassageiro = entry.IdPassageiro,
-                IdTaxista = entry.IdTaxista,
-                Preferencia = entry.Preferencia
-            };
+            if (entry == null) return default;
 
-            return Task.FromResult(Favorito);
+            return await Task.Run(() =>
+            {
+                return new FavoritoSummary
+                {
+                    Id = entry.Id,
+                    IdPassageiro = entry.IdPassageiro,
+                    IdTaxista = entry.IdTaxista,
+                    Preferencia = entry.Preferencia
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(FavoritoSummary summary)

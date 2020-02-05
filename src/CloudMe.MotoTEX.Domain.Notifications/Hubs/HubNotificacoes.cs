@@ -1,16 +1,16 @@
 ﻿using CloudMe.MotoTEX.Infraestructure.Abstracts.Repositories;
-using CloudMe.MotoTEX.Infraestructure.Entries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Text;
 
 namespace CloudMe.MotoTEX.Domain.Notifications.Hubs
 {
     [Authorize]
-    public class HubMensagens : UserMappedHub<HubMensagens>
+    public class HubNotificaoes : UserMappedHub<HubNotificaoes>
     {
-        public HubMensagens(IUsuarioRepository usuarioRepository, IHubContext<UserMappedHub<HubMensagens>> hubContext)
+        public HubNotificaoes(IUsuarioRepository usuarioRepository, IHubContext<UserMappedHub<HubNotificaoes>> hubContext)
             : base(usuarioRepository, hubContext)
         {
         }

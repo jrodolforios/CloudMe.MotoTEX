@@ -24,42 +24,47 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "endereco";
         }
 
-        protected override Task<Endereco> CreateEntryAsync(EnderecoSummary summary)
+        protected override async Task<Endereco> CreateEntryAsync(EnderecoSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Endereco = new Endereco
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                CEP = summary.CEP,
-                Logradouro = summary.Logradouro,
-                Numero = summary.Numero,
-                Complemento = summary.Complemento,
-                Bairro = summary.Bairro,
-                Localidade = summary.Localidade,
-                UF = summary.UF,
-                IdLocalizacao = summary.IdLocalizacao,
-            };
-            return Task.FromResult(Endereco);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Endereco
+                {
+                    Id = summary.Id,
+                    CEP = summary.CEP,
+                    Logradouro = summary.Logradouro,
+                    Numero = summary.Numero,
+                    Complemento = summary.Complemento,
+                    Bairro = summary.Bairro,
+                    Localidade = summary.Localidade,
+                    UF = summary.UF,
+                    IdLocalizacao = summary.IdLocalizacao,
+                };
+            });
         }
 
-        protected override Task<EnderecoSummary> CreateSummaryAsync(Endereco entry)
+        protected override async Task<EnderecoSummary> CreateSummaryAsync(Endereco entry)
         {
-            var Endereco = new EnderecoSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                CEP = entry.CEP,
-                Logradouro = entry.Logradouro,
-                Numero = entry.Numero,
-                Complemento = entry.Complemento,
-                Bairro = entry.Bairro,
-                Localidade = entry.Localidade,
-                UF = entry.UF,
-                IdLocalizacao = entry.IdLocalizacao,
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(Endereco);
+                return new EnderecoSummary
+                {
+                    Id = entry.Id,
+                    CEP = entry.CEP,
+                    Logradouro = entry.Logradouro,
+                    Numero = entry.Numero,
+                    Complemento = entry.Complemento,
+                    Bairro = entry.Bairro,
+                    Localidade = entry.Localidade,
+                    UF = entry.UF,
+                    IdLocalizacao = entry.IdLocalizacao,
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(EnderecoSummary summary)

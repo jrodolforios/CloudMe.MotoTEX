@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GeoCoordinatePortable;
+using System;
+using System.Globalization;
 
 namespace CloudMe.MotoTEX.Infraestructure.Entries
 {
@@ -15,5 +17,18 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
 
         public Guid? IdUsuario { get; set; }
         public virtual Usuario Usuario { get; set; }
+
+        public static double ObterDistancia(Localizacao origem, Localizacao destino)
+        {
+            GeoCoordinate pin1 = new GeoCoordinate(
+                Convert.ToDouble(origem.Latitude, CultureInfo.InvariantCulture.NumberFormat),
+                Convert.ToDouble(origem.Longitude, CultureInfo.InvariantCulture.NumberFormat));
+
+            GeoCoordinate pin2 = new GeoCoordinate(
+                Convert.ToDouble(destino.Latitude, CultureInfo.InvariantCulture.NumberFormat),
+                Convert.ToDouble(destino.Longitude, CultureInfo.InvariantCulture.NumberFormat));
+
+            return pin1.GetDistanceTo(pin2);
+        }
     }
 }

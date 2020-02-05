@@ -25,58 +25,55 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "faixa_desconto_taxista";
         }
 
-		public Task<bool> DeleteByTaxistId(Guid id)
+		public async Task<bool> DeleteByTaxistId(Guid id)
         {
-            var list = _FaixaDescontoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id);
+            var list = await _FaixaDescontoTaxistaRepository.Search(x => x.IdTaxista == id);
 
             list.ToList().ForEach(async x =>
             {
                 await _FaixaDescontoTaxistaRepository.DeleteAsync(x, false);
             });
 
-            return Task.FromResult(true);
+            return true;
         }
 
-        public Task<List<FaixaDescontoTaxistaSummary>> GetByTaxistId(Guid id)
+        public async Task<IEnumerable<FaixaDescontoTaxistaSummary>> GetByTaxistId(Guid id)
         {
-            var list = _FaixaDescontoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id);
-
-            var listaRetorno = new List<FaixaDescontoTaxistaSummary>();
-
-            list.ToList().ForEach(async x =>
-            {
-                var summary = await CreateSummaryAsync(x);
-                listaRetorno.Add(summary);
-            });
-
-            return Task.FromResult(listaRetorno);
+            var list = await _FaixaDescontoTaxistaRepository.Search(x => x.IdTaxista == id);
+            return await GetAllSummariesAsync(list);
         }
         
-        protected override Task<FaixaDescontoTaxista> CreateEntryAsync(FaixaDescontoTaxistaSummary summary)
+        protected override async Task<FaixaDescontoTaxista> CreateEntryAsync(FaixaDescontoTaxistaSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var FaixaDescontoTaxista = new FaixaDescontoTaxista
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                IdFaixaDesconto = summary.IdFaixaDesconto,
-                IdTaxista = summary.IdTaxista
-            };
-            return Task.FromResult(FaixaDescontoTaxista);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new FaixaDescontoTaxista
+                {
+                    Id = summary.Id,
+                    IdFaixaDesconto = summary.IdFaixaDesconto,
+                    IdTaxista = summary.IdTaxista
+                };
+            });
         }
 
-        protected override Task<FaixaDescontoTaxistaSummary> CreateSummaryAsync(FaixaDescontoTaxista entry)
+        protected override async Task<FaixaDescontoTaxistaSummary> CreateSummaryAsync(FaixaDescontoTaxista entry)
         {
-            var FaixaDescontoTaxista = new FaixaDescontoTaxistaSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                IdFaixaDesconto = entry.IdFaixaDesconto,
-                IdTaxista = entry.IdTaxista
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(FaixaDescontoTaxista);
+                return new FaixaDescontoTaxistaSummary
+                {
+                    Id = entry.Id,
+                    IdFaixaDesconto = entry.IdFaixaDesconto,
+                    IdTaxista = entry.IdTaxista
+                };
+            });
         }
+
 
         protected override Guid GetKeyFromSummary(FaixaDescontoTaxistaSummary summary)
         {

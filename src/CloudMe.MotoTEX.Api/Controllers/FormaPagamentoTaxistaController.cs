@@ -8,6 +8,7 @@ using CloudMe.MotoTEX.Domain.Model.Taxista;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.MotoTEX.Infraestructure.Abstracts.Transactions;
 using CloudMe.MotoTEX.Api.Models;
+using System.Linq;
 
 namespace CloudMe.MotoTEX.Api.Controllers
 {
@@ -48,8 +49,8 @@ namespace CloudMe.MotoTEX.Api.Controllers
         /// <param name="id">Id from taxist</param>
         /// <returns>passenger</returns>
         [HttpGet("consulta_id_taxista/{id}")]
-        [ProducesResponseType(typeof(Response<List<FormaPagamentoTaxistaSummary>>), (int)HttpStatusCode.OK)]
-        public async Task<Response<List<FormaPagamentoTaxistaSummary>>> GetByUserId(Guid id)
+        [ProducesResponseType(typeof(Response<IEnumerable<FormaPagamentoTaxistaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<FormaPagamentoTaxistaSummary>>> GetByUserId(Guid id)
         {
             return await base.ResponseAsync(await _FormaPagamentoTaxistaService.GetByTaxistId(id), _FormaPagamentoTaxistaService);
         }

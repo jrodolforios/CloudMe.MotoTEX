@@ -82,7 +82,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
             Guid id)
         {
             // remove associações com taxistas
-            var taxistasFrmPgto = formaPagamentoTaxistaService.Search(txFrmPgto => txFrmPgto.IdFormaPagamento == id);
+            var taxistasFrmPgto = await formaPagamentoTaxistaService.Search(txFrmPgto => txFrmPgto.IdFormaPagamento == id);
             foreach (var txFrmPgto in taxistasFrmPgto)
             {
                 await formaPagamentoTaxistaService.DeleteAsync(txFrmPgto.Id);

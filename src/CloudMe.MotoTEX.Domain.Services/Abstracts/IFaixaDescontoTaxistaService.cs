@@ -8,7 +8,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Abstracts
 {
     public interface IFaixaDescontoTaxistaService : IServiceBase<FaixaDescontoTaxista, FaixaDescontoTaxistaSummary, Guid>
     {
-        Task<List<FaixaDescontoTaxistaSummary>> GetByTaxistId(Guid id);
+        Task<IEnumerable<FaixaDescontoTaxistaSummary>> GetByTaxistId(Guid id);
         Task<bool> DeleteByTaxistId(Guid id);
     }
 }

@@ -40,6 +40,13 @@ namespace CloudMe.MotoTEX.Domain.Notifications.Hubs
                 if (usuario != null)
                 {
                     connections.Add(usuario.Id, Context.ConnectionId);
+
+                    // registra o usuario nos grupos que participa
+                    foreach (var grupo in usuario.Grupos)
+                    {
+                        await Groups.AddToGroupAsync(Context.ConnectionId, grupo.IdGrupoUsuario.ToString());
+                    }
+
                     await UsuarioConectado(usuario);
                 }
             }
@@ -55,6 +62,13 @@ namespace CloudMe.MotoTEX.Domain.Notifications.Hubs
                 if (usuario != null)
                 {
                     connections.Remove(usuario.Id, Context.ConnectionId);
+
+                    // retira o usuario dos grupos que participa
+                    foreach (var grupo in usuario.Grupos)
+                    {
+                        await Groups.RemoveFromGroupAsync(Context.ConnectionId, grupo.IdGrupoUsuario.ToString());
+                    }
+
                     await UsuarioDesconectado(usuario);
                 }
             }

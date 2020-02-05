@@ -36,45 +36,52 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "ponto_taxi";
         }
 
-        protected override Task<PontoTaxi> CreateEntryAsync(PontoTaxiSummary summary)
+        protected override async Task<PontoTaxi> CreateEntryAsync(PontoTaxiSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var PontoTaxi = new PontoTaxi
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                Nome = summary.Nome,
-                IdEndereco = summary.Endereco.Id,
-            };
-            return Task.FromResult(PontoTaxi);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new PontoTaxi
+                {
+                    Id = summary.Id,
+                    Nome = summary.Nome,
+                    IdEndereco = summary.Endereco.Id,
+                };
+            });
         }
 
-        protected override Task<PontoTaxiSummary> CreateSummaryAsync(PontoTaxi entry)
+        protected override async Task<PontoTaxiSummary> CreateSummaryAsync(PontoTaxi entry)
         {
-            var PontoTaxi = new PontoTaxiSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Nome = entry.Nome
-            };
+                if (entry == null) return default;
 
-            if (entry.Endereco != null)
-            {
-                PontoTaxi.Endereco = new EnderecoSummary()
+                var PontoTaxi = new PontoTaxiSummary
                 {
-                    Id = entry.Endereco.Id,
-                    CEP = entry.Endereco.CEP,
-                    Logradouro = entry.Endereco.Logradouro,
-                    Numero = entry.Endereco.Numero,
-                    Complemento = entry.Endereco.Complemento,
-                    Bairro = entry.Endereco.Bairro,
-                    Localidade = entry.Endereco.Localidade,
-                    UF = entry.Endereco.UF,
-                    IdLocalizacao = entry.Endereco.IdLocalizacao
+                    Id = entry.Id,
+                    Nome = entry.Nome
                 };
-            }
 
-            return Task.FromResult(PontoTaxi);
+                if (entry.Endereco != null)
+                {
+                    PontoTaxi.Endereco = new EnderecoSummary()
+                    {
+                        Id = entry.Endereco.Id,
+                        CEP = entry.Endereco.CEP,
+                        Logradouro = entry.Endereco.Logradouro,
+                        Numero = entry.Endereco.Numero,
+                        Complemento = entry.Endereco.Complemento,
+                        Bairro = entry.Endereco.Bairro,
+                        Localidade = entry.Endereco.Localidade,
+                        UF = entry.Endereco.UF,
+                        IdLocalizacao = entry.Endereco.IdLocalizacao
+                    };
+                }
+
+                return PontoTaxi;
+            });
         }
 
         protected override Guid GetKeyFromSummary(PontoTaxiSummary summary)
@@ -116,7 +123,7 @@ namespace CloudMe.MotoTEX.Domain.Services
             return await base.GetAll(paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
         }
 
-        public override IEnumerable<PontoTaxi> Search(Expression<Func<PontoTaxi, bool>> where, string[] paths = null, Pagination options = null)
+        public override Task<IEnumerable<PontoTaxi>> Search(Expression<Func<PontoTaxi, bool>> where, string[] paths = null, Pagination options = null)
         {
             return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, options);
         }

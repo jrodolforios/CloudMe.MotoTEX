@@ -25,31 +25,37 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "grupo_usuario";
         }
 
-        protected override Task<GrupoUsuario> CreateEntryAsync(GrupoUsuarioSummary summary)
+        protected override async Task<GrupoUsuario> CreateEntryAsync(GrupoUsuarioSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var GrupoUsuario = new GrupoUsuario
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                Nome = summary.Nome,
-                Descricao = summary.Descricao
-            };
-            return Task.FromResult(GrupoUsuario);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new GrupoUsuario
+                {
+                    Id = summary.Id,
+                    Nome = summary.Nome,
+                    Descricao = summary.Descricao
+                };
+            });
         }
 
-        protected override Task<GrupoUsuarioSummary> CreateSummaryAsync(GrupoUsuario entry)
+        protected override async Task<GrupoUsuarioSummary> CreateSummaryAsync(GrupoUsuario entry)
         {
-            var GrupoUsuario = new GrupoUsuarioSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Nome = entry.Nome,
-                Descricao = entry.Descricao
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(GrupoUsuario);
+                return new GrupoUsuarioSummary
+                {
+                    Id = entry.Id,
+                    Nome = entry.Nome,
+                    Descricao = entry.Descricao
+                };
+            });
         }
+
 
         protected override Guid GetKeyFromSummary(GrupoUsuarioSummary summary)
         {
@@ -88,7 +94,7 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         public async Task<GrupoUsuarioSummary> GetSummaryByNameAsync(string name)
         {
-            var grpUsr = _GrupoUsuarioRepository.Search(x => x.Nome == name).FirstOrDefault();
+            var grpUsr = (await _GrupoUsuarioRepository.Search(x => x.Nome == name)).FirstOrDefault();
             if (grpUsr == null)
             {
                 AddNotification(new Notification("GetSummaryByNameAsync", string.Format("Grupo de usuários não encontrado com o nome {0}", name)));
@@ -101,7 +107,7 @@ namespace CloudMe.MotoTEX.Domain.Services
         public override async Task<GrupoUsuario> CreateAsync(GrupoUsuarioSummary summary)
         {
             // verifica se existe outro grupo com o mesmo nome
-            var grpMesmoNome = _GrupoUsuarioRepository.Search(grp => grp.Nome == summary.Nome && grp.Id != summary.Id).FirstOrDefault();
+            var grpMesmoNome = (await _GrupoUsuarioRepository.Search(grp => grp.Nome == summary.Nome && grp.Id != summary.Id)).FirstOrDefault();
             if (grpMesmoNome != null && !string.IsNullOrEmpty(summary.Nome))
             {
                 AddNotification("Grupos de Usuários", string.Format("Outro grupo de usuários está utilizando o nome '{0}'", summary.Nome));
@@ -118,7 +124,7 @@ namespace CloudMe.MotoTEX.Domain.Services
         public override async Task<GrupoUsuario> UpdateAsync(GrupoUsuarioSummary summary)
         {
             // verifica se existe outro grupo com o mesmo nome
-            var grpMesmoNome = _GrupoUsuarioRepository.Search(grp => grp.Nome == summary.Nome && grp.Id != summary.Id).FirstOrDefault();
+            var grpMesmoNome = (await _GrupoUsuarioRepository.Search(grp => grp.Nome == summary.Nome && grp.Id != summary.Id)).FirstOrDefault();
             if (grpMesmoNome != null && !string.IsNullOrEmpty(summary.Nome))
             {
                 AddNotification("Grupos de Usuários", string.Format("Outro grupo de usuários está utilizando o nome '{0}'", summary.Nome));

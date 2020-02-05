@@ -34,6 +34,8 @@ using Microsoft.Extensions.Hosting;
 using CloudMe.MotoTEX.Domain.Notifications.Abstracts;
 using CloudMe.MotoTEX.Domain.Notifications.Abstract;
 using CloudMe.MotoTEX.Domain.Model;
+using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
+using CloudMe.MotoTEX.Domain.Notifications.Proxies;
 using CloudMe.MotoTEX.Domain.Model.Faturamento;
 
 namespace CloudMe.MotoTEX.Configuration.Library.Helpers
@@ -101,6 +103,7 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
             new MonitorGruposUsuarios();
 
             services.AddTransient<IProxyHubMensagens, ProxyHubMensagens>();
+            services.AddTransient<IProxyNotificacoesSolicitacaoCorrida, ProxyNotificacoesSolicitacaoCorrida>();
 
             services.AddTriggers();
 
@@ -196,6 +199,7 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
                 routes.MapHub<HubLocalizacaoPassageiro>("/notifications/localizacao_passageiro");
 
                 routes.MapHub<HubMensagens>("/notifications/mensagens");
+                routes.MapHub<HubNotificaoes>("/notifications");
             });
 
             BuildEntryNotifiers<TContext>(app);

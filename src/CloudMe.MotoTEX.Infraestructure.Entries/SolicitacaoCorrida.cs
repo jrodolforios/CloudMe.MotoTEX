@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using CloudMe.MotoTEX.Domain.Enums;
-using GeoCoordinatePortable;
 
 namespace CloudMe.MotoTEX.Infraestructure.Entries
 {
@@ -40,6 +38,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
 
         public SituacaoSolicitacaoCorrida Situacao { get; set; }
 
+        // Status do monitoramento da solicitação (reservado)
         public StatusMonitoramentoSolicitacaoCorrida StatusMonitoramento { get; set; }
 
         public virtual Corrida Corrida { get; set; }
@@ -48,17 +47,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
 
         public bool IsInterUrbano { get; set; }
 
-        public static double ObterDistancia(Localizacao origem, Localizacao destino)
-        {
-            GeoCoordinate pin1 = new GeoCoordinate(
-                Convert.ToDouble(origem.Latitude, CultureInfo.InvariantCulture.NumberFormat),
-                Convert.ToDouble(origem.Longitude, CultureInfo.InvariantCulture.NumberFormat));
-
-            GeoCoordinate pin2 = new GeoCoordinate(
-                Convert.ToDouble(destino.Latitude, CultureInfo.InvariantCulture.NumberFormat),
-                Convert.ToDouble(destino.Longitude, CultureInfo.InvariantCulture.NumberFormat));
-
-            return pin1.GetDistanceTo(pin2);
-        }
+        // Faixas de busca correntes no monitoramento da solicitação (reservado)
+        public int IdxFaixaBusca { get; set; }
     }
 }

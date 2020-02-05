@@ -24,30 +24,35 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "faixa_desconto";
         }
 
-        protected override Task<FaixaDesconto> CreateEntryAsync(FaixaDescontoSummary summary)
+        protected override async Task<FaixaDesconto> CreateEntryAsync(FaixaDescontoSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var FaixaDesconto = new FaixaDesconto
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                Valor = summary.Valor,
-                Descricao = summary.Descricao
-            };
-            return Task.FromResult(FaixaDesconto);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new FaixaDesconto
+                {
+                    Id = summary.Id,
+                    Valor = summary.Valor,
+                    Descricao = summary.Descricao
+                };
+            });
         }
 
-        protected override Task<FaixaDescontoSummary> CreateSummaryAsync(FaixaDesconto entry)
+        protected override async Task<FaixaDescontoSummary> CreateSummaryAsync(FaixaDesconto entry)
         {
-            var FaixaDesconto = new FaixaDescontoSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Valor = entry.Valor,
-                Descricao = entry.Descricao
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(FaixaDesconto);
+                return new FaixaDescontoSummary
+                {
+                    Id = entry.Id,
+                    Valor = entry.Valor,
+                    Descricao = entry.Descricao
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(FaixaDescontoSummary summary)

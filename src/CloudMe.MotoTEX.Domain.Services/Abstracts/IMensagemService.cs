@@ -11,8 +11,8 @@ namespace CloudMe.MotoTEX.Domain.Services.Abstracts
 {
     public interface IMensagemService : IServiceBase<Mensagem, MensagemSummary, Guid>
     {
-        Task<IEnumerable<DetalhesMensagem>> ObterMensagensEnviadas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination, out int count);
-        Task<IEnumerable<DetalhesMensagem>> ObterMensagensRecebidas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination, out int count);
+        Task<Tuple<IEnumerable<DetalhesMensagem>, int>> ObterMensagensEnviadas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination);
+        Task<Tuple<IEnumerable<DetalhesMensagem>, int>> ObterMensagensRecebidasAsync(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination);
 
         Task<int> Enviar(MensagemSummary mensagem, DestinatariosMensagem destinatarios);
         Task<int> Encaminhar(Guid id_mensagem, DestinatariosMensagem destinatarios);

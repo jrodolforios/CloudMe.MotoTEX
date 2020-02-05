@@ -46,68 +46,75 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "taxista";
         }
 
-        protected override Task<Taxista> CreateEntryAsync(TaxistaSummary summary)
+        protected override async Task<Taxista> CreateEntryAsync(TaxistaSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Taxista = new Taxista
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                NumeroIdentificacao = summary.NumeroIdentificacao,
-                Ativo = summary.Ativo,
-                IdUsuario = summary.Usuario.Id,
-                IdFoto = summary.IdFoto,
-                IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
-                IdPontoTaxi = summary.IdPontoTaxi,
-                IdEndereco = summary.Endereco.Id,
-            };
-            return Task.FromResult(Taxista);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Taxista
+                {
+                    Id = summary.Id,
+	                NumeroIdentificacao = summary.NumeroIdentificacao,
+                    Ativo = summary.Ativo,
+                    IdUsuario = summary.Usuario.Id,
+                    IdFoto = summary.IdFoto,
+                    IdLocalizacaoAtual = summary.IdLocalizacaoAtual,
+                    IdPontoTaxi = summary.IdPontoTaxi,
+                    IdEndereco = summary.Endereco.Id,
+                };
+            });
         }
 
-        protected override Task<TaxistaSummary> CreateSummaryAsync(Taxista entry)
+        protected override async Task<TaxistaSummary> CreateSummaryAsync(Taxista entry)
         {
-            var Taxista = new TaxistaSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Ativo = entry.Ativo,
-                NumeroIdentificacao = entry.NumeroIdentificacao,
-                IdFoto = entry.IdFoto,
-                IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
-                IdPontoTaxi = entry.IdPontoTaxi,
-                Disponivel = entry.Disponivel,
-            };
+                if (entry == null) return default;
 
-            if (entry.Endereco != null)
-            {
-                Taxista.Endereco = new EnderecoSummary()
+                var Taxista = new TaxistaSummary
                 {
-                    Id = entry.Endereco.Id,
-                    CEP = entry.Endereco.CEP,
-                    Logradouro = entry.Endereco.Logradouro,
-                    Numero = entry.Endereco.Numero,
-                    Complemento = entry.Endereco.Complemento,
-                    Bairro = entry.Endereco.Bairro,
-                    Localidade = entry.Endereco.Localidade,
-                    UF = entry.Endereco.UF,
-                    IdLocalizacao = entry.Endereco.IdLocalizacao
+                    Id = entry.Id,
+	                NumeroIdentificacao = entry.NumeroIdentificacao,
+                    Ativo = entry.Ativo,
+                    IdFoto = entry.IdFoto,
+                    IdLocalizacaoAtual = entry.IdLocalizacaoAtual,
+                    IdPontoTaxi = entry.IdPontoTaxi,
+                    Disponivel = entry.Disponivel,
                 };
-            }
 
-            if (entry.Usuario != null)
-            {
-                Taxista.Usuario = new UsuarioSummary()
+                if (entry.Endereco != null)
                 {
-                    Id = entry.Usuario.Id,
-                    Nome = entry.Usuario.Nome,
-                    Email = entry.Usuario.Email,
-                    Telefone = entry.Usuario.PhoneNumber,
-                    CPF = entry.Usuario.CPF,
-                    RG = entry.Usuario.RG
-                };
-            }
+                    Taxista.Endereco = new EnderecoSummary()
+                    {
+                        Id = entry.Endereco.Id,
+                        CEP = entry.Endereco.CEP,
+                        Logradouro = entry.Endereco.Logradouro,
+                        Numero = entry.Endereco.Numero,
+                        Complemento = entry.Endereco.Complemento,
+                        Bairro = entry.Endereco.Bairro,
+                        Localidade = entry.Endereco.Localidade,
+                        UF = entry.Endereco.UF,
+                        IdLocalizacao = entry.Endereco.IdLocalizacao
+                    };
+                }
 
-            return Task.FromResult(Taxista);
+                if (entry.Usuario != null)
+                {
+                    Taxista.Usuario = new UsuarioSummary()
+                    {
+                        Id = entry.Usuario.Id,
+                        Nome = entry.Usuario.Nome,
+                        Email = entry.Usuario.Email,
+                        Telefone = entry.Usuario.PhoneNumber,
+                        CPF = entry.Usuario.CPF,
+                        RG = entry.Usuario.RG
+                    };
+                }
+
+                return Taxista;
+            });
         }
 
         protected override Guid GetKeyFromSummary(TaxistaSummary summary)
@@ -174,18 +181,17 @@ namespace CloudMe.MotoTEX.Domain.Services
             return await base.GetAll(paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
         }
 
-        public override IEnumerable<Taxista> Search(Expression<Func<Taxista, bool>> where, string[] paths = null, Pagination pagination = null)
+        public override async Task<IEnumerable<Taxista>> Search(Expression<Func<Taxista, bool>> where, string[] paths = null, Pagination pagination = null)
         {
-            return base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, pagination);
+            return await base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, pagination);
         }
 
         public async Task<TaxistaSummary> GetByUserId(Guid id)
         {
-            var taxista = _TaxistaRepository.FindAll().FirstOrDefault(x => x.IdUsuario == id);
+            var taxista = (await _TaxistaRepository.FindAll()).FirstOrDefault(x => x.IdUsuario == id);
             var taxistaSummary = await this.GetSummaryAsync(taxista.Id);
 
             return taxistaSummary;
-
         }
 
         public async Task<bool> MakeTaxistOnlineAsync(Guid id, bool disponivel)
@@ -194,12 +200,16 @@ namespace CloudMe.MotoTEX.Domain.Services
 
             var taxista = await _TaxistaRepository.FindByIdAsync(id);
 
-            if (!_veiculoTaxistaService.IsTaxiAtivoEmUsoPorOutroTaxista(id) && disponivel && taxista.Ativo)
+            if (!(await _veiculoTaxistaService.IsTaxiAtivoEmUsoPorOutroTaxista(id)) && disponivel && taxista.Ativo)
+            {
                 taxista.Disponivel = true;
+            }
             else
+            {
                 taxista.Disponivel = false;
+            }
 
-            sucesso = (!_veiculoTaxistaService.IsTaxiAtivoEmUsoPorOutroTaxista(id) && disponivel) || !disponivel;
+            sucesso = (!(await _veiculoTaxistaService.IsTaxiAtivoEmUsoPorOutroTaxista(id)) && disponivel) || !disponivel;
 
             sucesso = sucesso && taxista.Ativo;
 
@@ -211,7 +221,7 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         public async Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao)
         {
-            var taxista = Search(x => x.Id == Key).FirstOrDefault();
+            var taxista = await Get(Key);
             if (taxista is null)
             {
                 AddNotification(new Notification("Taxistas", "Informar localização: taxista não localizado"));
@@ -226,28 +236,60 @@ namespace CloudMe.MotoTEX.Domain.Services
             return (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
         }
 
-        public Task<int> ClassificacaoTaxista(Guid id)
+        public async Task<int> ClassificacaoTaxista(Guid id)
         {
-            int soma = 0;
-            int media = 0;
+            var avaliacoesTaxista = await _corridaRepository.Search(
+                x =>
+                x.IdTaxista == id &&
+                x.AvaliacaoTaxista != null && x.AvaliacaoTaxista != Enums.AvaliacaoUsuario.Indefinido);
 
-            if (_corridaRepository.FindAll().Any(x => x.IdTaxista == id && x.Inserted >= DateTime.Now.AddMonths(-1) && x.AvaliacaoPassageiro != null && x.AvaliacaoPassageiro != Enums.AvaliacaoUsuario.Indefinido))
+            if (avaliacoesTaxista.Any())
             {
-                var avaliacoes = _corridaRepository.FindAll().Where(x => x.IdTaxista == id && x.Inserted >= DateTime.Now.AddMonths(-1) && x.AvaliacaoPassageiro != null && x.AvaliacaoPassageiro != Enums.AvaliacaoUsuario.Indefinido).Select(x => (int)(x.AvaliacaoTaxista ?? Enums.AvaliacaoUsuario.Indefinido)).ToList();
-
-                if (avaliacoes.Count > 0)
-                {
-                    avaliacoes.ForEach(x =>
-                    {
-                        soma += x;
-                    });
-
-                    media = soma / avaliacoes.Count;
-                }
+                return avaliacoesTaxista.Sum(x => (int)x.AvaliacaoTaxista) / avaliacoesTaxista.Count();
             }
 
-            return Task.FromResult(media);
+            return 0;
         }
 
+        public async Task<IEnumerable<Taxista>> ProcurarPorDistancia(LocalizacaoSummary origem, double? raio_minimo, double? raio_maximo, string[] paths = null)
+        {
+            raio_minimo = raio_minimo ?? 0;
+            raio_maximo = raio_maximo ?? double.MaxValue;
+
+            var builtinPaths = new[] { "LocalizacaoAtual", "Veiculos" };
+
+            paths = paths != null ? paths.Union(builtinPaths).ToArray() : builtinPaths;
+
+            var taxistas = await _TaxistaRepository.Search(
+                taxista =>
+                    taxista.Ativo && // taxista que está ativo
+                    taxista.Disponivel && // ... que está disponível
+                    taxista.Veiculos.Any(veicTx => veicTx.Ativo) && // ... que está utilizando um veículo no momento
+                    DateTime.Now.AddSeconds(-20) <= taxista.LocalizacaoAtual.Updated
+            , paths);
+
+            var taxistas_com_distancias =
+                from tx in taxistas
+                select new
+                {
+                    taxista = tx,
+                    distancia = Localizacao.ObterDistancia(new Localizacao()
+                    {
+                        Endereco = origem.Endereco,
+                        Id = origem.Id,
+                        IdUsuario = origem.IdUsuario,
+                        Latitude = origem.Latitude,
+                        Longitude = origem.Longitude,
+                        NomePublico = origem.NomePublico
+                    }, tx.LocalizacaoAtual)
+                };
+
+            var resultFinal = from tx in taxistas_com_distancias
+                              where tx.distancia >= raio_minimo && tx.distancia <= raio_maximo
+                              orderby tx.distancia
+                              select tx.taxista;
+
+            return resultFinal;
+        }
     }
 }

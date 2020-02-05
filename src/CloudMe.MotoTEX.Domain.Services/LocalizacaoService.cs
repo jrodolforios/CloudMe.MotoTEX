@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace CloudMe.MotoTEX.Domain.Services
 {
@@ -19,41 +20,54 @@ namespace CloudMe.MotoTEX.Domain.Services
             _LocalizacaoRepository = LocalizacaoRepository;
         }
 
+        public async Task<int> GetQtTaxistasOnline()
+        {
+            var result = await _LocalizacaoRepository.Search(x => x.Updated.Ticks >= (DateTime.Now.Ticks - 200000000));
+            int quantidade = result.Count();
+
+            return quantidade;
+        }
+
         public override string GetTag()
         {
             return "localizacao";
         }
 
-        protected override Task<Localizacao> CreateEntryAsync(LocalizacaoSummary summary)
+        protected override async Task<Localizacao> CreateEntryAsync(LocalizacaoSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Localizacao = new Localizacao
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                Latitude = summary.Latitude,
-                Longitude = summary.Longitude,
-                Endereco = summary.Endereco,
-                NomePublico = summary.NomePublico,
-                IdUsuario = summary.IdUsuario
-            };
-            return Task.FromResult(Localizacao);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Localizacao
+                {
+                    Id = summary.Id,
+                    Latitude = summary.Latitude,
+                    Longitude = summary.Longitude,
+                    Endereco = summary.Endereco,
+                    NomePublico = summary.NomePublico,
+                    IdUsuario = summary.IdUsuario
+                };
+            });
         }
 
-        protected override Task<LocalizacaoSummary> CreateSummaryAsync(Localizacao entry)
+        protected override async Task<LocalizacaoSummary> CreateSummaryAsync(Localizacao entry)
         {
-            var Localizacao = new LocalizacaoSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Latitude = entry.Latitude,
-                Longitude = entry.Longitude,
-                Endereco = entry.Endereco,
-                NomePublico = entry.NomePublico,
-                IdUsuario = entry.IdUsuario
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(Localizacao);
+                return new LocalizacaoSummary
+                {
+                    Id = entry.Id,
+                    Latitude = entry.Latitude,
+                    Longitude = entry.Longitude,
+                    Endereco = entry.Endereco,
+                    NomePublico = entry.NomePublico,
+                    IdUsuario = entry.IdUsuario
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(LocalizacaoSummary summary)

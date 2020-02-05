@@ -3,6 +3,7 @@ using CloudMe.MotoTEX.Infraestructure.Entries;
 using CloudMe.MotoTEX.Domain.Model.Taxista;
 using System.Threading.Tasks;
 using CloudMe.MotoTEX.Domain.Model.Localizacao;
+using System.Collections.Generic;
 
 namespace CloudMe.MotoTEX.Domain.Services.Abstracts
 {
@@ -14,5 +15,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Abstracts
         Task<bool> MakeTaxistOnlineAsync(Guid id, bool disponivel);
         Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao);
         Task<int> ClassificacaoTaxista(Guid id);
+
+        Task<IEnumerable<Taxista>> ProcurarPorDistancia(LocalizacaoSummary origem, double? raio_minimo, double? raio_maximo, string [] paths = null);
     }
 }

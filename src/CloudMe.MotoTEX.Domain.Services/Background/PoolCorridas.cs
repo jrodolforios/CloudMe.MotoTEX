@@ -57,19 +57,19 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                     var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                     var corridasRepo = scope.ServiceProvider.GetRequiredService<ICorridaRepository>();
 
-                    var obsoletasEmCurso = corridasRepo.Search(x =>
+                    var obsoletasEmCurso = await corridasRepo.Search(x =>
                         x.Status == StatusCorrida.EmCurso &&
                         (DateTime.Now - x.Updated).Minutes > TimeoutEmCurso);
 
-                    var obsoletasEmEspera = corridasRepo.Search(x =>
+                    var obsoletasEmEspera = await corridasRepo.Search(x =>
                         x.Status == StatusCorrida.EmEspera &&
                         (DateTime.Now - x.Updated).Minutes > TimeoutEmEspera);
 
-                    var obsoletasSolicitadas = corridasRepo.Search(x =>
+                    var obsoletasSolicitadas = await corridasRepo.Search(x =>
                         x.Status == StatusCorrida.Solicitada &&
                         (DateTime.Now - x.Updated).Minutes > TimeoutSolicitada);
 
-                    var atrasadas = corridasRepo.Search(x =>
+                    var atrasadas = await corridasRepo.Search(x =>
                         x.Status == StatusCorrida.Agendada &&
                         (DateTime.Now - x.Solicitacao.Data.Value).Minutes > TimeoutAtrasada, new[] { "Solicitacao" });
 

@@ -82,7 +82,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
             Guid id)
         {
             // remove associações com taxistas
-            var taxistasFxDesc = faixaDescontoTaxistaService.Search(txFxDesc => txFxDesc.IdFaixaDesconto == id);
+            var taxistasFxDesc = await faixaDescontoTaxistaService.Search(txFxDesc => txFxDesc.IdFaixaDesconto == id);
             foreach (var txFxDesc in taxistasFxDesc)
             {
                 await faixaDescontoTaxistaService.DeleteAsync(txFxDesc.Id);
@@ -101,8 +101,8 @@ namespace CloudMe.MotoTEX.Api.Controllers
         /// <param name="id">Id from taxist</param>
         /// <returns>passenger</returns>
         [HttpGet("consulta_id_taxista/{id}")]
-        [ProducesResponseType(typeof(Response<List<FaixaDescontoTaxistaSummary>>), (int)HttpStatusCode.OK)]
-        public async Task<Response<List<FaixaDescontoTaxistaSummary>>> GetByUserId(Guid id)
+        [ProducesResponseType(typeof(Response<IEnumerable<FaixaDescontoTaxistaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<FaixaDescontoTaxistaSummary>>> GetByUserId(Guid id)
         {
             return await base.ResponseAsync(await _FaixaDescontoTaxistaService.GetByTaxistId(id), _FaixaDescontoTaxistaService);
         }

@@ -50,6 +50,25 @@ namespace CloudMe.MotoTEX.Domain.Notifications
                 }
             };
 
+            Triggers<PontoTaxi, CloudMeMotoTEXContext>.Updating += updatingEntry =>
+            {
+                // verifica alterações no nome do ponto de taxi...
+
+                if (updatingEntry.Original.Nome != updatingEntry.Entity.Nome)
+                {
+                    var grpUsr = updatingEntry.Context.GruposUsuario
+                        .Include(x => x.Usuarios)
+                        .Where(x => x.Nome == updatingEntry.Original.Nome).FirstOrDefault();
+
+                    if (grpUsr != null)
+                    {
+                        // atualiza também o nome do grupo de usuários
+                        grpUsr.Nome = updatingEntry.Entity.Nome;
+                        updatingEntry.Context.Entry(grpUsr).State = EntityState.Modified;
+                    }
+                }
+            };
+
             Triggers<Taxista, CloudMeMotoTEXContext>.Deleting += deletingEntry =>
             {
                 // taxista removido...

@@ -88,7 +88,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
 
             // remove associações com veículos
             var veicsSummaries = await veiculoService.GetAllSummariesAsync(
-                    veiculoService.Search(veic => veic.IdCorVeiculo == corSummary.Id)
+                    await veiculoService.Search(veic => veic.IdCorVeiculo == corSummary.Id)
                 );
 
             foreach (var veicSummary in veicsSummaries)

@@ -29,36 +29,38 @@ namespace CloudMe.MotoTEX.Domain.Services
         public async Task<ContratoSummary> UltimoContratoValido()
         {
             var encontrado = new ContratoSummary();
-            if (_contratoRepository.FindAll().Any(x => x.UltimaVersao = true))
-                encontrado = await CreateSummaryAsync(_contratoRepository.FindAll().Where(x => x.UltimaVersao = true).OrderBy(x => x.Inserted).LastOrDefault());
-
-            return encontrado;
+            return await CreateSummaryAsync((await _contratoRepository.Search(x => x.UltimaVersao)).FirstOrDefault());
         }
 
         protected override Task<Contrato> CreateEntryAsync(ContratoSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var contrato = new Contrato
+            return Task.Run(() =>
             {
-                Id = summary.Id,
-                Conteudo = summary.Conteudo,
-                UltimaVersao = summary.UltimaVersao
-            };
-            return Task.FromResult(contrato);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Contrato
+                {
+                    Id = summary.Id,
+                    Conteudo = summary.Conteudo,
+                    UltimaVersao = summary.UltimaVersao
+                };
+            });
         }
 
-        protected override Task<ContratoSummary> CreateSummaryAsync(Contrato entry)
+        protected override async Task<ContratoSummary> CreateSummaryAsync(Contrato entry)
         {
-            var contrato = new ContratoSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Conteudo = entry.Conteudo,
-                UltimaVersao = entry.UltimaVersao
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(contrato);
+                return new ContratoSummary
+                {
+                    Id = entry.Id,
+                    Conteudo = entry.Conteudo,
+                    UltimaVersao = entry.UltimaVersao
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(ContratoSummary summary)

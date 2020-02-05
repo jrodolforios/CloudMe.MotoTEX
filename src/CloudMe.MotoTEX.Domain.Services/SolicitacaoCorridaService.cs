@@ -30,54 +30,59 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "solicitacao_corrida";
         }
 
-        protected override Task<SolicitacaoCorrida> CreateEntryAsync(SolicitacaoCorridaSummary summary)
+        protected override async Task<SolicitacaoCorrida> CreateEntryAsync(SolicitacaoCorridaSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var SolicitacaoCorrida = new SolicitacaoCorrida
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                IdPassageiro = summary.IdPassageiro,
-                IdLocalizacaoOrigem = summary.IdLocalizacaoOrigem,
-                IdLocalizacaoDestino = summary.IdLocalizacaoDestino,
-                IdRota = summary.IdRota,
-                IdFaixaDesconto = summary.IdFaixaDesconto,
-                IdFormaPagamento = summary.IdFormaPagamento,
-                TipoAtendimento = summary.TipoAtendimento,
-                Data = summary.Data,
-                ETA = summary.ETA,
-                TempoDisponivel = summary.TempoDisponivel,
-                ValorEstimado = summary.ValorEstimado,
-                ValorProposto = summary.ValorProposto,
-                Situacao = summary.Situacao,
-                IsInterUrbano = summary.IsInterUrbano
-            };
-            return Task.FromResult(SolicitacaoCorrida);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new SolicitacaoCorrida
+                {
+                    Id = summary.Id,
+                    IdPassageiro = summary.IdPassageiro,
+                    IdLocalizacaoOrigem = summary.IdLocalizacaoOrigem,
+                    IdLocalizacaoDestino = summary.IdLocalizacaoDestino,
+                    IdRota = summary.IdRota,
+                    IdFaixaDesconto = summary.IdFaixaDesconto,
+                    IdFormaPagamento = summary.IdFormaPagamento,
+                    TipoAtendimento = summary.TipoAtendimento,
+                    Data = summary.Data,
+                    ETA = summary.ETA,
+                    TempoDisponivel = summary.TempoDisponivel,
+                    ValorEstimado = summary.ValorEstimado,
+                    ValorProposto = summary.ValorProposto,
+                    Situacao = summary.Situacao,
+                    IsInterUrbano = summary.IsInterUrbano
+                };
+            });
         }
 
-        protected override Task<SolicitacaoCorridaSummary> CreateSummaryAsync(SolicitacaoCorrida entry)
+        protected override async Task<SolicitacaoCorridaSummary> CreateSummaryAsync(SolicitacaoCorrida entry)
         {
-            var SolicitacaoCorrida = new SolicitacaoCorridaSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                IdPassageiro = entry.IdPassageiro,
-                IdLocalizacaoOrigem = entry.IdLocalizacaoOrigem,
-                IdLocalizacaoDestino = entry.IdLocalizacaoDestino,
-                IdRota = entry.IdRota,
-                IdFaixaDesconto = entry.IdFaixaDesconto,
-                IdFormaPagamento = entry.IdFormaPagamento,
-                TipoAtendimento = entry.TipoAtendimento,
-                Data = entry.Data,
-                ETA = entry.ETA,
-                TempoDisponivel = entry.TempoDisponivel,
-                ValorEstimado = entry.ValorEstimado,
-                ValorProposto = entry.ValorProposto,
-                Situacao = entry.Situacao,
-                IsInterUrbano = entry.IsInterUrbano
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(SolicitacaoCorrida);
+                return new SolicitacaoCorridaSummary
+                {
+                    Id = entry.Id,
+                    IdPassageiro = entry.IdPassageiro,
+                    IdLocalizacaoOrigem = entry.IdLocalizacaoOrigem,
+                    IdLocalizacaoDestino = entry.IdLocalizacaoDestino,
+                    IdRota = entry.IdRota,
+                    IdFaixaDesconto = entry.IdFaixaDesconto,
+                    IdFormaPagamento = entry.IdFormaPagamento,
+                    TipoAtendimento = entry.TipoAtendimento,
+                    Data = entry.Data,
+                    ETA = entry.ETA,
+                    TempoDisponivel = entry.TempoDisponivel,
+                    ValorEstimado = entry.ValorEstimado,
+                    ValorProposto = entry.ValorProposto,
+                    Situacao = entry.Situacao,
+                    IsInterUrbano = entry.IsInterUrbano
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(SolicitacaoCorridaSummary summary)
@@ -153,15 +158,15 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         public async Task<bool> RegistrarAcaoTaxista(Guid id_solicitacao, Guid id_taxista, AcaoTaxistaSolicitacaoCorrida acao)
         {
-            var solicitacao = Search(x => x.Id == id_solicitacao).FirstOrDefault();
+            var solicitacao = await _SolicitacaoCorridaRepository.FindByIdAsync(id_solicitacao);
             if (solicitacao is null)
             {
                 AddNotification(new Notification("Solicitações de corrida", "Registrar ação taxista: solicitação não encontrada"));
                 return false;
             }
 
-            var taxista = _TaxistaRepository.Search(x => x.Id == id_taxista).FirstOrDefault();
-            if (solicitacao is null)
+            var taxista = await _TaxistaRepository.FindByIdAsync(id_taxista);
+            if (taxista is null)
             {
                 AddNotification(new Notification("Solicitações de corrida", "Registrar ação taxista: taxista não encontrado"));
                 return false;
@@ -170,15 +175,25 @@ namespace CloudMe.MotoTEX.Domain.Services
             return await _SolicitacaoCorridaRepository.RegistrarAcaoTaxista(solicitacao, taxista, acao);
         }
 
-        public async Task<IList<SolicitacaoCorridaSummary>> RecuperarSolicitacoesEmEspera(string idTaxista)
+        public async Task<IList<SolicitacaoCorridaSummary>> RecuperarSolicitacoesEmEspera(Guid idTaxista)
         {
+            var taxista = await _TaxistaRepository.FindByIdAsync(idTaxista);
+            if (taxista is null)
+            {
+                AddNotification(new Notification("Solicitações de corrida", "RecuperarSolicitacoesEmEspera: taxista não encontrado"));
+                return default;
+            }
+
             var solicitacoesSumaries = new List<SolicitacaoCorridaSummary>();
 
-            var solicitacoesEntries = _SolicitacaoCorridaRepository.FindAll().Where(x => x.Situacao == SituacaoSolicitacaoCorrida.Indefinido || x.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao).ToList();
+            var solicitacoesEntries = await _SolicitacaoCorridaRepository.Search(
+                x => 
+                x.Situacao == SituacaoSolicitacaoCorrida.Indefinido || 
+                x.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao);
 
             foreach (var item in solicitacoesEntries)
             {
-                AcaoTaxistaSolicitacaoCorrida acao = _SolicitacaoCorridaRepository.buscarAcaoTaxista(idTaxista, item.Id);
+                AcaoTaxistaSolicitacaoCorrida acao = await _SolicitacaoCorridaRepository.buscarAcaoTaxista(idTaxista, item.Id);
 
                 if (acao != AcaoTaxistaSolicitacaoCorrida.Recusada)
                 {

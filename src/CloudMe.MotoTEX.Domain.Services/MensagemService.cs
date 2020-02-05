@@ -47,33 +47,37 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "mensagem";
         }
 
-        protected override Task<Mensagem> CreateEntryAsync(MensagemSummary summary)
+        protected override async Task<Mensagem> CreateEntryAsync(MensagemSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Mensagem = new Mensagem
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                IdRemetente = summary.IdRemetente,
-                Assunto = summary.Assunto,
-                Corpo = summary.Corpo,
-            };
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
 
-            return Task.FromResult(Mensagem);
+                return new Mensagem
+                {
+                    Id = summary.Id,
+                    IdRemetente = summary.IdRemetente,
+                    Assunto = summary.Assunto,
+                    Corpo = summary.Corpo,
+                };
+            });
         }
 
-        protected override Task<MensagemSummary> CreateSummaryAsync(Mensagem entry)
+        protected override async Task<MensagemSummary> CreateSummaryAsync(Mensagem entry)
         {
-            var Mensagem = new MensagemSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                IdRemetente = entry.IdRemetente,
-                Assunto = entry.Assunto,
-                Corpo = entry.Corpo
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(Mensagem);
+                return new MensagemSummary
+                {
+                    Id = entry.Id,
+                    IdRemetente = entry.IdRemetente,
+                    Assunto = entry.Assunto,
+                    Corpo = entry.Corpo
+                };
+            });
         }
 
         protected MensagemDestinatarioSummary CreateMsgDestSummary(MensagemDestinatario msgDest)
@@ -117,12 +121,12 @@ namespace CloudMe.MotoTEX.Domain.Services
             }
         }
 
-        public Task<IEnumerable<MensagemDestinatarioSummary>> ObterRecibosMensagem(Guid id_mensagem, Guid id_usuario)
+        public async Task<IEnumerable<MensagemDestinatarioSummary>> ObterRecibosMensagem(Guid id_mensagem, Guid id_usuario)
         {
-            var msgsDst = mensagemDestinatarioRepository.Search(
+            var msgsDst = await mensagemDestinatarioRepository.Search(
                 x => x.IdMensagem == id_mensagem && x.IdUsuario == id_usuario);
 
-            return Task.FromResult(msgsDst.Select(msgDst => new MensagemDestinatarioSummary()
+            return msgsDst.Select(msgDst => new MensagemDestinatarioSummary()
             {
                 Id = msgDst.Id,
                 IdMensagem = msgDst.IdMensagem,
@@ -131,13 +135,13 @@ namespace CloudMe.MotoTEX.Domain.Services
                 DataLeitura = msgDst.DataLeitura,
                 DataRecebimento = msgDst.DataRecebimento,
                 Status = msgDst.Status
-            }));
+            });
         }
 
         public async Task<bool> AlterarStatusMensagem(Guid id_mensagem, Guid id_usuario, StatusMensagem status)
         {
-            var msgDst = mensagemDestinatarioRepository.Search(
-                x => x.IdMensagem == id_mensagem && x.IdUsuario == id_usuario, new[] { "Mensagem" }).FirstOrDefault();
+            var msgDst = (await mensagemDestinatarioRepository.Search(
+                x => x.IdMensagem == id_mensagem && x.IdUsuario == id_usuario, new[] { "Mensagem" })).FirstOrDefault();
 
             if (msgDst is null)
             {
@@ -223,11 +227,9 @@ namespace CloudMe.MotoTEX.Domain.Services
         {
             int usrSentCount = 0;
 
-            var usuarios = usuarioRepository.FindAll()
-                .Where(x => destinatarios.IdsUsuarios.Contains(x.Id));
+            var usuarios = await usuarioRepository.Search(x => destinatarios.IdsUsuarios.Contains(x.Id));
 
-            var grupos = grupoUsuarioRepository.FindAll(new[] { "Usuarios" })
-                .Where(x => destinatarios.IdsGruposUsuarios.Contains(x.Id));
+            var grupos = await grupoUsuarioRepository.Search(x => destinatarios.IdsGruposUsuarios.Contains(x.Id), new[] { "Usuarios" });
 
             var idsGruposEnviados = new List<Guid>();
 
@@ -316,60 +318,57 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         #region RECEBIMENTO
 
-        public Task<IEnumerable<DetalhesMensagem>> ObterMensagensEnviadas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination, out int count)
+        public async Task<Tuple<IEnumerable<DetalhesMensagem>, int>> ObterMensagensEnviadas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination)
         {
             DateTime dataInicio = inicio ?? DateTime.MinValue;
             DateTime dataFim = fim ?? DateTime.MaxValue;
 
-            var msgs = mensagemRepository.Search(x =>
+            var msgs = await mensagemRepository.Search(x =>
                     x.IdRemetente == id_usuario &&
                     x.Inserted >= dataInicio &&
                     x.Inserted <= dataFim,
                     new[] { "Destinatarios" });
 
-            count = msgs.Count();
-
             msgs = msgs.OrderByDescending(x => x.Inserted)
                 .Skip(pagination.page * pagination.itensPerPage)
                 .Take(pagination.itensPerPage);
 
 
-            return Task.FromResult(msgs.Select(msg => detalharMensagem(msg)));
+            return new Tuple<IEnumerable<DetalhesMensagem>, int>(msgs.Select(msg => detalharMensagem(msg)), msgs.Count());
         }
 
-        public Task<IEnumerable<DetalhesMensagem>> ObterMensagensRecebidas(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination, out int count)
+        public async Task<Tuple<IEnumerable<DetalhesMensagem>, int>> ObterMensagensRecebidasAsync(Guid id_usuario, DateTime? inicio, DateTime? fim, Pagination pagination)
         {
             DateTime dataInicio = inicio ?? DateTime.MinValue;
             DateTime dataFim = fim ?? DateTime.MaxValue;
 
-            var msgs = mensagemRepository.Search(x =>
+            var msgs = (await mensagemRepository.Search(x =>
                     x.Destinatarios.Any(dest => dest.IdUsuario == id_usuario) &&
                     x.Inserted >= dataInicio &&
                     x.Inserted <= dataFim,
-                    new[] { "Destinatarios" }).Distinct();
-
-            count = msgs.Count();
+                    new[] { "Destinatarios" })).Distinct();
 
             msgs = msgs.OrderByDescending(x => x.Inserted)
                 .Skip(pagination.page * pagination.itensPerPage)
                 .Take(pagination.itensPerPage);
 
-            return Task.FromResult(msgs.Select(msg => detalharMensagem(msg)));
+            return new Tuple<IEnumerable<DetalhesMensagem>, int>(msgs.Select(msg => detalharMensagem(msg)), msgs.Count());
         }
 
-        public Task<List<DetalhesMensagem>> ObterMensagensEnviadasEMarcarLidas(Guid id_usuario)
+        public async Task<List<DetalhesMensagem>> ObterMensagensEnviadasEMarcarLidas(Guid id_usuario)
         {
-            var listaDeMensagens = mensagemDestinatarioRepository.FindAll().Where(x => x.IdUsuario == id_usuario).ToList();
+            var listaDeMensagens = (await mensagemDestinatarioRepository.Search(x => x.IdUsuario == id_usuario)).ToList();
             var mensagensParaExibir = new List<DetalhesMensagem>();
-            listaDeMensagens.ForEach(async x =>
+            foreach(var msg in listaDeMensagens)
             {
-                if (x.Status == StatusMensagem.Enviada || x.Status == StatusMensagem.Recebida)
+                if (msg.Status == StatusMensagem.Enviada || msg.Status == StatusMensagem.Recebida)
                 {
-                    x.Status = StatusMensagem.Lida;
+                    msg.Status = StatusMensagem.Lida;
 
-                    await mensagemDestinatarioRepository.ModifyAsync(x);
+                    await mensagemDestinatarioRepository.ModifyAsync(msg);
 
-                    var mensagem = await mensagemRepository.FindByIdAsync(x.IdMensagem);
+                    var mensagem = (await mensagemRepository.Search(y => y.Id == msg.IdMensagem)).FirstOrDefault();
+                    //var mensagem = await mensagemRepository.FindByIdAsync(msg.IdMensagem);
 
                     var diasEnviado = (DateTime.Now - mensagem.Inserted).TotalDays;
 
@@ -379,17 +378,17 @@ namespace CloudMe.MotoTEX.Domain.Services
                             Assunto = mensagem.Assunto,
                             Corpo = mensagem.Corpo,
                             DataEnvio = mensagem.Inserted,
-                            DataRecebimento = x.DataRecebimento,
-                            DataLeitura = x.DataLeitura,
+                            DataRecebimento = msg.DataRecebimento,
+                            DataLeitura = msg.DataLeitura,
                             destinatarios = null,
                             IdMensagem = mensagem.Id,
                             IdRemetente = mensagem.IdRemetente
                         });
 
                 }
-            });
+            }
 
-            return Task.FromResult(mensagensParaExibir);
+            return mensagensParaExibir;
         }
 
         #endregion

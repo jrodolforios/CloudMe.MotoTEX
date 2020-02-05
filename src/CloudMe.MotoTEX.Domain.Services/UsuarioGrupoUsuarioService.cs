@@ -24,30 +24,35 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "usuario_grupo_usuario";
         }
 
-        protected override Task<UsuarioGrupoUsuario> CreateEntryAsync(UsuarioGrupoUsuarioSummary summary)
+        protected override async Task<UsuarioGrupoUsuario> CreateEntryAsync(UsuarioGrupoUsuarioSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var UsuarioGrupoUsuario = new UsuarioGrupoUsuario
+            return await Task.Run(() =>
             {
-                Id = summary.Id,
-                IdUsuario = summary.IdUsuario,
-                IdGrupoUsuario = summary.IdGrupoUsuario
-            };
-            return Task.FromResult(UsuarioGrupoUsuario);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new UsuarioGrupoUsuario
+                {
+                    Id = summary.Id,
+                    IdUsuario = summary.IdUsuario,
+                    IdGrupoUsuario = summary.IdGrupoUsuario
+                };
+            });
         }
 
-        protected override Task<UsuarioGrupoUsuarioSummary> CreateSummaryAsync(UsuarioGrupoUsuario entry)
+        protected override async Task<UsuarioGrupoUsuarioSummary> CreateSummaryAsync(UsuarioGrupoUsuario entry)
         {
-            var UsuarioGrupoUsuario = new UsuarioGrupoUsuarioSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                IdUsuario = entry.IdUsuario,
-                IdGrupoUsuario = entry.IdGrupoUsuario
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(UsuarioGrupoUsuario);
+                return new UsuarioGrupoUsuarioSummary
+                {
+                    Id = entry.Id,
+                    IdUsuario = entry.IdUsuario,
+                    IdGrupoUsuario = entry.IdGrupoUsuario
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(UsuarioGrupoUsuarioSummary summary)

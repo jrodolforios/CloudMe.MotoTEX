@@ -297,7 +297,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
             Guid id)
         {
             // remove associações com taxistas
-            var taxistasVeic = veiculoTaxistaService.Search(txVeic => txVeic.IdVeiculo == id);
+            var taxistasVeic = await veiculoTaxistaService.Search(txVeic => txVeic.IdVeiculo == id);
             foreach (var txVeic in taxistasVeic)
             {
                 await veiculoTaxistaService.DeleteAsync(txVeic.Id);

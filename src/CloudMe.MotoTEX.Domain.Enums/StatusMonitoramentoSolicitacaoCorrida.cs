@@ -7,9 +7,9 @@ namespace CloudMe.MotoTEX.Domain.Enums
     public enum StatusMonitoramentoSolicitacaoCorrida
     {
         Indefinido = 0,
-        Acumulacao,
+        Ativacao,
         Disponibilidade,
-        Conclusao,
+        Eleicao,
         Encerramento
     }
 }

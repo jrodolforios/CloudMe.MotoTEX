@@ -18,13 +18,14 @@ namespace CloudMe.MotoTEX.Infraestructure.Repositories
 
         public async Task<IEnumerable<GrupoUsuario>> GetAllByUserId(Guid user_id)
         {
-            var usrGrpUsrs =
-                from usrGrpUsr in Context.Set<UsuarioGrupoUsuario>()
-                .Include(x => x.GrupoUsuario)
-                .Where(x => x.IdUsuario == user_id)
-                select usrGrpUsr.GrupoUsuario;
-
-            return usrGrpUsrs.AsEnumerable();
+            return await Task.Run(() =>
+            {
+                return
+                    from usrGrpUsr in Context.UsuariosGruposUsuarios
+                    .Include(x => x.GrupoUsuario)
+                    .Where(x => x.IdUsuario == user_id)
+                    select usrGrpUsr.GrupoUsuario;
+            });
         }
     }
 }

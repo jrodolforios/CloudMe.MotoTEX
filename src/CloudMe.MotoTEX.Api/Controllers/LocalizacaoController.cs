@@ -8,6 +8,7 @@ using CloudMe.MotoTEX.Domain.Model.Localizacao;
 using Microsoft.AspNetCore.Cors;
 using CloudMe.MotoTEX.Infraestructure.Abstracts.Transactions;
 using CloudMe.MotoTEX.Api.Models;
+using System.Linq;
 
 namespace CloudMe.MotoTEX.Api.Controllers
 {
@@ -15,10 +16,12 @@ namespace CloudMe.MotoTEX.Api.Controllers
     public class LocalizacaoController : BaseController
     {
         ILocalizacaoService _LocalizacaoService;
+        ITaxistaService _taxistaService;
 
-        public LocalizacaoController(ILocalizacaoService LocalizacaoService, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public LocalizacaoController(ILocalizacaoService LocalizacaoService, ITaxistaService TaxistaService, IUnitOfWork unitOfWork) : base(unitOfWork)
         {
             _LocalizacaoService = LocalizacaoService;
+            _taxistaService = TaxistaService;
         }
 
         /// <summary>
@@ -57,6 +60,64 @@ namespace CloudMe.MotoTEX.Api.Controllers
                 return await base.ErrorResponseAsync<Guid>(_LocalizacaoService);
             }
             return await base.ResponseAsync(entity.Id, _LocalizacaoService);
+        }
+
+        /// <summary>
+        /// Get by IdUser
+        /// </summary>
+        /// <returns>passenger</returns>
+        [HttpGet("get_qt_taxistas_online")]
+        [ProducesResponseType(typeof(Response<int>), (int)HttpStatusCode.OK)]
+        public async Task<Response<int>> GetQtTaxistasOnline()
+        {
+            return await base.ResponseAsync(await _LocalizacaoService.GetQtTaxistasOnline(), _LocalizacaoService);
+        }
+
+        /// <summary>
+        /// Get by IdUser
+        /// </summary>
+        /// <returns>passenger</returns>
+        [HttpGet("get_localizacao_usuario")]
+        [ProducesResponseType(typeof(Response<LocalizacaoSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<LocalizacaoSummary>> GetLocalizacaoUsuario(Guid IdUsuario)
+        {
+            var localizacao = (await _LocalizacaoService.Search(x => x.IdUsuario == IdUsuario)).FirstOrDefault();
+
+            var localizacaoSummary = new LocalizacaoSummary()
+            {
+                Endereco = localizacao.Endereco,
+                Id = localizacao.Id,
+                IdUsuario = localizacao.IdUsuario,
+                Latitude = localizacao.Latitude,
+                Longitude = localizacao.Longitude,
+                NomePublico = localizacao.NomePublico
+            };
+
+            return await base.ResponseAsync(localizacaoSummary, _LocalizacaoService); ;
+        }
+
+        /// <summary>
+        /// Get by IdUser
+        /// </summary>
+        /// <returns>passenger</returns>
+        [HttpGet("get_localizacao_taxista")]
+        [ProducesResponseType(typeof(Response<LocalizacaoSummary>), (int)HttpStatusCode.OK)]
+        public async Task<Response<LocalizacaoSummary>> GetLocalizacaoTaxista(Guid IdTaxista)
+        {
+            var taxista = await _taxistaService.GetSummaryAsync(IdTaxista);
+            var localizacao = (await _LocalizacaoService.Search(x => x.IdUsuario == taxista.Usuario.Id)).FirstOrDefault();
+
+            var localizacaoSummary = new LocalizacaoSummary()
+            {
+                Endereco = localizacao.Endereco,
+                Id = localizacao.Id,
+                IdUsuario = localizacao.IdUsuario,
+                Latitude = localizacao.Latitude,
+                Longitude = localizacao.Longitude,
+                NomePublico = localizacao.NomePublico
+            };
+
+            return await base.ResponseAsync(localizacaoSummary, _LocalizacaoService); ;
         }
 
         /// <summary>

@@ -68,13 +68,13 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
 					RedirectUris = {
 						"http://localhost:4200/auth/callback",
                         "http://localhost:4200/auth/silent-refresh.html",
-                        "http://admin.mototex.com.br/auth/callback",
-                        "http://admin.mototex.com.br/auth/silent-refresh.html",
+                        "http://admin.mototex.cloudme.com.br/auth/callback",
+                        "http://admin.mototex.cloudme.com.br/auth/silent-refresh.html",
 
                         "https://localhost:4200/auth/callback",
                         "https://localhost:4200/auth/silent-refresh.html",
-                        "https://admin.mototex.com.br/auth/callback",
-                        "https://admin.mototex.com.br/auth/silent-refresh.html",
+                        "https://admin.mototex.cloudme.com.br/auth/callback",
+                        "https://admin.mototex.cloudme.com.br/auth/silent-refresh.html",
                     },
 					PostLogoutRedirectUris = {
 						"http://localhost:4200",
@@ -109,7 +109,7 @@ namespace CloudMe.Auth.Admin.Configuration.IdentityServer
                         "http://localhost:8100/auth/silent-refresh.html",
                         "http://passenger.mototex.com.br/auth/callback",
                         "http://driver.mototex.com.br/auth/callback",
-                        "http://driver.MotomototexTEX.com.br/#/callback/?",
+                        "http://driver.mototex.com.br/#/callback/?",
                         "http://passenger.mototex.com.br/auth/silent-refresh.html",
                         "http://driver.mototex.com.br/auth/silent-refresh.html",
 

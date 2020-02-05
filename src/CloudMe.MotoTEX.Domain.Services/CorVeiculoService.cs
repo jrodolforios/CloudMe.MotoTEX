@@ -26,26 +26,31 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         protected override Task<CorVeiculo> CreateEntryAsync(CorVeiculoSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var CorVeiculo = new CorVeiculo
+            return Task.Run(() =>
             {
-                Id = summary.Id,
-                Nome = summary.Nome
-            };
-            return Task.FromResult(CorVeiculo);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new CorVeiculo
+                {
+                    Id = summary.Id,
+                    Nome = summary.Nome
+                };
+            });
         }
 
         protected override Task<CorVeiculoSummary> CreateSummaryAsync(CorVeiculo entry)
         {
-            var CorVeiculo = new CorVeiculoSummary
+            return Task.Run(() =>
             {
-                Id = entry.Id,
-                Nome = entry.Nome
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(CorVeiculo);
+                return new CorVeiculoSummary
+                {
+                    Id = entry.Id,
+                    Nome = entry.Nome
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(CorVeiculoSummary summary)

@@ -27,64 +27,62 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "veiculo_taxista";
         }
         
-        public Task<List<VeiculoTaxistaSummary>> ConsultaVeiculosDeTaxista(Guid id)
+        public async Task<IEnumerable<VeiculoTaxistaSummary>> ConsultaVeiculosDeTaxista(Guid id)
         {
-            var veiculosTaxistas = _VeiculoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id).ToList();
-            var veiculosTaxistasSummaries = new List<VeiculoTaxistaSummary>();
-
-
-            veiculosTaxistas.ForEach(async x =>
-            {
-                veiculosTaxistasSummaries.Add(await CreateSummaryAsync(x));
-            });
-
-            return Task.FromResult(veiculosTaxistasSummaries);
+            var veiculosTaxistas = await _VeiculoTaxistaRepository.Search(x => x.IdTaxista == id);
+            return await GetAllSummariesAsync(veiculosTaxistas);
         }
 
-        public bool IsTaxiAtivoEmUsoPorOutroTaxista(Guid id)
+        public async Task<bool> IsTaxiAtivoEmUsoPorOutroTaxista(Guid id)
         {
+            var veiculoAtivoTaxista = (await _VeiculoTaxistaRepository.Search(
+                x => x.IdTaxista == id && x.Ativo, 
+                new[] {"Veiculo", "Veiculo.Taxistas"})).FirstOrDefault(); // veículo ativo do taxista
 
-            if(_VeiculoTaxistaRepository.FindAll().Any(x => x.IdTaxista == id)) { 
-            var veiculosTaxista = _VeiculoTaxistaRepository.FindAll().Where(x => x.IdTaxista == id && x.Ativo).ToList();
-
-            var veiculoTaxistas = _VeiculoTaxistaRepository.FindAll().Where(x => veiculosTaxista.Any(y => y.IdVeiculo == x.IdVeiculo && y.IdTaxista != id && y.Ativo)).ToList();
-
-
-
-            return _taxistaRepository.FindAll().Any(x => veiculoTaxistas.Any(y => y.IdTaxista == x.Id && x.Ativo && x.Disponivel));
-            }
-            else
+            if (veiculoAtivoTaxista != null) // taxista tem um veículo ativo?
             {
-                return true;
+                var taxistasVeiculoAtivo = veiculoAtivoTaxista.Veiculo.Taxistas; // todos os taxistas associados a este veículo
+                return taxistasVeiculoAtivo.Any(x =>
+                    x.Taxista.Id != id && // outro taxista ...
+                    x.Taxista.Ativo && // .. que esteja ativo ...
+                    x.Taxista.Disponivel && // e disponível ...
+                    x.Ativo);  // ... e que o veículo esteja ativo para este outro taxista
             }
+
+            return false;
         }
 
         protected override Task<VeiculoTaxista> CreateEntryAsync(VeiculoTaxistaSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var VeiculoTaxista = new VeiculoTaxista
+            return Task.Run(() =>
             {
-                Id = summary.Id,
-                IdVeiculo = summary.IdVeiculo,
-                IdTaxista = summary.IdTaxista,
-                Ativo = summary.Ativo
-            };
-            return Task.FromResult(VeiculoTaxista);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new VeiculoTaxista
+                {
+                    Id = summary.Id,
+                    IdVeiculo = summary.IdVeiculo,
+                    IdTaxista = summary.IdTaxista,
+                    Ativo = summary.Ativo
+                };
+            });
         }
 
-        protected override Task<VeiculoTaxistaSummary> CreateSummaryAsync(VeiculoTaxista entry)
+        protected override async Task<VeiculoTaxistaSummary> CreateSummaryAsync(VeiculoTaxista entry)
         {
-            var VeiculoTaxista = new VeiculoTaxistaSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                IdVeiculo = entry.IdVeiculo,
-                IdTaxista = entry.IdTaxista,
-                Ativo = entry.Ativo
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(VeiculoTaxista);
+                return new VeiculoTaxistaSummary
+                {
+                    Id = entry.Id,
+                    IdVeiculo = entry.IdVeiculo,
+                    IdTaxista = entry.IdTaxista,
+                    Ativo = entry.Ativo
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(VeiculoTaxistaSummary summary)

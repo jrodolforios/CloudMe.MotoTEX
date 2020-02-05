@@ -10,6 +10,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Abstracts
     public interface ISolicitacaoCorridaService : IServiceBase<SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>
     {
         Task<bool> RegistrarAcaoTaxista(Guid id_solicitacao, Guid id_taxista, AcaoTaxistaSolicitacaoCorrida acao);
-        Task<IList<SolicitacaoCorridaSummary>> RecuperarSolicitacoesEmEspera(string idTaxista);
+        Task<IList<SolicitacaoCorridaSummary>> RecuperarSolicitacoesEmEspera(Guid idTaxista);
     }
 }

@@ -136,7 +136,7 @@
     <value>O código de verificação informado é  inválido.</value>
   </data>
   <data name="ResetPasswordBody" xml:space="preserve">
-    <value>Por favor, redefina sua senha &lt;a href='{0}'&gt;clicando aqui&lt;/a&gt;.</value>
+    <value>Por favor, redefina sua senha &lt;a href='{0}'&gt;clicando aqui&lt;/a&gt;. Nome do usu&#225;rio: {1}</value>
   </data>
   <data name="ResetPasswordTitle" xml:space="preserve">
     <value>MotoTEX - Redefinir senha</value>

@@ -25,17 +25,17 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "veiculo";
         }
 
-        protected override Task<Veiculo> CreateEntryAsync(VeiculoSummary summary)
+        protected override async Task<Veiculo> CreateEntryAsync(VeiculoSummary summary)
         {
             if (summary.Id.Equals(Guid.Empty))
                 summary.Id = Guid.NewGuid();
 
             // verifica se existe outro veículo com a mesma placa
-            var veicPlaca = _VeiculoRepository.Search(veic => veic.Placa == summary.Placa).FirstOrDefault();
+            var veicPlaca = (await _VeiculoRepository.Search(veic => veic.Placa == summary.Placa)).FirstOrDefault();
             if (veicPlaca != null)
             {
                 AddNotification("Veículos", string.Format("Placa '{0}' está sendo utilizada por outro veículo", summary.Placa));
-                return Task.FromResult<Veiculo>(null);
+                return null;
             }
 
             var Veiculo = new Veiculo
@@ -49,24 +49,27 @@ namespace CloudMe.MotoTEX.Domain.Services
                 IdFoto = summary.IdFoto,
                 IdCorVeiculo = summary.IdCorVeiculo
             };
-            return Task.FromResult(Veiculo);
+            return Veiculo;
         }
 
-        protected override Task<VeiculoSummary> CreateSummaryAsync(Veiculo entry)
+        protected override async Task<VeiculoSummary> CreateSummaryAsync(Veiculo entry)
         {
-            var Veiculo = new VeiculoSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Placa = entry.Placa,
-                Marca = entry.Marca,
-                Modelo = entry.Modelo,
-                Ano = entry.Ano,
-                Versao = entry.Versao,
-                IdFoto = entry.IdFoto,
-                IdCorVeiculo = entry.IdCorVeiculo
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(Veiculo);
+                return new VeiculoSummary
+                {
+                    Id = entry.Id,
+                    Placa = entry.Placa,
+                    Marca = entry.Marca,
+                    Modelo = entry.Modelo,
+                    Ano = entry.Ano,
+                    Versao = entry.Versao,
+                    IdFoto = entry.IdFoto,
+                    IdCorVeiculo = entry.IdCorVeiculo
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(VeiculoSummary summary)
@@ -81,14 +84,6 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         protected override void UpdateEntry(Veiculo entry, VeiculoSummary summary)
         {
-            // verifica se existe outro veículo com a mesma placa
-            var veicPlaca = _VeiculoRepository.Search(veic => veic.Placa == summary.Placa && veic.Id != summary.Id).FirstOrDefault();
-            if (veicPlaca != null)
-            {
-                AddNotification("Veículos", string.Format("Placa '{0}' está sendo utilizada por outro veículo", summary.Placa));
-                return;
-            }
-
             entry.Placa = summary.Placa;
             entry.Marca = summary.Marca;
             entry.Modelo = summary.Modelo;
@@ -96,6 +91,23 @@ namespace CloudMe.MotoTEX.Domain.Services
             entry.Versao = summary.Versao;
             entry.IdFoto = summary.IdFoto;
             entry.IdCorVeiculo = summary.IdCorVeiculo;
+        }
+
+        public override async Task<Veiculo> UpdateAsync(VeiculoSummary summary)
+        {
+            // verifica se existe outro veículo com a mesma placa
+            var veicPlaca = (await _VeiculoRepository.Search(veic => veic.Placa == summary.Placa && veic.Id != summary.Id)).FirstOrDefault();
+            if (veicPlaca != null)
+            {
+                AddNotification("Veículos", string.Format("Placa '{0}' está sendo utilizada por outro veículo", summary.Placa));
+            }
+
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            return await base.UpdateAsync(summary);
         }
 
         protected override void ValidateSummary(VeiculoSummary summary)

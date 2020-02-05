@@ -190,6 +190,27 @@ namespace CloudMe.MotoTEX.Api.Controllers
         }
 
         /// <summary>
+        /// Get by IdUser
+        /// </summary>
+        /// <param name="localizacao">User Id from taxist</param>
+        /// <returns>passenger</returns>
+        [HttpPost("get_Proximos")]
+        [ProducesResponseType(typeof(Response<List<LocalizacaoSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<List<LocalizacaoSummary>>> GetProximos(LocalizacaoSummary localizacao)
+        {
+            var taxistas = await _TaxistaService.ProcurarPorDistancia(localizacao, 0, 5000);
+            var localizacoesSummaries = new List<LocalizacaoSummary>();
+
+            foreach (var item in taxistas.Take(8))
+            {
+                var localizacaoSummary = new LocalizacaoSummary() { Latitude = item.LocalizacaoAtual.Latitude, Longitude = item.LocalizacaoAtual.Longitude };
+                localizacoesSummaries.Add(localizacaoSummary);
+            }
+
+            return await base.ResponseAsync(localizacoesSummaries, _TaxistaService);
+        }
+
+        /// <summary>
         /// Removes an existing Taxista.
         /// </summary>
         /// <param name="id">DialList's ID</param>
@@ -211,7 +232,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
             }
 
             // remove associações com veículos
-            var veicsTaxista = veiculoTaxistaService.Search(veicTx => veicTx.IdTaxista == taxistaSummary.Id);
+            var veicsTaxista = await veiculoTaxistaService.Search(veicTx => veicTx.IdTaxista == taxistaSummary.Id);
             foreach (var veicTx in veicsTaxista)
             {
                 await veiculoTaxistaService.DeleteAsync(veicTx.Id);
@@ -222,7 +243,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
             }
 
             // remove associações com formas de pagamento
-            var frmsPgtoTaxista = formaPagamentoTaxistaService.Search(frmPgtoTx => frmPgtoTx.IdTaxista == taxistaSummary.Id);
+            var frmsPgtoTaxista = await formaPagamentoTaxistaService.Search(frmPgtoTx => frmPgtoTx.IdTaxista == taxistaSummary.Id);
             foreach (var frmPgtoTx in frmsPgtoTaxista)
             {
                 await formaPagamentoTaxistaService.DeleteAsync(frmPgtoTx.Id);
@@ -233,7 +254,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
             }
 
             // remove associações com faixas de desconto
-            var fxDescTaxista = faixaDescontoTaxistaService.Search(fxDescTx => fxDescTx.IdTaxista == taxistaSummary.Id);
+            var fxDescTaxista = await faixaDescontoTaxistaService.Search(fxDescTx => fxDescTx.IdTaxista == taxistaSummary.Id);
             foreach (var fxDescTx in fxDescTaxista)
             {
                 await faixaDescontoTaxistaService.DeleteAsync(fxDescTx.Id);
@@ -337,7 +358,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
         [ProducesResponseType(typeof(Response<IEnumerable<VeiculoTaxistaSummary>>), (int)HttpStatusCode.OK)]
         public async Task<Response<IEnumerable<VeiculoTaxistaSummary>>> GetVeiculos([FromServices]IVeiculoTaxistaService veicTaxistaService, Guid id)
         {
-            var result = await veicTaxistaService.GetAllSummariesAsync( veicTaxistaService.Search(tx => tx.IdTaxista == id) );
+            var result = await veicTaxistaService.GetAllSummariesAsync( await veicTaxistaService.Search(tx => tx.IdTaxista == id) );
 
             return await base.ResponseAsync(result, veicTaxistaService);
         }

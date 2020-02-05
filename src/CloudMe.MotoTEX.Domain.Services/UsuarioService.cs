@@ -36,43 +36,48 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "usuario";
         }
 
-        protected override Task<Usuario> CreateEntryAsync(UsuarioSummary summary)
+        protected override async Task<Usuario> CreateEntryAsync(UsuarioSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Usuario = new Usuario
+            return await Task.Run(() =>
             {
-                Id = (Guid)summary.Id,
-                Nome = summary.Nome,
-                UserName = summary.Credenciais.Login,
-                Email = summary.Email,
-                PhoneNumber = summary.Telefone,
-                CPF = summary.CPF,
-                RG = summary.RG,
-                tipo = summary.Tipo
-            };
-            return Task.FromResult(Usuario);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Usuario
+                {
+                    Id = (Guid)summary.Id,
+                    Nome = summary.Nome,
+                    UserName = summary.Credenciais.Login,
+                    Email = summary.Email,
+                    PhoneNumber = summary.Telefone,
+                    CPF = summary.CPF,
+                    RG = summary.RG,
+                    tipo = summary.Tipo
+                };
+            });
         }
 
-        protected override Task<UsuarioSummary> CreateSummaryAsync(Usuario entry)
+        protected override async Task<UsuarioSummary> CreateSummaryAsync(Usuario entry)
         {
-            var Usuario = new UsuarioSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id,
-                Nome = entry.Nome,
-                Email = entry.Email,
-                Telefone = entry.PhoneNumber,
-                CPF = entry.CPF,
-                RG = entry.RG,
-                Credenciais = new CredenciaisUsuario()
-                {
-                    Login = entry.UserName,
-                },
-                Tipo = entry.tipo
-            };
+                if (entry == null) return default;
 
-            return Task.FromResult(Usuario);
+                return new UsuarioSummary
+                {
+                    Id = entry.Id,
+                    Nome = entry.Nome,
+                    Email = entry.Email,
+                    Telefone = entry.PhoneNumber,
+                    CPF = entry.CPF,
+                    RG = entry.RG,
+                    Credenciais = new CredenciaisUsuario()
+                    {
+                        Login = entry.UserName,
+                    },
+                    Tipo = entry.tipo
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(UsuarioSummary summary)
@@ -121,7 +126,10 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         public async Task<IEnumerable<Usuario>> FindAllAsync(string search, int page=1, int pageSize=10)
         {
-            return this._userManager.Users;
+            return await Task.Run(() =>
+            {
+                return this._userManager.Users;
+            });
         }
 
         public async Task<Usuario> FindByIdAsync(Guid id)
@@ -146,7 +154,7 @@ namespace CloudMe.MotoTEX.Domain.Services
             ValidateSummary(summary);
 
             // verifica se existe outro usuário com o mesmo CPF
-            var usrCPF = _userRepository.Search(usr => usr.CPF == summary.CPF).FirstOrDefault();
+            var usrCPF = (await _userRepository.Search(usr => usr.CPF == summary.CPF)).FirstOrDefault();
             if (usrCPF != null && !string.IsNullOrEmpty(summary.CPF))
             {
                 AddNotification("Usuários", string.Format("CPF '{0}' está sendo utilizado por outro usuário", summary.CPF));
@@ -172,7 +180,8 @@ namespace CloudMe.MotoTEX.Domain.Services
                 PhoneNumber = summary.Telefone,
                 CPF = summary.CPF,
                 RG = summary.RG,
-                tipo = summary.Tipo
+                tipo = summary.Tipo,
+                LockoutEnabled = false
             };
 
             try
@@ -293,7 +302,7 @@ namespace CloudMe.MotoTEX.Domain.Services
                 ValidateSummary(summary);
 
                 // verifica se existe outro usuário com o mesmo CPF
-                var usrCPF = _userRepository.Search(usr => usr.CPF == summary.CPF && usr.Id != summary.Id).FirstOrDefault();
+                var usrCPF = (await _userRepository.Search(usr => usr.CPF == summary.CPF && usr.Id != summary.Id)).FirstOrDefault();
                 if (usrCPF != null && !string.IsNullOrEmpty(summary.CPF))
                 {
                     AddNotification("Usuários", string.Format("CPF '{0}' está sendo utilizado por outro usuário", summary.CPF));
@@ -403,14 +412,17 @@ namespace CloudMe.MotoTEX.Domain.Services
             }
         }
 
-        public Task<bool> CheckLogin(string login)
+        public async Task<bool> CheckLogin(string login)
         {
-            return Task.FromResult(_userRepository.FindAll().Any(x => x.UserName == login));
+            return (await _userRepository.Search(x => x.UserName == login)).Any();
         }
 
-        public Task<bool> CheckEmail(string email)
+        public async Task<bool> CheckEmail(string email)
         {
-            return Task.FromResult(this._userManager.Users.Any(x => x.Email == email));
+            return await Task.Run(() =>
+            {
+                return this._userManager.Users.Any(x => x.Email == email);
+            });
         }
     }
 }

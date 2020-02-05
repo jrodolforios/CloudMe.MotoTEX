@@ -24,26 +24,30 @@ namespace CloudMe.MotoTEX.Domain.Services
             return "rota";
         }
 
-        protected override Task<Rota> CreateEntryAsync(RotaSummary summary)
+        protected override async Task<Rota> CreateEntryAsync(RotaSummary summary)
         {
-            if (summary.Id.Equals(Guid.Empty))
-                summary.Id = Guid.NewGuid();
-
-            var Rota = new Rota
+            return await Task.Run(() =>
             {
-                Id = summary.Id
-            };
-            return Task.FromResult(Rota);
+                if (summary.Id.Equals(Guid.Empty))
+                    summary.Id = Guid.NewGuid();
+
+                return new Rota
+                {
+                    Id = summary.Id
+                };
+            });
         }
 
-        protected override Task<RotaSummary> CreateSummaryAsync(Rota entry)
+        protected override async Task<RotaSummary> CreateSummaryAsync(Rota entry)
         {
-            var Rota = new RotaSummary
+            return await Task.Run(() =>
             {
-                Id = entry.Id
-            };
-
-            return Task.FromResult(Rota);
+                if (entry == null) return default;
+                return new RotaSummary
+                {
+                    Id = entry.Id
+                };
+            });
         }
 
         protected override Guid GetKeyFromSummary(RotaSummary summary)

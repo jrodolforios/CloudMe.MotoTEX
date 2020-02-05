@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 using System;
 using CloudMe.MotoTEX.Infraestructure.Entries;
 using EntityFrameworkCore.Triggers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CloudMe.MotoTEX.Infraestructure.EF.Contexts
 {
     public class CloudMeMotoTEXContext : CloudMeAdminDbContext
     {
+        private readonly IServiceProvider serviceProvider;
+
         public DbSet<Corrida> Corridas { get; set; }
         public DbSet<FaixaDesconto> FaixasDesconto { get; set; }
         public DbSet<FaixaDescontoTaxista> FaixasDescontoTaxistas { get; set; }
@@ -45,9 +48,11 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Contexts
         public CloudMeMotoTEXContext(
             DbContextOptions<CloudMeMotoTEXContext> options,
             ConfigurationStoreOptions storeOptions,
-            OperationalStoreOptions operationalOptions)
+            OperationalStoreOptions operationalOptions,
+            IServiceProvider serviceProvider)
             : base(options, storeOptions, operationalOptions)
         {
+            this.serviceProvider = serviceProvider;
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -87,28 +92,28 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Contexts
         {
             //UpdateSoftDeleteStatuses();
             //return base.SaveChanges();
-            return this.SaveChangesWithTriggers(base.SaveChanges, acceptAllChangesOnSuccess: true);
+            return this.SaveChangesWithTriggers(base.SaveChanges, serviceProvider, acceptAllChangesOnSuccess: true);
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             //UpdateSoftDeleteStatuses();
             //return base.SaveChanges(acceptAllChangesOnSuccess);
-            return this.SaveChangesWithTriggers(base.SaveChanges, acceptAllChangesOnSuccess);
+            return this.SaveChangesWithTriggers(base.SaveChanges, serviceProvider, acceptAllChangesOnSuccess);
         }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
             //UpdateSoftDeleteStatuses();
             //return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-            return this.SaveChangesWithTriggersAsync(base.SaveChangesAsync, acceptAllChangesOnSuccess, cancellationToken);
+            return this.SaveChangesWithTriggersAsync(base.SaveChangesAsync, serviceProvider, acceptAllChangesOnSuccess, cancellationToken);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             //UpdateSoftDeleteStatuses();
             //return base.SaveChangesAsync(cancellationToken);
-            return this.SaveChangesWithTriggersAsync(base.SaveChangesAsync, acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
+            return this.SaveChangesWithTriggersAsync(base.SaveChangesAsync, serviceProvider, acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
         }
 
         /*private void UpdateSoftDeleteStatuses()

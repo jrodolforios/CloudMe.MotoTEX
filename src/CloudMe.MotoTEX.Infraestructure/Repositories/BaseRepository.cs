@@ -58,12 +58,12 @@ namespace CloudMe.MotoTEX.Infraestructure.Repositories
             return entity;
         }
 
-        public IEnumerable<TEntry> FindAll()
+        public async Task<IEnumerable<TEntry>> FindAll()
         {
-            return this.Context.Set<TEntry>();
+            return await this.Context.Set<TEntry>().ToListAsync();
         }
 
-        public IEnumerable<TEntry> FindAll(string[] paths)
+        public async Task<IEnumerable<TEntry>> FindAll(string[] paths)
         {
             var qry = this.Context.Set<TEntry>() as IQueryable<TEntry>;
             if (paths != null && paths.Any())
@@ -74,7 +74,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Repositories
                 }
             }
 
-            return qry.AsEnumerable();
+            return await qry.ToListAsync();
         }
 
         public async Task<IEnumerable<TEntry>> FindAllAsync()
@@ -98,26 +98,35 @@ namespace CloudMe.MotoTEX.Infraestructure.Repositories
 
         public async virtual Task<bool> SaveAsync(TEntry entry)
         {
-            this.Context.Entry(entry).State = EntityState.Added;
-            return await Task.FromResult(true);
+            return await Task.Run(() =>
+            {
+                this.Context.Entry(entry).State = EntityState.Added;
+                return true;
+            });
         }
 
         public async virtual Task<bool> ModifyAsync(TEntry entry)
         {
-            this.Context.Entry(entry).State = EntityState.Modified;
-            return await Task.FromResult(true);
+            return await Task.Run(() =>
+            {
+                this.Context.Entry(entry).State = EntityState.Modified;
+                return true;
+            });
         }
 
         public async virtual Task<bool> DeleteAsync(TEntry entry, bool logical = true)
         {
-            var ctxEntry = Context.Entry(entry);
-            ctxEntry.CurrentValues["ForceDelete"] = !logical;
-            ctxEntry.State = EntityState.Deleted;
-            return await Task.FromResult(true);
+            return await Task.Run(() =>
+            {
+                var ctxEntry = Context.Entry(entry);
+                ctxEntry.CurrentValues["ForceDelete"] = !logical;
+                ctxEntry.State = EntityState.Deleted;
+                return true;
+            });
         }
 
 
-        public IEnumerable<TEntry> Search(Expression<Func<TEntry, bool>> where, string[] paths = null)
+        public async Task<IEnumerable<TEntry>> Search(Expression<Func<TEntry, bool>> where, string[] paths = null)
         {
             IQueryable<TEntry> qry = this.Context.Set<TEntry>();
 
@@ -129,12 +138,15 @@ namespace CloudMe.MotoTEX.Infraestructure.Repositories
                 }
             }
 
-            return qry.Where(where);
+            return await qry.Where(where).ToListAsync();
         }
 
-        public void Detach<TEntity>(TEntity entry) where TEntity : class
+        public async Task Detach<TEntity>(TEntity entry) where TEntity : class
         {
-            Context.Entry(entry).State = EntityState.Detached;
+            await Task.Run(() =>
+            {
+                Context.Entry(entry).State = EntityState.Detached;
+            });
         }
     }
 }

@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using CloudMe.MotoTEX.Infraestructure.EF.Contexts;
 using CloudMe.MotoTEX.Infraestructure.Abstracts.Transactions;
 using Serilog;
+using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
 
 namespace CloudMe.MotoTEX.Domain.Services.Background
 {
@@ -25,7 +26,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
         {
             public Guid IdSolicitacaoCorrida { get; set; }
             public IServiceProvider serviceProvider { get; set; }
-            public int JanelaAcumulacao { get; set; } = 10000; // default = 10s
+            public int JanelaFaixaAtivacao { get; set; } = 10000; // default = 10s
             public int JanelaDisponibilidade { get; set; } = 50000; // default = 50s
         }
 
@@ -33,11 +34,22 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
         {
             ParametrosMonitoramento parametros { get; set; }
 
+            IConfiguration Configuration;
+
             ISolicitacaoCorridaRepository solicitacaoCorridaRepo;
+            ITaxistaRepository taxistaRepo;
             IUnitOfWork unitOfWork;
             ICorridaService corridaService;
             ITarifaService tarifaService;
             IVeiculoTaxistaService veiculoTaxistaService;
+
+            ITaxistaService taxistaService;
+            IFavoritoService favoritoService;
+            ISolicitacaoCorridaService solicitacaoCorridaService;
+            IProxyNotificacoesSolicitacaoCorrida notificacoesSolicitacaoCorrida;
+
+            List<FaixaAtivacao> FaixasAtivacao = new List<FaixaAtivacao>();
+
 
             public MonitorSolicitacaoCorrida(ParametrosMonitoramento parametros)
             {
@@ -45,27 +57,64 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                 var serviceScope = parametros.serviceProvider.CreateScope();
 
                 solicitacaoCorridaRepo = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
+                taxistaRepo = serviceScope.ServiceProvider.GetRequiredService<ITaxistaRepository>();
                 unitOfWork = serviceScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 corridaService = serviceScope.ServiceProvider.GetRequiredService<ICorridaService>();
                 tarifaService = serviceScope.ServiceProvider.GetRequiredService<ITarifaService>();
                 veiculoTaxistaService = serviceScope.ServiceProvider.GetRequiredService<IVeiculoTaxistaService>();
+
+                taxistaService = serviceScope.ServiceProvider.GetRequiredService<ITaxistaService>();
+                favoritoService = serviceScope.ServiceProvider.GetRequiredService<IFavoritoService>();
+                Configuration = serviceScope.ServiceProvider.GetRequiredService<IConfiguration>();
+                solicitacaoCorridaService = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaService>();
+                notificacoesSolicitacaoCorrida = serviceScope.ServiceProvider.GetRequiredService<IProxyNotificacoesSolicitacaoCorrida>();
+
+                Configuration.GetSection("FaixasAtivacaoSolicitacaoCorrida").GetChildren().ToList().ForEach(x =>
+                {
+                    FaixasAtivacao.Add(new FaixaAtivacao()
+                    {
+                        RaioInicial = Convert.ToDouble(x.GetSection("RaioInicial").Value),
+                        Janela = Convert.ToInt32(x.GetSection("Janela").Value),
+                        RaioFinal = Convert.ToDouble(x.GetSection("RaioFinal").Value),
+                    });
+                });
             }
 
-            private async Task<int> ObterRespostasTaxistas(SolicitacaoCorrida solicitacao)
+            private async Task<IEnumerable<Taxista>> ClassificarTaxistasInteressados(SolicitacaoCorrida solicitacao)
             {
-                return await solicitacaoCorridaRepo.ObterNumeroAceitacoes(solicitacao);
-           }
+                var taxistas = await taxistaRepo.Search(
+                    taxista =>
+                        taxista.SolicitacoesCorrida.Any(
+                            solCorrTx => solCorrTx.IdSolicitacaoCorrida == solicitacao.Id &&
+                            solCorrTx.Acao == AcaoTaxistaSolicitacaoCorrida.Aceita) // ... que participou do pregão da solicitação
+                , new[] { "SolicitacoesCorrida" });
 
-            private async Task<IEnumerable<Taxista>> ClassificarTaxistasEleitos(SolicitacaoCorrida solicitacao)
-            {
-                return await solicitacaoCorridaRepo.ClassificarTaxistas(solicitacao);
+                var favoritos = await favoritoService.Search(fav => fav.IdPassageiro == solicitacao.IdPassageiro);
+
+                var taxistas_por_distancia_com_favoritos =
+                    from tx in taxistas
+                    join favorito in favoritos on tx.Id equals favorito.IdTaxista into tx_fav_join
+                    from tx_fav in tx_fav_join.DefaultIfEmpty()
+                    select new
+                    {
+                        taxista = tx,
+                        distancia = Localizacao.ObterDistancia(solicitacao.LocalizacaoOrigem, tx.LocalizacaoAtual),
+                        pref_favorito = tx_fav != null ? tx_fav.Preferencia : int.MaxValue
+                    };
+
+                var resultado =
+                    from tx_fav in taxistas_por_distancia_com_favoritos
+                    orderby tx_fav.pref_favorito, tx_fav.distancia
+                    select tx_fav.taxista;
+
+                return resultado;
             }
 
             private async Task<bool> ElegerTaxista(SolicitacaoCorrida solicitacao, Taxista taxista)
             {
                 var tarifaVigente = (await tarifaService.GetAll()).FirstOrDefault();
 
-                var veiculoTaxista = veiculoTaxistaService.Search(veicTx => veicTx.IdTaxista == taxista.Id && veicTx.Ativo).FirstOrDefault();
+                var veiculoTaxista = (await veiculoTaxistaService.Search(veicTx => veicTx.IdTaxista == taxista.Id && veicTx.Ativo)).FirstOrDefault();
 
                 var corrida = await corridaService.CreateAsync(new CorridaSummary()
                 {
@@ -78,16 +127,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                 });
 
                 return await unitOfWork.CommitAsync();
-            }
-
-            private async Task<bool> AlterarStatusMonitoramento(SolicitacaoCorrida solicitacao, StatusMonitoramentoSolicitacaoCorrida status)
-            {
-                return await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, status);
-            }
-
-            private async Task<bool> AlterarSituacaoSolicitacao(SolicitacaoCorrida solicitacao, SituacaoSolicitacaoCorrida situacao)
-            {
-                return await solicitacaoCorridaRepo.AlterarSituacao(solicitacao, situacao);
             }
 
             public async Task Executar()
@@ -136,10 +175,10 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                     if (solicitacao.Situacao == SituacaoSolicitacaoCorrida.Indefinido)
                     {
                         // passa a avaliar a solicitação de corrida
-                        await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.EmAvaliacao);
+                        await solicitacaoCorridaRepo.AlterarSituacao(solicitacao, SituacaoSolicitacaoCorrida.EmAvaliacao);
                     }
 
-                    IEnumerable<Taxista> taxistasEleitos = null;
+                    IEnumerable<Taxista> taxistasInteressados = null;
 
                     while (solicitacao.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao)
                     {
@@ -147,82 +186,132 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                         {
                             case StatusMonitoramentoSolicitacaoCorrida.Indefinido:
                                 {
-                                    await AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Acumulacao);
+                                    await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Ativacao);
                                     continue;
                                 }
-                            case StatusMonitoramentoSolicitacaoCorrida.Acumulacao:
+                            case StatusMonitoramentoSolicitacaoCorrida.Ativacao:
                                 {
-                                    Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][acumulação]", solicitacao.Id.ToString()));
-                                    Thread.Sleep(parametros.JanelaAcumulacao);
+                                    Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][ativação]", solicitacao.Id.ToString()));
+                                    // itera sobre os raios de abrangência até encontrar um taxista que aceite a solicitação
 
-                                    taxistasEleitos = await ClassificarTaxistasEleitos(solicitacao);
-                                    await AlterarStatusMonitoramento(solicitacao,
-                                        taxistasEleitos.Count() == 0 ?
-                                        StatusMonitoramentoSolicitacaoCorrida.Disponibilidade : // nenhum taxista aceitou a solicitacao
-                                        StatusMonitoramentoSolicitacaoCorrida.Conclusao // algum taxista aceitou a solicitacao
+                                    // Obs.: A faixa livre (após a última faixa de ativação) é a do índice 'FaixasAtivacao.Length'
+                                    // Assim, não retirar o operador <= do laço
+
+                                    bool solicitacaoAceita = false;
+
+                                    for (var idxFxAtivacao = solicitacao.IdxFaixaBusca; idxFxAtivacao <= FaixasAtivacao.Count; ++idxFxAtivacao)
+                                    {
+                                        var faixaLivre = idxFxAtivacao == FaixasAtivacao.Count;
+
+                                        await solicitacaoCorridaRepo.AlterarFaixaAtivacao(solicitacao, idxFxAtivacao);
+
+                                        double? raioInicio = faixaLivre ?
+                                            FaixasAtivacao[idxFxAtivacao - 1].RaioFinal :
+                                            FaixasAtivacao[idxFxAtivacao].RaioInicial;
+
+                                        double? raioFim = faixaLivre ?
+                                            (double?)null :
+                                            FaixasAtivacao[idxFxAtivacao].RaioFinal;
+
+                                        var taxistasFaixa = (await taxistaService.ProcurarPorDistancia(
+                                            new Model.Localizacao.LocalizacaoSummary() {Endereco = solicitacao.LocalizacaoOrigem.Endereco, Id = solicitacao.LocalizacaoOrigem.Id, IdUsuario = solicitacao.LocalizacaoOrigem.IdUsuario, Latitude = solicitacao.LocalizacaoOrigem.Latitude, Longitude = solicitacao.LocalizacaoOrigem.Longitude, NomePublico = solicitacao.LocalizacaoOrigem.NomePublico },
+                                            raioInicio, raioFim, new[] { "FormasPagamento", "FaixasDesconto" }))
+                                            .Where(taxista =>
+                                            (taxista.FormasPagamento.Any(frmPgto => frmPgto.IdFormaPagamento == solicitacao.IdFormaPagamento)) && // ... que aceita a forma de pagamento da solicitação
+                                            (taxista.FaixasDesconto.Any(fxDesc => fxDesc.IdFaixaDesconto == solicitacao.IdFaixaDesconto) || !solicitacao.IdFaixaDesconto.HasValue) // ... que adota a faixa de desconto solicitada
                                         );
 
+                                        if (taxistasFaixa.Count() == 0)
+                                        {
+                                            // vai pra próxima faixa
+                                            continue;
+                                        }
+
+                                        // apresenta a solicitação aos taxistas da faixa atual
+                                        await notificacoesSolicitacaoCorrida.AtivarTaxistas(
+                                            taxistasFaixa,
+                                            await solicitacaoCorridaService.GetSummaryAsync(parametros.IdSolicitacaoCorrida));
+
+                                        // inicia o timeout da faixa de ativação
+                                        Thread.Sleep(parametros.JanelaFaixaAtivacao);
+
+                                        // verifica se algum taxista atendeu a solicitação na faixa
+                                        var numAceitacoes = await solicitacaoCorridaRepo.ObterNumeroAceitacoes(solicitacao);
+
+                                        if (numAceitacoes > 0)
+                                        {
+                                            await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Eleicao); // algum taxista aceitou a solicitacao
+
+                                            solicitacaoAceita = true;
+                                            break;
+                                        }
+                                    }
+
+                                    //await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Disponibilidade); // nenhum taxista aceitou a solicitacao
+
+                                    if (!solicitacaoAceita)
+                                    {
+                                        await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Encerramento); // nenhum taxista aceitou a solicitacao
+                                    }
                                     continue;
                                 }
-                            case StatusMonitoramentoSolicitacaoCorrida.Disponibilidade:
+                            /*case StatusMonitoramentoSolicitacaoCorrida.Disponibilidade:
                                 {
                                     Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][disponibilidade]", solicitacao.Id.ToString()));
-                                    // dentro da janela de disponibilidade (aguardando taxista)
-
-                                    int num_taxistas = 0;
+                                    // dentro da janela de disponibilidade (aguardando qualquer taxista ativado na fase anterior)
 
                                     int accumTime = 0;
                                     var currTime = DateTime.Now;
 
                                     do
                                     {
-                                        num_taxistas = await ObterRespostasTaxistas(solicitacao); // operação mais 'barata' que a classificação
-                                        if (num_taxistas > 0)
+                                        var numAceitacoes = await solicitacaoCorridaRepo.ObterNumeroAceitacoes(solicitacao); // operação mais 'barata' que a classificação
+                                        if (numAceitacoes > 0)
                                         {
-                                            taxistasEleitos = await ClassificarTaxistasEleitos(solicitacao);
-                                            if (taxistasEleitos.Count() > 0)
-                                            {
-                                                break;
-                                            }
+                                            // alguem aceitou a corrida
+                                            await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Eleicao);
+                                            break;
                                         }
 
-                                        Thread.Sleep(500);
+                                        Thread.Sleep(100);
 
                                         accumTime += (DateTime.Now - currTime).Milliseconds;
                                         currTime = DateTime.Now;
                                     }
                                     while (accumTime < parametros.JanelaDisponibilidade);
 
-                                    // countdown atingido ou algum taxista aceitou a solicitação
-                                    await AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Conclusao);
+                                    // countdown atingido
+                                    await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Encerramento);
 
                                     continue;
-                                }
+                                }*/
 
-                            case StatusMonitoramentoSolicitacaoCorrida.Conclusao:
+                            case StatusMonitoramentoSolicitacaoCorrida.Eleicao:
                                 {
-                                    Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][conclusão]", solicitacao.Id.ToString()));
-                                    if (taxistasEleitos == null)
-                                    {
-                                        // caso tenha chegado aqui após uma queda do sistema, por exemplo
-                                        taxistasEleitos = await ClassificarTaxistasEleitos(solicitacao);
-                                    }
+                                    // Alguém aceitou a solicitação de corrida em alguma das fases anteriores (ativação ou disponibilidade)
 
-                                    if (taxistasEleitos.Count() > 0)
+                                    Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][conclusão]", solicitacao.Id.ToString()));
+
+                                    // recupera a lista de interessados, caso tenha sido perdida por algum motivo (queda do sistema, por exemplo)
+                                    taxistasInteressados = await ClassificarTaxistasInteressados(solicitacao);
+
+                                    if (taxistasInteressados.Count() > 0)
                                     {
                                         // cria registro de corrida para o primeiro taxista da classificação
-                                        await ElegerTaxista(solicitacao, taxistasEleitos.First());
+                                        if (await ElegerTaxista(solicitacao, taxistasInteressados.First()))
+                                        {
+                                            // muda o status da solicitação para aceita
+                                            await solicitacaoCorridaRepo.AlterarSituacao(solicitacao, SituacaoSolicitacaoCorrida.Aceita);
+                                        }
 
-                                        // muda o status da solicitação para aceita
-                                        await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.Aceita);
                                     }
                                     else
                                     {
                                         // muda o status da solicitação para não atendida
-                                        await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.NaoAtendida);
+                                        await solicitacaoCorridaRepo.AlterarSituacao(solicitacao, SituacaoSolicitacaoCorrida.NaoAtendida);
                                     }
 
-                                    await AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Encerramento);
+                                    await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Encerramento);
                                     continue;
                                 }
 
@@ -232,17 +321,17 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                                     // caso particular... algum erro no fluxo não levou ao encerramento da solicitação
                                     Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][encerramento]", solicitacao.Id.ToString()));
 
-                                    if (solicitacao.Situacao != SituacaoSolicitacaoCorrida.Aceita && 
+                                    if (solicitacao.Situacao != SituacaoSolicitacaoCorrida.Aceita &&
                                         solicitacao.Situacao != SituacaoSolicitacaoCorrida.NaoAtendida)
                                     {
                                         // muda o status da solicitação para não atendida
-                                        await AlterarSituacaoSolicitacao(solicitacao, SituacaoSolicitacaoCorrida.NaoAtendida);
+                                        await solicitacaoCorridaRepo.AlterarSituacao(solicitacao, SituacaoSolicitacaoCorrida.NaoAtendida);
                                     }
                                 }
                                 break;
                         }
 
-                        Thread.Sleep(200);
+                        Thread.Sleep(100);
                     }
                 }
                 catch (Exception e)
@@ -277,11 +366,12 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
             await new MonitorSolicitacaoCorrida(paramMon).Executar();
         }
 
-        private void Inicializar()
+        private async Task Inicializar()
         {
             Log.Information("Iniciando monitoramento de solicitações de corrida...");
             try
             {
+                var janelaAtivacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaFaixaAtivacao");
                 var janelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao");
                 var janelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao");
 
@@ -291,22 +381,22 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
 
                     Log.Information("   Carregando solicitações vigentes...");
                     // obtém solicitações vigentes
-                    var idsSolicitacoes = solicitacaoCorridaRepo.Search(
+                    var idsSolicitacoes = (await solicitacaoCorridaRepo.Search(
                         sol_corrida =>
                             sol_corrida.Situacao == SituacaoSolicitacaoCorrida.Indefinido ||
-                            sol_corrida.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao).Select(x => x.Id);
+                            sol_corrida.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao)).Select(x => x.Id);
 
                     Log.Information(string.Format("   {0} solicitações em andamento!", idsSolicitacoes.Count()));
 
                     foreach (var idSolicitacao in idsSolicitacoes)
                     {
-                        Task.Factory.StartNew(async () =>
+                        await Task.Factory.StartNew(async () =>
                         {
                             Log.Information(string.Format("Iniciado monitoramento da solicitação de corrida: [{0}]", idSolicitacao));
                             await new MonitorSolicitacaoCorrida(new ParametrosMonitoramento
                             {
                                 IdSolicitacaoCorrida = idSolicitacao,
-                                JanelaAcumulacao = janelaAcumulacao,
+                                JanelaFaixaAtivacao = janelaAtivacao,
                                 JanelaDisponibilidade = janelaDisponibilidade,
                                 serviceProvider = serviceProvider
                             }).Executar();
@@ -332,7 +422,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                             await new MonitorSolicitacaoCorrida(new ParametrosMonitoramento
                             {
                                 IdSolicitacaoCorrida = insertingEntry.Entity.Id,
-                                JanelaAcumulacao = janelaAcumulacao,
+                                JanelaFaixaAtivacao = janelaAtivacao,
                                 JanelaDisponibilidade = janelaDisponibilidade,
                                 serviceProvider = serviceProvider
                             }).Executar();
@@ -357,7 +447,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Inicializar();
+            await Inicializar();
 
             // obtém as solicitações de corrida
             while (!stoppingToken.IsCancellationRequested)

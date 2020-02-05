@@ -52,9 +52,16 @@ namespace CloudMe.MotoTEX.Infraestructure.Repositories
             return await Context.SaveChangesAsync() > 0;
         }
 
+        public async Task<bool> AlterarFaixaAtivacao(SolicitacaoCorrida solicitacao, int idxFaixaAtivacao)
+        {
+            solicitacao.IdxFaixaBusca = idxFaixaAtivacao;
+            Context.Entry(solicitacao).State = EntityState.Modified;
+            return await Context.SaveChangesAsync() > 0;
+        }
+
         public async Task<IEnumerable<Taxista>> ClassificarTaxistas(SolicitacaoCorrida solicitacao)
         {
-            var taxistas = Context.Set<Taxista>()
+            var taxistas = Context.Taxistas
                 .Include(x => x.FormasPagamento)
                 .Include(x => x.FaixasDesconto)
                 .Include(x => x.LocalizacaoAtual)
@@ -71,7 +78,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Repositories
                         solCorrTx => solCorrTx.IdSolicitacaoCorrida == solicitacao.Id &&
                         solCorrTx.Acao == AcaoTaxistaSolicitacaoCorrida.Aceita)); // ... que participou do pregão da solicitação */
 
-            var favoritos = Context.Set<Favorito>()
+            var favoritos = Context.Favoritos
                 .Where(fav => fav.IdPassageiro == solicitacao.IdPassageiro);
 
             var taxistas_com_favoritos =
@@ -81,7 +88,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Repositories
                 select new
                 {
                     taxista = tx,
-                    distancia = SolicitacaoCorrida.ObterDistancia(solicitacao.LocalizacaoOrigem, tx.LocalizacaoAtual),
+                    distancia = Localizacao.ObterDistancia(solicitacao.LocalizacaoOrigem, tx.LocalizacaoAtual),
                     pref_favorito = tx_fav != null ? tx_fav.Preferencia : 0
                 };
 
@@ -96,9 +103,10 @@ namespace CloudMe.MotoTEX.Infraestructure.Repositories
             return await resultado.ToListAsync();
         }
 
-        public AcaoTaxistaSolicitacaoCorrida buscarAcaoTaxista(string idTaxista, Guid idSolicitacaoCorrida)
+        public async Task<AcaoTaxistaSolicitacaoCorrida> buscarAcaoTaxista(Guid idTaxista, Guid idSolicitacaoCorrida)
         {
-            return Context.SolicitacoesCorridaTaxistas.FirstOrDefault(x => x.IdTaxista.ToString() == idTaxista && x.IdSolicitacaoCorrida == idSolicitacaoCorrida)?.Acao ?? AcaoTaxistaSolicitacaoCorrida.Indefinido;
+            var acaoTaxistaSolicitacao = await Context.SolicitacoesCorridaTaxistas.FirstOrDefaultAsync(x => x.IdTaxista == idTaxista && x.IdSolicitacaoCorrida == idSolicitacaoCorrida);
+            return acaoTaxistaSolicitacao?.Acao ?? AcaoTaxistaSolicitacaoCorrida.Indefinido;
         }
     }
 }

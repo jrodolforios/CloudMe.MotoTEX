@@ -8,7 +8,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Abstracts
 {
     public interface IVeiculoTaxistaService : IServiceBase<VeiculoTaxista, VeiculoTaxistaSummary, Guid>
     {
-        bool IsTaxiAtivoEmUsoPorOutroTaxista(Guid id);
-        Task<List<VeiculoTaxistaSummary>> ConsultaVeiculosDeTaxista(Guid id);
+        Task<bool> IsTaxiAtivoEmUsoPorOutroTaxista(Guid id);
+        Task<IEnumerable<VeiculoTaxistaSummary>> ConsultaVeiculosDeTaxista(Guid id);
     }
 }
