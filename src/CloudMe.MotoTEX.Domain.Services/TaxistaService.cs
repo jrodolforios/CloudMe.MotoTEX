@@ -67,6 +67,39 @@ namespace CloudMe.MotoTEX.Domain.Services
             });
         }
 
+        public async override Task<Taxista> CreateAsync(TaxistaSummary summary)
+        {
+            // verifica se existe outro taxista com o mesmo Número de identificação
+            var usrNum = (await _TaxistaRepository.Search(tx => tx.NumeroIdentificacao == summary.NumeroIdentificacao)).FirstOrDefault();
+            if (usrNum != null && summary.NumeroIdentificacao != null)
+            {
+                AddNotification("Taxistas", string.Format("Número de identificação '{0}' está sendo utilizado por outro mototaxista", summary.NumeroIdentificacao));
+            }
+
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            return await base.CreateAsync(summary);
+        }
+
+        public async override Task<Taxista> UpdateAsync(TaxistaSummary summary)
+        {
+            var usrNum = (await _TaxistaRepository.Search(tx => tx.NumeroIdentificacao == summary.NumeroIdentificacao && tx.Id != summary.Id)).FirstOrDefault();
+            if (usrNum != null && summary.NumeroIdentificacao != null)
+            {
+                AddNotification("Taxistas", string.Format("Número de identificação '{0}' está sendo utilizado por outro mototaxista", summary.NumeroIdentificacao));
+            }
+
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            return await base.UpdateAsync(summary);
+        }
+
         protected override async Task<TaxistaSummary> CreateSummaryAsync(Taxista entry)
         {
             return await Task.Run(() =>

@@ -199,19 +199,22 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
 
                                     bool solicitacaoAceita = false;
 
-                                    for (var idxFxAtivacao = solicitacao.IdxFaixaBusca; idxFxAtivacao <= FaixasAtivacao.Count; ++idxFxAtivacao)
+                                    //for (var idxFxAtivacao = solicitacao.IdxFaixaBusca; idxFxAtivacao <= FaixasAtivacao.Count; ++idxFxAtivacao)
+                                    for (var idxFxAtivacao = solicitacao.IdxFaixaBusca; idxFxAtivacao < FaixasAtivacao.Count; ++idxFxAtivacao)
                                     {
-                                        var faixaLivre = idxFxAtivacao == FaixasAtivacao.Count;
+                                        //var faixaLivre = idxFxAtivacao == FaixasAtivacao.Count;
 
                                         await solicitacaoCorridaRepo.AlterarFaixaAtivacao(solicitacao, idxFxAtivacao);
 
-                                        double? raioInicio = faixaLivre ?
+                                        /*double? raioInicio = faixaLivre ?
                                             FaixasAtivacao[idxFxAtivacao - 1].RaioFinal :
-                                            FaixasAtivacao[idxFxAtivacao].RaioInicial;
+                                            FaixasAtivacao[idxFxAtivacao].RaioInicial;*/
+                                        double? raioInicio = FaixasAtivacao[idxFxAtivacao].RaioInicial;
 
-                                        double? raioFim = faixaLivre ?
+                                        /*double? raioFim = faixaLivre ?
                                             (double?)null :
-                                            FaixasAtivacao[idxFxAtivacao].RaioFinal;
+                                            FaixasAtivacao[idxFxAtivacao].RaioFinal;*/
+                                        double? raioFim = FaixasAtivacao[idxFxAtivacao].RaioFinal;
 
                                         var taxistasFaixa = (await taxistaService.ProcurarPorDistancia(
                                             new Model.Localizacao.LocalizacaoSummary() {Endereco = solicitacao.LocalizacaoOrigem.Endereco, Id = solicitacao.LocalizacaoOrigem.Id, IdUsuario = solicitacao.LocalizacaoOrigem.IdUsuario, Latitude = solicitacao.LocalizacaoOrigem.Latitude, Longitude = solicitacao.LocalizacaoOrigem.Longitude, NomePublico = solicitacao.LocalizacaoOrigem.NomePublico },
@@ -233,7 +236,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                                             await solicitacaoCorridaService.GetSummaryAsync(parametros.IdSolicitacaoCorrida));
 
                                         // inicia o timeout da faixa de ativação
-                                        Thread.Sleep(parametros.JanelaFaixaAtivacao);
+                                        Thread.Sleep(FaixasAtivacao[idxFxAtivacao].Janela);
 
                                         // verifica se algum taxista atendeu a solicitação na faixa
                                         var numAceitacoes = await solicitacaoCorridaRepo.ObterNumeroAceitacoes(solicitacao);
