@@ -11,6 +11,7 @@ using CloudMe.MotoTEX.Domain.Model.Localizacao;
 using System.Linq;
 using System.Linq.Expressions;
 using CloudMe.MotoTEX.Domain.Model;
+using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
 
 namespace CloudMe.MotoTEX.Domain.Services
 {
@@ -22,19 +23,22 @@ namespace CloudMe.MotoTEX.Domain.Services
         private readonly ILocalizacaoService _LocalizacaoService;
         private readonly ICorridaRepository _corridaRepository;
         private readonly ISolicitacaoCorridaRepository _solicitacaoCorridaRepository;
+        private readonly IProxyNotificacoesLocalizacao _proxyNotificacoesLocalizacao;
 
         public PassageiroService(
             IPassageiroRepository PassageiroRepository,
             IFotoService FotoService,
             ILocalizacaoService LocalizacaoService,
             ICorridaRepository corridaRepository,
-            ISolicitacaoCorridaRepository solicitacaoCorridaRepository)
+            ISolicitacaoCorridaRepository solicitacaoCorridaRepository,
+            IProxyNotificacoesLocalizacao proxyNotificacoesLocalizacao)
         {
             _PassageiroRepository = PassageiroRepository;
             _FotoService = FotoService;
             _LocalizacaoService = LocalizacaoService;
             _corridaRepository = corridaRepository;
             _solicitacaoCorridaRepository = solicitacaoCorridaRepository;
+            _proxyNotificacoesLocalizacao = proxyNotificacoesLocalizacao;
         }
 
         public override string GetTag()
@@ -194,7 +198,14 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         public async Task<PassageiroSummary> GetByUserId(Guid Key)
         {
-            return await CreateSummaryAsync((await base.Search(x => x.IdUsuario == Key, defaultPaths, null)).FirstOrDefault());
+            var passageiro = (await base.Search(x => x.IdUsuario == Key, defaultPaths, null)).FirstOrDefault();
+            if(passageiro == null)
+            {
+                AddNotification(new Notification("Passageiros", "Passageiro não encontrado."));
+                return default;
+            }
+
+            return await CreateSummaryAsync(passageiro);
         }
 
         public async Task<bool> InformarLocalizacao(Guid Key, LocalizacaoSummary localizacao)
@@ -212,7 +223,14 @@ namespace CloudMe.MotoTEX.Domain.Services
             localizacaoSummmary.Longitude = localizacao.Longitude;
             localizacaoSummmary.IdUsuario = passageiro.IdUsuario;
 
-            return (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
+            var resultado = (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
+
+            if (resultado)
+            {
+                await _proxyNotificacoesLocalizacao.InformarLocalizacaoPassageiro(passageiro.Id, double.Parse(localizacao.Latitude), double.Parse(localizacao.Longitude));
+            }
+
+            return resultado;
         }
 
         /*public async Task<bool> AssociarFoto(Guid Key, Guid idFoto)

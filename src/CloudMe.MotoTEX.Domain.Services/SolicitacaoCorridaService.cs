@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CloudMe.MotoTEX.Domain.Enums;
 using System.Linq;
+using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
 
 namespace CloudMe.MotoTEX.Domain.Services
 {
@@ -16,6 +17,7 @@ namespace CloudMe.MotoTEX.Domain.Services
     {
         private readonly ISolicitacaoCorridaRepository _SolicitacaoCorridaRepository;
         private readonly ITaxistaRepository _TaxistaRepository;
+        private readonly IProxyNotificacoesSolicitacaoCorrida _ProxyNotificacoesSolicitacaoCorrida;
 
         public SolicitacaoCorridaService(
             ISolicitacaoCorridaRepository SolicitacaoCorridaRepository,
@@ -172,6 +174,8 @@ namespace CloudMe.MotoTEX.Domain.Services
                 return false;
             }
 
+            await _ProxyNotificacoesSolicitacaoCorrida.InformarAcaoTaxista(taxista, solicitacao, acao);
+
             return await _SolicitacaoCorridaRepository.RegistrarAcaoTaxista(solicitacao, taxista, acao);
         }
 
@@ -203,6 +207,11 @@ namespace CloudMe.MotoTEX.Domain.Services
             }
 
             return solicitacoesSumaries;
+        }
+
+        public async Task<IEnumerable<SolicitacaoCorrida>> RecuperarSolicitacoesAtivas()
+        {
+            return await _SolicitacaoCorridaRepository.Search(x => x.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Contexts
         public DbSet<MensagemDestinatario> MensagensDestinatarios  { get; set; }
         public DbSet<Emergencia> Emergencias { get; set; }
         public DbSet<Contato> Contatos { get; set; }
-
+        public DbSet<FaixaAtivacao> FaixasAtivacao { get; set; }
         public DbSet<Faturamento> Faturamento { get; set; }
         public DbSet<FaturamentoTaxista> FaturamentoTaxista { get; set; }
 
@@ -85,6 +85,9 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Contexts
             builder.ApplyConfiguration(new MapMensagem());
             builder.ApplyConfiguration(new MapMensagemDestinatario());
             builder.ApplyConfiguration(new MapContato());
+            builder.ApplyConfiguration(new MapFaixaAtivacao());
+            builder.ApplyConfiguration(new MapFaturamento());
+            builder.ApplyConfiguration(new MapFaturamentoTaxista());
             base.OnModelCreating(builder);
         }
 

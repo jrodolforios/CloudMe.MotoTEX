@@ -108,5 +108,16 @@ namespace CloudMe.MotoTEX.Api.Controllers
             return await base.ResponseAsync(await this._SolicitacaoCorridaService.RecuperarSolicitacoesEmEspera(IdTaxista), _SolicitacaoCorridaService);
         }
 
+        /// <summary>
+        /// Recupera Solicitações em ativas (em avaliação)
+        /// </summary>
+        [HttpPost("recuperar_solicitacoes_ativas")]
+        //[ValidateAntiForgeryToken]
+        [ProducesResponseType(typeof(Response<IEnumerable<SolicitacaoCorridaSummary>>), (int)HttpStatusCode.OK)]
+        public async Task<Response<IEnumerable<SolicitacaoCorridaSummary>>> RecuperarSolicitacoesAtivas()
+        {
+            var solicitacoesAtivas = await _SolicitacaoCorridaService.RecuperarSolicitacoesAtivas();
+            return await base.ResponseAsync(await _SolicitacaoCorridaService.GetAllSummariesAsync(solicitacoesAtivas), _SolicitacaoCorridaService);
+        }
     }
 }

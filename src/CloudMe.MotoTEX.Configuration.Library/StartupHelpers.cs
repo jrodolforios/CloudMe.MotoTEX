@@ -86,6 +86,7 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
             services.AddTransient<IEmergenciaService, EmergenciaService>();
             services.AddTransient<IFaturamentoService, FaturamentoService>();
             services.AddTransient<IFaturamentoTaxistaService, FaturamentoTaxistaService>();
+            services.AddTransient<IFaixaAtivacaoService, FaixaAtivacaoService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped(p => p.GetService<IHttpContextAccessor>()?.HttpContext);
@@ -139,6 +140,7 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
             services.AddTransient<IEmergenciaRepository, EmergenciaRepository>();
             services.AddTransient<IFaturamentoRepository, FaturamentoRepository>();
             services.AddTransient<IFaturamentoTaxistaRepository, FaturamentoTaxistaRepository>();
+            services.AddTransient<IFaixaAtivacaoRepository, FaixaAtivacaoRepository>();
 
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
@@ -200,6 +202,7 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
 
                 routes.MapHub<HubMensagens>("/notifications/mensagens");
                 routes.MapHub<HubNotificaoes>("/notifications");
+                routes.MapHub<HubNotificaoesAdmin>("/notifications_admin");
             });
 
             BuildEntryNotifiers<TContext>(app);

@@ -4,10 +4,10 @@ using System.Text;
 
 namespace CloudMe.MotoTEX.Domain.Model.Corrida
 {
-    public class FaixaAtivacao
+    public class FaixaAtivacaoSummary
     {
-        public double RaioInicial { get; set; }
-        public double RaioFinal { get; set; }
+        public Guid Id { get; set; }
+        public double Raio { get; set; }
         public int Janela { get; set; }
     }
 }

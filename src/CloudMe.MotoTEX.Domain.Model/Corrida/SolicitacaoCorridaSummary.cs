@@ -20,5 +20,7 @@ namespace CloudMe.MotoTEX.Domain.Model.Corrida
         public float? ValorProposto { get; set; }
         public bool IsInterUrbano { get; set; }
         public SituacaoSolicitacaoCorrida Situacao { get; set; }
+        public StatusMonitoramentoSolicitacaoCorrida StatusMonitoramento { get; set; }
+        public int IdxFaixaBusca { get; set; }
     }
 }

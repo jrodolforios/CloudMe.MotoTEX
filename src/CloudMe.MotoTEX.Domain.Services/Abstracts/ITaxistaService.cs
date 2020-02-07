@@ -17,5 +17,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Abstracts
         Task<int> ClassificacaoTaxista(Guid id);
 
         Task<IEnumerable<Taxista>> ProcurarPorDistancia(LocalizacaoSummary origem, double? raio_minimo, double? raio_maximo, string [] paths = null);
+        Task<IEnumerable<Taxista>> ProcurarPorDistancia(Localizacao origem, double? raio_minimo, double? raio_maximo, string[] paths = null);
     }
 }

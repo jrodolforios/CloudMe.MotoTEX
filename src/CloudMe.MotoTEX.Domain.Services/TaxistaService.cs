@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using CloudMe.MotoTEX.Domain.Model.Foto;
+using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
 
 namespace CloudMe.MotoTEX.Domain.Services
 {
@@ -25,13 +26,15 @@ namespace CloudMe.MotoTEX.Domain.Services
         private readonly IVeiculoTaxistaService _veiculoTaxistaService;
         private readonly ILocalizacaoService _LocalizacaoService;
         private readonly ICorridaRepository _corridaRepository;
+        private readonly IProxyNotificacoesLocalizacao _proxyNotificacoesLocalizacao;
 
         public TaxistaService(
             ITaxistaRepository TaxistaRepository,
             IFotoService FotoService,
             IVeiculoTaxistaService veiculoTaxistaService,
             ILocalizacaoService LocalizacaoService,
-            ICorridaRepository corridaRepository
+            ICorridaRepository corridaRepository,
+            IProxyNotificacoesLocalizacao proxyNotificacoesLocalizacao
             )
         {
             _TaxistaRepository = TaxistaRepository;
@@ -39,6 +42,7 @@ namespace CloudMe.MotoTEX.Domain.Services
             _veiculoTaxistaService = veiculoTaxistaService;
             _LocalizacaoService = LocalizacaoService;
             _corridaRepository = corridaRepository;
+            _proxyNotificacoesLocalizacao = proxyNotificacoesLocalizacao;
         }
 
         public override string GetTag()
@@ -221,10 +225,14 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         public async Task<TaxistaSummary> GetByUserId(Guid id)
         {
-            var taxista = (await _TaxistaRepository.FindAll()).FirstOrDefault(x => x.IdUsuario == id);
-            var taxistaSummary = await this.GetSummaryAsync(taxista.Id);
+            var taxista = (await base.Search(x => x.IdUsuario == id, defaultPaths, null)).FirstOrDefault();
+            if (taxista == null)
+            {
+                AddNotification(new Notification("Taxistas", "Taxista não encontrado."));
+                return default;
+            }
 
-            return taxistaSummary;
+            return await CreateSummaryAsync(taxista);
         }
 
         public async Task<bool> MakeTaxistOnlineAsync(Guid id, bool disponivel)
@@ -266,7 +274,15 @@ namespace CloudMe.MotoTEX.Domain.Services
             localizacaoSummmary.Latitude = localizacao.Latitude;
             localizacaoSummmary.Longitude = localizacao.Longitude;
             localizacaoSummmary.IdUsuario = taxista.IdUsuario;
-            return (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
+
+            var resultado = (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
+
+            if (resultado)
+            {
+                await _proxyNotificacoesLocalizacao.InformarLocalizacaoTaxista(taxista.Id, double.Parse(localizacao.Latitude), double.Parse(localizacao.Longitude));
+            }
+
+            return resultado;
         }
 
         public async Task<int> ClassificacaoTaxista(Guid id)
@@ -285,6 +301,19 @@ namespace CloudMe.MotoTEX.Domain.Services
         }
 
         public async Task<IEnumerable<Taxista>> ProcurarPorDistancia(LocalizacaoSummary origem, double? raio_minimo, double? raio_maximo, string[] paths = null)
+        {
+            return await ProcurarPorDistancia(new Localizacao()
+            {
+                Endereco = origem.Endereco,
+                Id = origem.Id,
+                IdUsuario = origem.IdUsuario,
+                Latitude = origem.Latitude,
+                Longitude = origem.Longitude,
+                NomePublico = origem.NomePublico
+            }, raio_minimo, raio_maximo, paths);
+        }
+
+        public async Task<IEnumerable<Taxista>> ProcurarPorDistancia(Localizacao origem, double? raio_minimo, double? raio_maximo, string[] paths = null)
         {
             raio_minimo = raio_minimo ?? 0;
             raio_maximo = raio_maximo ?? double.MaxValue;
@@ -306,15 +335,7 @@ namespace CloudMe.MotoTEX.Domain.Services
                 select new
                 {
                     taxista = tx,
-                    distancia = Localizacao.ObterDistancia(new Localizacao()
-                    {
-                        Endereco = origem.Endereco,
-                        Id = origem.Id,
-                        IdUsuario = origem.IdUsuario,
-                        Latitude = origem.Latitude,
-                        Longitude = origem.Longitude,
-                        NomePublico = origem.NomePublico
-                    }, tx.LocalizacaoAtual)
+                    distancia = Localizacao.ObterDistancia(origem, tx.LocalizacaoAtual)
                 };
 
             var resultFinal = from tx in taxistas_com_distancias

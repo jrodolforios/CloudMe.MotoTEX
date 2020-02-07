@@ -34,22 +34,17 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
         {
             ParametrosMonitoramento parametros { get; set; }
 
-            IConfiguration Configuration;
-
             ISolicitacaoCorridaRepository solicitacaoCorridaRepo;
             ITaxistaRepository taxistaRepo;
             IUnitOfWork unitOfWork;
             ICorridaService corridaService;
             ITarifaService tarifaService;
             IVeiculoTaxistaService veiculoTaxistaService;
-
             ITaxistaService taxistaService;
             IFavoritoService favoritoService;
             ISolicitacaoCorridaService solicitacaoCorridaService;
             IProxyNotificacoesSolicitacaoCorrida notificacoesSolicitacaoCorrida;
-
-            List<FaixaAtivacao> FaixasAtivacao = new List<FaixaAtivacao>();
-
+            IFaixaAtivacaoRepository faixaAtivacaoRepository;
 
             public MonitorSolicitacaoCorrida(ParametrosMonitoramento parametros)
             {
@@ -65,19 +60,8 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
 
                 taxistaService = serviceScope.ServiceProvider.GetRequiredService<ITaxistaService>();
                 favoritoService = serviceScope.ServiceProvider.GetRequiredService<IFavoritoService>();
-                Configuration = serviceScope.ServiceProvider.GetRequiredService<IConfiguration>();
                 solicitacaoCorridaService = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaService>();
                 notificacoesSolicitacaoCorrida = serviceScope.ServiceProvider.GetRequiredService<IProxyNotificacoesSolicitacaoCorrida>();
-
-                Configuration.GetSection("FaixasAtivacaoSolicitacaoCorrida").GetChildren().ToList().ForEach(x =>
-                {
-                    FaixasAtivacao.Add(new FaixaAtivacao()
-                    {
-                        RaioInicial = Convert.ToDouble(x.GetSection("RaioInicial").Value),
-                        Janela = Convert.ToInt32(x.GetSection("Janela").Value),
-                        RaioFinal = Convert.ToDouble(x.GetSection("RaioFinal").Value),
-                    });
-                });
             }
 
             private async Task<IEnumerable<Taxista>> ClassificarTaxistasInteressados(SolicitacaoCorrida solicitacao)
@@ -178,6 +162,15 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                         await solicitacaoCorridaRepo.AlterarSituacao(solicitacao, SituacaoSolicitacaoCorrida.EmAvaliacao);
                     }
 
+                    //obtém as faixas de ativação
+                    var FaixasAtivacao = (await faixaAtivacaoRepository.GetAllByRadius()).ToArray();
+                    var numFaixasAtivacao = FaixasAtivacao.Count();
+                    if (numFaixasAtivacao == 0)
+                    {
+                        // deixa de monitorar a solicitação pois não foram definidas faixas de ativação
+                        await solicitacaoCorridaRepo.AlterarStatusMonitoramento(solicitacao, StatusMonitoramentoSolicitacaoCorrida.Encerramento);
+                    }
+
                     IEnumerable<Taxista> taxistasInteressados = null;
 
                     while (solicitacao.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao)
@@ -199,27 +192,34 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
 
                                     bool solicitacaoAceita = false;
 
-                                    //for (var idxFxAtivacao = solicitacao.IdxFaixaBusca; idxFxAtivacao <= FaixasAtivacao.Count; ++idxFxAtivacao)
-                                    for (var idxFxAtivacao = solicitacao.IdxFaixaBusca; idxFxAtivacao < FaixasAtivacao.Count; ++idxFxAtivacao)
+                                    //for (var idxFxAtivacao = solicitacao.IdxFaixaBusca; idxFxAtivacao <= numFaixasAtivacao; ++idxFxAtivacao)
+                                    for (var idxFxAtivacao = solicitacao.IdxFaixaBusca; idxFxAtivacao < numFaixasAtivacao; ++idxFxAtivacao)
                                     {
-                                        //var faixaLivre = idxFxAtivacao == FaixasAtivacao.Count;
+                                        //var faixaLivre = idxFxAtivacao == numFaixasAtivacao;
 
                                         await solicitacaoCorridaRepo.AlterarFaixaAtivacao(solicitacao, idxFxAtivacao);
 
-                                        /*double? raioInicio = faixaLivre ?
-                                            FaixasAtivacao[idxFxAtivacao - 1].RaioFinal :
-                                            FaixasAtivacao[idxFxAtivacao].RaioInicial;*/
-                                        double? raioInicio = FaixasAtivacao[idxFxAtivacao].RaioInicial;
+										/*
+                                        double? raioInicio = faixaLivre ?
+                                            FaixasAtivacao[numFaixasAtivacao - 1].Raio : // inicia no raio da última faixa de ativação
+                                            idxFxAtivacao > 0 ? FaixasAtivacao[idxFxAtivacao - 1].Raio : 0; // inicia raio da faixa de ativação anterior (0 se estiver na primeira faixa)
+										*/
+                                        double? raioInicio = idxFxAtivacao > 0 ? FaixasAtivacao[idxFxAtivacao - 1].Raio : 0;
 
-                                        /*double? raioFim = faixaLivre ?
-                                            (double?)null :
-                                            FaixasAtivacao[idxFxAtivacao].RaioFinal;*/
-                                        double? raioFim = FaixasAtivacao[idxFxAtivacao].RaioFinal;
+										/*
+                                        double? raioFim = faixaLivre ?
+                                            (double?)null : // finaliza com raio infinito
+                                            FaixasAtivacao[idxFxAtivacao].Raio; // finaliza no raio de ativação corrente
+										*/
+                                        double? raioFim = FaixasAtivacao[idxFxAtivacao].Raio;
 
-                                        var taxistasFaixa = (await taxistaService.ProcurarPorDistancia(
-                                            new Model.Localizacao.LocalizacaoSummary() {Endereco = solicitacao.LocalizacaoOrigem.Endereco, Id = solicitacao.LocalizacaoOrigem.Id, IdUsuario = solicitacao.LocalizacaoOrigem.IdUsuario, Latitude = solicitacao.LocalizacaoOrigem.Latitude, Longitude = solicitacao.LocalizacaoOrigem.Longitude, NomePublico = solicitacao.LocalizacaoOrigem.NomePublico },
-                                            raioInicio, raioFim, new[] { "FormasPagamento", "FaixasDesconto" }))
-                                            .Where(taxista =>
+                                        var taxistasFaixa = (
+                                            await taxistaService.ProcurarPorDistancia(solicitacao.LocalizacaoOrigem, 
+                                            raioInicio, 
+                                            raioFim, 
+                                            new[] { "FormasPagamento", "FaixasDesconto" }))
+                                        .Where(
+                                            taxista =>
                                             (taxista.FormasPagamento.Any(frmPgto => frmPgto.IdFormaPagamento == solicitacao.IdFormaPagamento)) && // ... que aceita a forma de pagamento da solicitação
                                             (taxista.FaixasDesconto.Any(fxDesc => fxDesc.IdFaixaDesconto == solicitacao.IdFaixaDesconto) || !solicitacao.IdFaixaDesconto.HasValue) // ... que adota a faixa de desconto solicitada
                                         );
@@ -293,7 +293,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                                 {
                                     // Alguém aceitou a solicitação de corrida em alguma das fases anteriores (ativação ou disponibilidade)
 
-                                    Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][conclusão]", solicitacao.Id.ToString()));
+                                    Log.Information(string.Format("Status monitoramento da solicitação de corrida: [{0}][eleição]", solicitacao.Id.ToString()));
 
                                     // recupera a lista de interessados, caso tenha sido perdida por algum motivo (queda do sistema, por exemplo)
                                     taxistasInteressados = await ClassificarTaxistasInteressados(solicitacao);
