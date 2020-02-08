@@ -10,21 +10,28 @@ using System.Threading.Tasks;
 using CloudMe.MotoTEX.Domain.Enums;
 using System.Linq;
 using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
+using CloudMe.MotoTEX.Domain.Model;
+using System.Linq.Expressions;
 
 namespace CloudMe.MotoTEX.Domain.Services
 {
     public class SolicitacaoCorridaService : ServiceBase<SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>, ISolicitacaoCorridaService
     {
+        private string[] defaultPaths = { "LocalizacaoOrigem", "LocalizacaoDestino" };
+
         private readonly ISolicitacaoCorridaRepository _SolicitacaoCorridaRepository;
         private readonly ITaxistaRepository _TaxistaRepository;
+        private readonly ILocalizacaoRepository _LocalizacaoRepository;
         private readonly IProxyNotificacoesSolicitacaoCorrida _ProxyNotificacoesSolicitacaoCorrida;
 
         public SolicitacaoCorridaService(
             ISolicitacaoCorridaRepository SolicitacaoCorridaRepository,
-            ITaxistaRepository taxistaRepository)
+            ITaxistaRepository taxistaRepository,
+            ILocalizacaoRepository localizacaoRepository)
         {
             _SolicitacaoCorridaRepository = SolicitacaoCorridaRepository;
             _TaxistaRepository = taxistaRepository;
+            _LocalizacaoRepository = localizacaoRepository;
         }
 
         public override string GetTag()
@@ -62,9 +69,22 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         protected override async Task<SolicitacaoCorridaSummary> CreateSummaryAsync(SolicitacaoCorrida entry)
         {
-            return await Task.Run(() =>
+            return await Task.Run(async () =>
             {
                 if (entry == null) return default;
+
+                var localizacaoOrigem = entry.LocalizacaoOrigem;
+                var localizacaoDestino = entry.LocalizacaoDestino;
+
+                if (localizacaoOrigem == null)
+                {
+                    localizacaoOrigem = await _LocalizacaoRepository.FindByIdAsync(entry.IdLocalizacaoOrigem);
+                }
+
+                if (localizacaoDestino == null)
+                {
+                    localizacaoDestino = await _LocalizacaoRepository.FindByIdAsync(entry.IdLocalizacaoDestino);
+                }
 
                 return new SolicitacaoCorridaSummary
                 {
@@ -82,7 +102,11 @@ namespace CloudMe.MotoTEX.Domain.Services
                     ValorEstimado = entry.ValorEstimado,
                     ValorProposto = entry.ValorProposto,
                     Situacao = entry.Situacao,
-                    IsInterUrbano = entry.IsInterUrbano
+                    IsInterUrbano = entry.IsInterUrbano,
+                    latitudeOrigem = localizacaoOrigem != null ? double.Parse(localizacaoOrigem.Latitude) : 0,
+                    longitudeOrigem = localizacaoOrigem != null ? double.Parse(localizacaoOrigem.Longitude) : 0,
+                    latitudeDestino = localizacaoDestino != null ? double.Parse(localizacaoDestino.Latitude) : 0,
+                    longitudeDestino = localizacaoDestino != null ? double.Parse(localizacaoDestino.Longitude) : 0
                 };
             });
         }
@@ -156,6 +180,21 @@ namespace CloudMe.MotoTEX.Domain.Services
             {
                 this.AddNotification(new Notification("Situacao", "Passageiro: situação não definida"));
             }*/
+        }
+
+        public override async Task<SolicitacaoCorrida> Get(Guid key, string[] paths = null)
+        {
+            return await base.Get(key, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
+        }
+
+        public override async Task<IEnumerable<SolicitacaoCorrida>> GetAll(string[] paths = null)
+        {
+            return await base.GetAll(paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths);
+        }
+
+        public override async Task<IEnumerable<SolicitacaoCorrida>> Search(Expression<Func<SolicitacaoCorrida, bool>> where, string[] paths = null, Pagination pagination = null)
+        {
+            return await base.Search(where, paths != null ? paths.Union(defaultPaths).ToArray() : defaultPaths, pagination);
         }
 
         public async Task<bool> RegistrarAcaoTaxista(Guid id_solicitacao, Guid id_taxista, AcaoTaxistaSolicitacaoCorrida acao)
