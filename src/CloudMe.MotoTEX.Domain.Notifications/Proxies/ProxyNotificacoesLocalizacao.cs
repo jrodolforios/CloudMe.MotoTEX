@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CloudMe.MotoTEX.Domain.Notifications.Proxies
 {
-    class ProxyNotificacoesLocalizacao : IProxyNotificacoesLocalizacao
+    public class ProxyNotificacoesLocalizacao : IProxyNotificacoesLocalizacao
     {
         IHubContext<HubNotificaoesAdmin> hubContextAdmin;
 

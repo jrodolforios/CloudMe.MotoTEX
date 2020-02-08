@@ -105,6 +105,7 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
 
             services.AddTransient<IProxyHubMensagens, ProxyHubMensagens>();
             services.AddTransient<IProxyNotificacoesSolicitacaoCorrida, ProxyNotificacoesSolicitacaoCorrida>();
+            services.AddTransient<IProxyNotificacoesLocalizacao, ProxyNotificacoesLocalizacao>();
 
             services.AddTriggers();
 
@@ -202,7 +203,7 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
 
                 routes.MapHub<HubMensagens>("/notifications/mensagens");
                 routes.MapHub<HubNotificaoes>("/notifications");
-                routes.MapHub<HubNotificaoesAdmin>("/notifications_admin");
+                routes.MapHub<HubNotificaoesAdmin>("/notifications/admin");
             });
 
             BuildEntryNotifiers<TContext>(app);

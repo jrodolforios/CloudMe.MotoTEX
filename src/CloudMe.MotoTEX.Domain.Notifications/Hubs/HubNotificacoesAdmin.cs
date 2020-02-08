@@ -8,6 +8,7 @@ using System.Text;
 namespace CloudMe.MotoTEX.Domain.Notifications.Hubs
 {
     [Authorize(Policy = "RequireAdministratorRole")]
+    //[Authorize]
     public class HubNotificaoesAdmin : UserMappedHub<HubNotificaoesAdmin>
     {
         public HubNotificaoesAdmin(IUsuarioRepository usuarioRepository, IHubContext<UserMappedHub<HubNotificaoesAdmin>> hubContext)

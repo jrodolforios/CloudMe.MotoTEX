@@ -26,8 +26,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
         {
             public Guid IdSolicitacaoCorrida { get; set; }
             public IServiceProvider serviceProvider { get; set; }
-            public int JanelaFaixaAtivacao { get; set; } = 10000; // default = 10s
-            public int JanelaDisponibilidade { get; set; } = 50000; // default = 50s
         }
 
         private class MonitorSolicitacaoCorrida
@@ -62,6 +60,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                 favoritoService = serviceScope.ServiceProvider.GetRequiredService<IFavoritoService>();
                 solicitacaoCorridaService = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaService>();
                 notificacoesSolicitacaoCorrida = serviceScope.ServiceProvider.GetRequiredService<IProxyNotificacoesSolicitacaoCorrida>();
+                faixaAtivacaoRepository = serviceScope.ServiceProvider.GetRequiredService<IFaixaAtivacaoRepository>();
             }
 
             private async Task<IEnumerable<Taxista>> ClassificarTaxistasInteressados(SolicitacaoCorrida solicitacao)
@@ -115,20 +114,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
 
             public async Task Executar()
             {
-                /*
-                 * Fluxo:
-                 * 
-                 * 1 - A solicitação de corrida é gerada (capturada pelo trigger de insert);
-                 * 2 - Inicia a janela de acumulação de taxistas interessados na solicitação (10s)
-                 * 3 - Findo o perído compreendido no passo 2, é realizada a filtragem e classificação (ordenação) 
-                 *     dos taxistas que aceitaram a solicitação, de acordo com os critérios de favoritagem 
-                 *     e distância da origem da solicitação
-                 * 4 - Se no passo 2 nenhum taxista se candidatar, inicia a janela de disponibilidade (50s), que
-                 *     concede a corrida ao primeiro taxista que aceitar solicitação
-                 * 5 - Se foi eleito um taxista para a solicitação, esta é marcada como 'aceita' e a corrida é gerada
-                 * 6 - Se não foi eleito um taxista para a solicitação, esta é marcada como 'não atendida'
-                 */
-
                 try
                 {
                     SolicitacaoCorrida solicitacao = null;
@@ -236,7 +221,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                                             await solicitacaoCorridaService.GetSummaryAsync(parametros.IdSolicitacaoCorrida));
 
                                         // inicia o timeout da faixa de ativação
-                                        Thread.Sleep(FaixasAtivacao[idxFxAtivacao].Janela);
+                                        Thread.Sleep(FaixasAtivacao[idxFxAtivacao].Janela * 1000);
 
                                         // verifica se algum taxista atendeu a solicitação na faixa
                                         var numAceitacoes = await solicitacaoCorridaRepo.ObterNumeroAceitacoes(solicitacao);
@@ -374,10 +359,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
             Log.Information("Iniciando monitoramento de solicitações de corrida...");
             try
             {
-                var janelaAtivacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaFaixaAtivacao");
-                var janelaAcumulacao = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao");
-                var janelaDisponibilidade = configuration.GetValue<int>("MonitorSolicitacoesCorrida:JanelaAcumulacao");
-
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var solicitacaoCorridaRepo = scope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaRepository>();
@@ -399,8 +380,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                             await new MonitorSolicitacaoCorrida(new ParametrosMonitoramento
                             {
                                 IdSolicitacaoCorrida = idSolicitacao,
-                                JanelaFaixaAtivacao = janelaAtivacao,
-                                JanelaDisponibilidade = janelaDisponibilidade,
                                 serviceProvider = serviceProvider
                             }).Executar();
                         });
@@ -425,8 +404,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                             await new MonitorSolicitacaoCorrida(new ParametrosMonitoramento
                             {
                                 IdSolicitacaoCorrida = insertingEntry.Entity.Id,
-                                JanelaFaixaAtivacao = janelaAtivacao,
-                                JanelaDisponibilidade = janelaDisponibilidade,
                                 serviceProvider = serviceProvider
                             }).Executar();
                         });
