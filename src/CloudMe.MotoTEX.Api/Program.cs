@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace CloudMe.MotoTEX.Api
 {
@@ -21,8 +22,9 @@ namespace CloudMe.MotoTEX.Api
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(builder =>
                 {
-                    builder.SetMinimumLevel(LogLevel.Warning);
-                    builder.AddFilter("IdentityServer4", LogLevel.Debug);
+                    //builder.SetMinimumLevel(LogLevel.Warning);
+                    //builder.AddFilter("IdentityServer4", LogLevel.Error);
+                    //builder.AddSerilog();
                 })
                 .UseStartup<Startup>();
     }

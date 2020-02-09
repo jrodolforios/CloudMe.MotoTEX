@@ -122,7 +122,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                     var retries = 10;
                     do
                     {
-                        solicitacao = await solicitacaoCorridaRepo.FindByIdAsync(parametros.IdSolicitacaoCorrida, new[] { "LocalizacaoOrigem" });
+                        solicitacao = await solicitacaoCorridaRepo.FindByIdAsync(parametros.IdSolicitacaoCorrida, new[] { "LocalizacaoOrigem", "LocalizacaoDestino" });
                         if (solicitacao is null)
                         {
                             retries--;
@@ -177,6 +177,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
 
                                     bool solicitacaoAceita = false;
 
+                                    IEnumerable<Taxista> taxistasAtivados = new List<Taxista>();
                                     //for (var idxFxAtivacao = solicitacao.IdxFaixaBusca; idxFxAtivacao <= numFaixasAtivacao; ++idxFxAtivacao)
                                     for (var idxFxAtivacao = solicitacao.IdxFaixaBusca; idxFxAtivacao < numFaixasAtivacao; ++idxFxAtivacao)
                                     {
@@ -217,8 +218,11 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
 
                                         // apresenta a solicitação aos taxistas da faixa atual
                                         await notificacoesSolicitacaoCorrida.AtivarTaxistas(
-                                            taxistasFaixa,
+                                            taxistasFaixa.Except(taxistasAtivados),
+                                            //taxistasFaixa,
                                             await solicitacaoCorridaService.GetSummaryAsync(parametros.IdSolicitacaoCorrida));
+
+                                        taxistasAtivados = taxistasAtivados.Union(taxistasFaixa);
 
                                         // inicia o timeout da faixa de ativação
                                         Thread.Sleep(FaixasAtivacao[idxFxAtivacao].Janela * 1000);

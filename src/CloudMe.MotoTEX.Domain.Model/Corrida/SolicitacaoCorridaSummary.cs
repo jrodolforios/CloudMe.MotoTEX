@@ -22,9 +22,9 @@ namespace CloudMe.MotoTEX.Domain.Model.Corrida
         public SituacaoSolicitacaoCorrida Situacao { get; set; }
         public StatusMonitoramentoSolicitacaoCorrida StatusMonitoramento { get; set; }
         public int IdxFaixaBusca { get; set; }
-        public double latitudeOrigem { get; set; }
-        public double longitudeOrigem { get; set; }
-        public double latitudeDestino { get; set; }
-        public double longitudeDestino { get; set; }
+        public string latitudeOrigem { get; set; }
+        public string longitudeOrigem { get; set; }
+        public string latitudeDestino { get; set; }
+        public string longitudeDestino { get; set; }
     }
 }

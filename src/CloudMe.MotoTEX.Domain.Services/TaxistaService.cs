@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Linq.Expressions;
 using CloudMe.MotoTEX.Domain.Model.Foto;
 using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
+using System.Globalization;
 
 namespace CloudMe.MotoTEX.Domain.Services
 {
@@ -279,7 +280,10 @@ namespace CloudMe.MotoTEX.Domain.Services
 
             if (resultado)
             {
-                await _proxyNotificacoesLocalizacao.InformarLocalizacaoTaxista(taxista.Id, double.Parse(localizacao.Latitude), double.Parse(localizacao.Longitude));
+                await _proxyNotificacoesLocalizacao.InformarLocalizacaoTaxista(
+                    taxista.Id,
+                    Convert.ToDouble(localizacao.Latitude, CultureInfo.InvariantCulture.NumberFormat),
+                    Convert.ToDouble(localizacao.Longitude, CultureInfo.InvariantCulture.NumberFormat));
             }
 
             return resultado;
@@ -326,8 +330,8 @@ namespace CloudMe.MotoTEX.Domain.Services
                 taxista =>
                     taxista.Ativo && // taxista que está ativo
                     taxista.Disponivel && // ... que está disponível
-                    taxista.Veiculos.Any(veicTx => veicTx.Ativo) && // ... que está utilizando um veículo no momento
-                    DateTime.Now.AddSeconds(-20) <= taxista.LocalizacaoAtual.Updated
+                    taxista.Veiculos.Any(veicTx => veicTx.Ativo) // ... que está utilizando um veículo no momento
+                    //DateTime.Now.AddSeconds(-20) <= taxista.LocalizacaoAtual.Updated
             , paths);
 
             var taxistas_com_distancias =

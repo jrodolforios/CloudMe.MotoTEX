@@ -12,6 +12,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using CloudMe.MotoTEX.Domain.Model;
 using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
+using GeoCoordinatePortable;
+using System.Globalization;
 
 namespace CloudMe.MotoTEX.Domain.Services
 {
@@ -227,7 +229,10 @@ namespace CloudMe.MotoTEX.Domain.Services
 
             if (resultado)
             {
-                await _proxyNotificacoesLocalizacao.InformarLocalizacaoPassageiro(passageiro.Id, double.Parse(localizacao.Latitude), double.Parse(localizacao.Longitude));
+                await _proxyNotificacoesLocalizacao.InformarLocalizacaoPassageiro(
+                    passageiro.Id,
+                    Convert.ToDouble(localizacao.Latitude, CultureInfo.InvariantCulture.NumberFormat),
+                    Convert.ToDouble(localizacao.Longitude, CultureInfo.InvariantCulture.NumberFormat));
             }
 
             return resultado;

@@ -21,17 +21,16 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         private readonly ISolicitacaoCorridaRepository _SolicitacaoCorridaRepository;
         private readonly ITaxistaRepository _TaxistaRepository;
-        private readonly ILocalizacaoRepository _LocalizacaoRepository;
         private readonly IProxyNotificacoesSolicitacaoCorrida _ProxyNotificacoesSolicitacaoCorrida;
 
         public SolicitacaoCorridaService(
             ISolicitacaoCorridaRepository SolicitacaoCorridaRepository,
             ITaxistaRepository taxistaRepository,
-            ILocalizacaoRepository localizacaoRepository)
+            IProxyNotificacoesSolicitacaoCorrida proxyNotificacoesSolicitacaoCorrida)
         {
             _SolicitacaoCorridaRepository = SolicitacaoCorridaRepository;
             _TaxistaRepository = taxistaRepository;
-            _LocalizacaoRepository = localizacaoRepository;
+            _ProxyNotificacoesSolicitacaoCorrida = proxyNotificacoesSolicitacaoCorrida;
         }
 
         public override string GetTag()
@@ -73,19 +72,6 @@ namespace CloudMe.MotoTEX.Domain.Services
             {
                 if (entry == null) return default;
 
-                var localizacaoOrigem = entry.LocalizacaoOrigem;
-                var localizacaoDestino = entry.LocalizacaoDestino;
-
-                if (localizacaoOrigem == null)
-                {
-                    localizacaoOrigem = await _LocalizacaoRepository.FindByIdAsync(entry.IdLocalizacaoOrigem);
-                }
-
-                if (localizacaoDestino == null)
-                {
-                    localizacaoDestino = await _LocalizacaoRepository.FindByIdAsync(entry.IdLocalizacaoDestino);
-                }
-
                 return new SolicitacaoCorridaSummary
                 {
                     Id = entry.Id,
@@ -103,10 +89,12 @@ namespace CloudMe.MotoTEX.Domain.Services
                     ValorProposto = entry.ValorProposto,
                     Situacao = entry.Situacao,
                     IsInterUrbano = entry.IsInterUrbano,
-                    latitudeOrigem = localizacaoOrigem != null ? double.Parse(localizacaoOrigem.Latitude) : 0,
-                    longitudeOrigem = localizacaoOrigem != null ? double.Parse(localizacaoOrigem.Longitude) : 0,
-                    latitudeDestino = localizacaoDestino != null ? double.Parse(localizacaoDestino.Latitude) : 0,
-                    longitudeDestino = localizacaoDestino != null ? double.Parse(localizacaoDestino.Longitude) : 0
+                    latitudeOrigem = entry.LocalizacaoOrigem != null ? entry.LocalizacaoOrigem.Latitude : "0",
+                    longitudeOrigem = entry.LocalizacaoOrigem != null ? entry.LocalizacaoOrigem.Longitude : "0",
+                    latitudeDestino = entry.LocalizacaoDestino != null ? entry.LocalizacaoDestino.Latitude : "0",
+                    longitudeDestino = entry.LocalizacaoDestino != null ? entry.LocalizacaoDestino.Longitude : "0",
+                    IdxFaixaBusca = entry.IdxFaixaBusca,
+                    StatusMonitoramento = entry.StatusMonitoramento
                 };
             });
         }
