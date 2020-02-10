@@ -15,5 +15,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Abstracts
         Task<bool> CheckLogin(string login);
         Task<UsuarioSummary> GetSummaryByNameAsync(string name);
         Task<bool> CheckEmail(string email);
+        Task<bool> InformarDeviceToken(Guid id_usuario, string token);
     }
 }

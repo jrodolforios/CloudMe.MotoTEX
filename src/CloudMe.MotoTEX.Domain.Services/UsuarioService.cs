@@ -424,5 +424,19 @@ namespace CloudMe.MotoTEX.Domain.Services
                 return this._userManager.Users.Any(x => x.Email == email);
             });
         }
+
+        public async Task<bool> InformarDeviceToken(Guid id_usuario, string token)
+        {
+            var usuario = await this._userManager.FindByIdAsync(id_usuario.ToString());
+            if (usuario == null)
+            {
+                AddNotification(new Notification("Usuário", "Usuário não encontrado."));
+                return false;
+            }
+
+            usuario.DeviceToken = token;
+
+            return await _userRepository.ModifyAsync(usuario);            
+        }
     }
 }

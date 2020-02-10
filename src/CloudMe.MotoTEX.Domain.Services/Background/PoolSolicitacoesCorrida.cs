@@ -203,7 +203,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                                             await taxistaService.ProcurarPorDistancia(solicitacao.LocalizacaoOrigem, 
                                             raioInicio, 
                                             raioFim, 
-                                            new[] { "FormasPagamento", "FaixasDesconto" }))
+                                            new[] { "FormasPagamento", "FaixasDesconto", "Usuario" }))
                                         .Where(
                                             taxista =>
                                             (taxista.FormasPagamento.Any(frmPgto => frmPgto.IdFormaPagamento == solicitacao.IdFormaPagamento)) && // ... que aceita a forma de pagamento da solicitação

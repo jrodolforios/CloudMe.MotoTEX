@@ -170,7 +170,7 @@ namespace CloudMe.MotoTEX.Api.Controllers
                 return await ErrorResponseAsync<bool>(unitOfWork, HttpStatusCode.NotFound);
             }
 
-            if (reqUser.Id != usuario.Id && usuario.tipo != TipoUsuario.Administrador) // somente o próprio usuário pode alterar suas credenciais, exceto o administrador
+            if (reqUser.Id != usuario.Id && reqUser.tipo > TipoUsuario.Administrador) // somente o próprio usuário pode alterar suas credenciais, exceto o administrador
             {
                 unitOfWork.AddNotification(new Notification("Usuários", "Usuário não autorizado"));
                 return await ErrorResponseAsync<bool>(unitOfWork, HttpStatusCode.Forbidden);
@@ -210,6 +210,35 @@ namespace CloudMe.MotoTEX.Api.Controllers
             // bloqueia/desbloqueia o usuário do taxista
             return await base.ResponseAsync(
                 await this._UsuarioService.BloquearAsync(id, bloquear), 
+                this._UsuarioService);
+        }
+
+        /// <summary>
+        /// Informa token do dispositivo de um usuário.
+        /// </summary>
+        /// <param name="id">ID do usuário</param>
+        /// <param name="token">Token de dispositivo</param>
+        [HttpPost("informar_device_token/{id}")]
+        [ProducesResponseType(typeof(Response<bool>), (int)HttpStatusCode.OK)]
+        public async Task<Response<bool>> InformarDeviceToken(Guid id, string token)
+        {
+            Usuario reqUser = await GetRequestUser(_UsuarioService);
+
+            var usuario = await _UsuarioService.Get(id);
+            if (usuario == null)
+            {
+                unitOfWork.AddNotification(new Notification("Usuários", "Usuário não encontrado"));
+                return await ErrorResponseAsync<bool>(unitOfWork, HttpStatusCode.NotFound);
+            }
+
+            if (reqUser.Id != usuario.Id && reqUser.tipo > TipoUsuario.Administrador) // somente o próprio usuário pode informar sua token, exceto o administrador
+            {
+                unitOfWork.AddNotification(new Notification("Usuários", "Usuário não autorizado"));
+                return await ErrorResponseAsync<bool>(unitOfWork, HttpStatusCode.Forbidden);
+            }
+
+            return await base.ResponseAsync(
+                await this._UsuarioService.InformarDeviceToken(id, token),
                 this._UsuarioService);
         }
     }

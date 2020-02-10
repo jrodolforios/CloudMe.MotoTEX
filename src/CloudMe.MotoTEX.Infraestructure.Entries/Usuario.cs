@@ -11,6 +11,8 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
         public string CPF { get; set; }
         public string RG { get; set; }
         public TipoUsuario tipo { get; set; }
+
+        public string DeviceToken { get; set; }
         //public DateTime DataRegistro { get; set; }
         //public DateTime DataExclusao { get; set; }
         //public bool Ativo { get; set; }

@@ -14,6 +14,7 @@ using System.Linq;
 using CloudMe.MotoTEX.Domain.Enums;
 using CloudMe.MotoTEX.Infraestructure.Abstracts.Transactions;
 using CloudMe.MotoTEX.Domain.Notifications.Abstract;
+using Notification = prmToolkit.NotificationPattern.Notification;
 
 namespace CloudMe.MotoTEX.Domain.Services
 {

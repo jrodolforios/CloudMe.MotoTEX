@@ -107,6 +107,8 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
             services.AddTransient<IProxyNotificacoesSolicitacaoCorrida, ProxyNotificacoesSolicitacaoCorrida>();
             services.AddTransient<IProxyNotificacoesLocalizacao, ProxyNotificacoesLocalizacao>();
 
+            services.AddTransient<IFirebaseNotifications, FirebaseNotifications>();
+
             services.AddTriggers();
 
             return services;
