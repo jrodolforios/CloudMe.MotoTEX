@@ -26,7 +26,12 @@ namespace CloudMe.MotoTEX.Domain.Notifications
 
         public async Task<bool> SendPushNotification(IEnumerable<Usuario> usuarios, string title, string body, object data)
         {
-            var registration_ids = usuarios.Select(usr => usr.DeviceToken).ToArray();
+            var registration_ids = usuarios
+                .Where(usr => !string.IsNullOrEmpty(usr.DeviceToken))
+                .Select(usr => usr.DeviceToken).ToArray();
+
+            if (registration_ids.Count() == 0) return false;
+
             var pushNotification = new PushNotification
             {
                 notification = new Notification

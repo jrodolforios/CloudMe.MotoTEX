@@ -23,10 +23,11 @@ namespace CloudMe.MotoTEX.Domain.Services
         public async Task<int> GetQtTaxistasOnline()
         {
             var result = await _LocalizacaoRepository.Search(
-                x => 
-                x.Usuario.tipo == Enums.TipoUsuario.Taxista && 
+                x =>
+                x.Usuario != null &&
+                x.Usuario.tipo == Enums.TipoUsuario.Taxista &&
                 x.Updated.Ticks >= (DateTime.Now.Ticks - 200000000)
-                , new[] {"Usuario"});
+                , new[] { "Usuario" });
             int quantidade = result.Count();
 
             return quantidade;

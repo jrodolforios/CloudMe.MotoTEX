@@ -198,7 +198,9 @@ namespace CloudMe.MotoTEX.Api.Controllers
         [ProducesResponseType(typeof(Response<List<LocalizacaoSummary>>), (int)HttpStatusCode.OK)]
         public async Task<Response<List<LocalizacaoSummary>>> GetProximos(LocalizacaoSummary localizacao)
         {
-            var taxistas = await _TaxistaService.ProcurarPorDistancia(localizacao, 0, 5000);
+            var taxistas = (await _TaxistaService
+                .ProcurarPorDistancia(localizacao, 0, 5000, new[] { "LocalizacaoAtual" }))
+                .Where(x => DateTime.Now.AddSeconds(-20) <= x.LocalizacaoAtual.Updated);
             var localizacoesSummaries = new List<LocalizacaoSummary>();
 
             foreach (var item in taxistas.Take(8))
