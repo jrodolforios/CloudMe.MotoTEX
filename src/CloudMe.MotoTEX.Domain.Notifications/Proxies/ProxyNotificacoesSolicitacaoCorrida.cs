@@ -27,12 +27,19 @@ namespace CloudMe.MotoTEX.Domain.Notifications.Proxies
 
         public async Task AtivarTaxista(Taxista taxista, SolicitacaoCorridaSummary solicitacaoCorrida)
         {
-            await hubContext.Clients.User(taxista.IdUsuario.ToString()).SendAsync("sol_corr_ativar_tx", solicitacaoCorrida);
-            await firebaseNotifications.SendPushNotification(
-                new[] { taxista.Usuario },
-                "Passageiro solicitando Corrida",
-                "Um passageiro está solicitando uma corrida, toque nesta notificação para visualizar e aceitar a solicitação!",
-                solicitacaoCorrida);
+            var online = DateTime.Now.AddSeconds(-20) <= taxista.LocalizacaoAtual.Updated;
+            if (online)
+            {
+                await hubContext.Clients.User(taxista.IdUsuario.ToString()).SendAsync("sol_corr_ativar_tx", solicitacaoCorrida);
+            }
+            else
+            {
+                await firebaseNotifications.SendPushNotification(
+                    new[] { taxista.Usuario },
+                    "Passageiro próximo solicitando Corrida",
+                    "Um passageiro está solicitando uma corrida, fique ativo para receber solicitações de corrida!",
+                    solicitacaoCorrida);
+            }
 
             await hubContextAdmin.Clients.All.SendAsync("sol_corr_ativacao_tx", new
             {
@@ -43,12 +50,24 @@ namespace CloudMe.MotoTEX.Domain.Notifications.Proxies
 
         public async Task AtivarTaxistas(IEnumerable<Taxista> taxistas, SolicitacaoCorridaSummary solicitacaoCorrida)
         {
-            await hubContext.Clients.Users(taxistas.Select(x => x.IdUsuario.ToString()).ToList()).SendAsync("sol_corr_ativar_tx", solicitacaoCorrida);
-            await firebaseNotifications.SendPushNotification(
-                taxistas.Select(tx => tx.Usuario),
-                "Passageiro solicitando Corrida",
-                "Um passageiro está solicitando uma corrida, toque nesta notificação para visualizar e aceitar a solicitação!",
-                solicitacaoCorrida);
+            var txsOnline = taxistas.Where(tx => DateTime.Now.AddSeconds(-20) <= tx.LocalizacaoAtual.Updated);
+            var txsOffline = taxistas.Except(txsOnline);
+      
+            if (txsOnline.Count() > 0)
+            {
+                // taxistas online recebem a solicitação por signalr
+                await hubContext.Clients.Users(txsOnline.Select(x => x.IdUsuario.ToString()).ToList()).SendAsync("sol_corr_ativar_tx", solicitacaoCorrida);
+            }
+
+            if (txsOffline.Count() > 0)
+            {
+                // taxistas online recebem a solicitação por push notification
+                await firebaseNotifications.SendPushNotification(
+                    txsOffline.Select(tx => tx.Usuario),
+                    "Passageiro próximo solicitando Corrida",
+                    "Um passageiro está solicitando uma corrida, fique ativo para receber solicitações de corrida!",
+                    solicitacaoCorrida);
+            }
 
             await hubContextAdmin.Clients.All.SendAsync("sol_corr_ativacao_tx", new
             {
