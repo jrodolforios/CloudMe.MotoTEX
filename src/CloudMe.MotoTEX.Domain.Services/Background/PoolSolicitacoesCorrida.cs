@@ -190,9 +190,10 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                                             FaixasAtivacao[numFaixasAtivacao - 1].Raio : // inicia no raio da última faixa de ativação
                                             idxFxAtivacao > 0 ? FaixasAtivacao[idxFxAtivacao - 1].Raio : 0; // inicia raio da faixa de ativação anterior (0 se estiver na primeira faixa)
 										*/
-                                        double? raioInicio = idxFxAtivacao > 0 ? FaixasAtivacao[idxFxAtivacao - 1].Raio : 0;
+                                        //double? raioInicio = idxFxAtivacao > 0 ? FaixasAtivacao[idxFxAtivacao - 1].Raio : 0;
+                                        double? raioInicio = 0; // para o caso de mototaxistas que acabaram de ficar online e estão próximos
 
-										/*
+                                        /*
                                         double? raioFim = faixaLivre ?
                                             (double?)null : // finaliza com raio infinito
                                             FaixasAtivacao[idxFxAtivacao].Raio; // finaliza no raio de ativação corrente
