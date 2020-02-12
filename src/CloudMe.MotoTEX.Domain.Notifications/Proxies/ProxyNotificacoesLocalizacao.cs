@@ -17,23 +17,25 @@ namespace CloudMe.MotoTEX.Domain.Notifications.Proxies
             this.hubContextAdmin = hubContextAdmin;
         }
 
-        public async Task InformarLocalizacaoTaxista(Guid idTaxista, double latitude, double longitude)
+        public async Task InformarLocalizacaoTaxista(Guid idTaxista, double latitude, double longitude, double angulo)
         {
             await hubContextAdmin.Clients.All.SendAsync("loc_tx", new
             {
                 id = idTaxista,
                 lat = latitude,
-                lgt = longitude
+                lgt = longitude,
+                angulo
             });
         }
 
-        public async Task InformarLocalizacaoPassageiro(Guid idPassageiro, double latitude, double longitude)
+        public async Task InformarLocalizacaoPassageiro(Guid idPassageiro, double latitude, double longitude, double angulo)
         {
             await hubContextAdmin.Clients.All.SendAsync("loc_pass", new
             {
                 id = idPassageiro,
                 lat = latitude,
-                lgt = longitude
+                lgt = longitude,
+                angulo
             });
         }
     }

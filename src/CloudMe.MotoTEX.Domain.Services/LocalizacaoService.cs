@@ -50,6 +50,7 @@ namespace CloudMe.MotoTEX.Domain.Services
                     Id = summary.Id,
                     Latitude = summary.Latitude,
                     Longitude = summary.Longitude,
+                    Angulo = summary.Angulo,
                     Endereco = summary.Endereco,
                     NomePublico = summary.NomePublico,
                     IdUsuario = summary.IdUsuario
@@ -68,6 +69,7 @@ namespace CloudMe.MotoTEX.Domain.Services
                     Id = entry.Id,
                     Latitude = entry.Latitude,
                     Longitude = entry.Longitude,
+                    Angulo = entry.Angulo,
                     Endereco = entry.Endereco,
                     NomePublico = entry.NomePublico,
                     IdUsuario = entry.IdUsuario
@@ -89,6 +91,7 @@ namespace CloudMe.MotoTEX.Domain.Services
         {
             entry.Latitude = summary.Latitude;
             entry.Longitude = summary.Longitude;
+            entry.Angulo = summary.Angulo;
             entry.Endereco = summary.Endereco;
             entry.NomePublico = summary.NomePublico;
             entry.IdUsuario = summary.IdUsuario;

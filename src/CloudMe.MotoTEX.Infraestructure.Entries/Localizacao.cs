@@ -12,6 +12,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
 
         public string Longitude { get; set; }
         public string Latitude { get; set; }
+        public double Angulo { get; set; } = 0; // (graus) aponta para o norte
 
         public string NomePublico { get; set; }
 

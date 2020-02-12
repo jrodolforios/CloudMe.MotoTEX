@@ -223,6 +223,7 @@ namespace CloudMe.MotoTEX.Domain.Services
 
             localizacaoSummmary.Latitude = localizacao.Latitude;
             localizacaoSummmary.Longitude = localizacao.Longitude;
+            localizacaoSummmary.Angulo = localizacao.Angulo;
             localizacaoSummmary.IdUsuario = passageiro.IdUsuario;
 
             var resultado = (await _LocalizacaoService.UpdateAsync(localizacaoSummmary)) != null;
@@ -232,7 +233,8 @@ namespace CloudMe.MotoTEX.Domain.Services
                 await _proxyNotificacoesLocalizacao.InformarLocalizacaoPassageiro(
                     passageiro.Id,
                     Convert.ToDouble(localizacao.Latitude, CultureInfo.InvariantCulture.NumberFormat),
-                    Convert.ToDouble(localizacao.Longitude, CultureInfo.InvariantCulture.NumberFormat));
+                    Convert.ToDouble(localizacao.Longitude, CultureInfo.InvariantCulture.NumberFormat),
+                    localizacao.Angulo);
             }
 
             return resultado;

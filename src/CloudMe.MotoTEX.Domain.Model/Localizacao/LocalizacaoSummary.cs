@@ -11,6 +11,7 @@ namespace CloudMe.MotoTEX.Domain.Model.Localizacao
         public string Endereco { get; set; }
         public string Longitude { get; set; }
         public string Latitude { get; set; }
+        public double Angulo { get; set; }
         public string NomePublico { get; set; }
     }
 }
