@@ -31,10 +31,25 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         public async Task<decimal> GetValorCorrida(DateTime date, decimal kilometers)
         {
-            var tarifa = (await _TarifaRepository.FindAll()).FirstOrDefault();
+            decimal valorAPagar = 0.0M;
+
+            // TODO: Modelar corretamente a tarifação
+            if (kilometers <= 4)
+            {
+                valorAPagar = 6.0M;
+            }
+            else if (kilometers > 4 && kilometers <= 6)
+            {
+                valorAPagar = 7.0M;
+            }
+            else // kilometers > 6
+            {
+                valorAPagar = 8.0M;
+            }
+
+            //var tarifa = (await _TarifaRepository.FindAll()).FirstOrDefault();
 
             RestClient client = new RestClient("https://api.calendario.com.br/");
-            decimal valorAPagar = (decimal)tarifa.Bandeirada;
 
             RestRequest request = new RestRequest(string.Empty, Method.GET);
             request.AddQueryParameter("ano", DateTime.Now.Year.ToString());
@@ -50,11 +65,12 @@ namespace CloudMe.MotoTEX.Domain.Services
                 if (feriados.Any(x => x.Date == date.ToString("dd/MM/yyyy") && (x.Type.ToLower() == "feriado nacional" || x.Type.ToLower() == "feriado municipal"))
                     || date.DayOfWeek == DayOfWeek.Sunday || HorarioNoturno(date))
                 {
-                    valorAPagar += (decimal)tarifa.KmRodadoBandeira2;
+                    //valorAPagar += (decimal)tarifa.KmRodadoBandeira2;
+                    valorAPagar += 1.0M;
 
-                    return valorAPagar;
+                    //return valorAPagar;
                 }
-                else
+                /*else
                 {
                     if (kilometers > 4)
 					{
@@ -62,12 +78,10 @@ namespace CloudMe.MotoTEX.Domain.Services
 					}
 
                     return valorAPagar;
-                }
+                }*/
             }
-            else
-            {
-                return 0;
-            }
+
+            return valorAPagar;
         }
 
         private bool HorarioNoturno(DateTime date)
