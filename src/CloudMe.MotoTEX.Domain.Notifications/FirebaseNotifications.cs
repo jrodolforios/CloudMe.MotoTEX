@@ -26,11 +26,13 @@ namespace CloudMe.MotoTEX.Domain.Notifications
 
         public async Task<bool> SendPushNotification(IEnumerable<Usuario> usuarios, string title, string body, object data)
         {
-            var registration_ids = usuarios
-                .Where(usr => !string.IsNullOrEmpty(usr.DeviceToken))
+            var registration_ids_tx = usuarios
+                .Where(usr => !string.IsNullOrEmpty(usr.DeviceToken) && usr.tipo == Enums.TipoUsuario.Taxista)
                 .Select(usr => usr.DeviceToken).ToArray();
 
-            if (registration_ids.Count() == 0) return false;
+            var registration_ids_psg = usuarios
+                .Where(usr => !string.IsNullOrEmpty(usr.DeviceToken) && usr.tipo == Enums.TipoUsuario.Passageiro)
+                .Select(usr => usr.DeviceToken).ToArray();
 
             var pushNotification = new PushNotification
             {
@@ -40,21 +42,48 @@ namespace CloudMe.MotoTEX.Domain.Notifications
                     text = body,
                 },
                 data = data,
-                registration_ids = registration_ids
+                registration_ids = null
             };
 
-            var jsonMessage = JsonConvert.SerializeObject(pushNotification);
-
-            var request = new HttpRequestMessage(HttpMethod.Post, firebaseConfig.Endpoint);
-            request.Headers.TryAddWithoutValidation("Authorization", "key =" + firebaseConfig.ServerKey);
-            request.Content = new StringContent(jsonMessage, Encoding.UTF8, "application/json");
-            HttpResponseMessage result;
-            using (var client = new HttpClient())
+            var enviou_tx = false;
+            if (registration_ids_tx.Count() > 0)
             {
-                result = await client.SendAsync(request);
+                pushNotification.registration_ids = registration_ids_tx;
+
+                var jsonMessage = JsonConvert.SerializeObject(pushNotification);
+
+                var request = new HttpRequestMessage(HttpMethod.Post, firebaseConfig.Endpoint);
+                request.Headers.TryAddWithoutValidation("Authorization", "key =" + firebaseConfig.ServerKey_Taxista);
+                request.Content = new StringContent(jsonMessage, Encoding.UTF8, "application/json");
+                HttpResponseMessage result;
+                using (var client = new HttpClient())
+                {
+                    result = await client.SendAsync(request);
+                }
+
+                enviou_tx = result.IsSuccessStatusCode;
             }
 
-            return result.IsSuccessStatusCode;
+            var enviou_psg = false;
+            if (registration_ids_psg.Count() > 0)
+            {
+                pushNotification.registration_ids = registration_ids_psg;
+
+                var jsonMessage = JsonConvert.SerializeObject(pushNotification);
+
+                var request = new HttpRequestMessage(HttpMethod.Post, firebaseConfig.Endpoint);
+                request.Headers.TryAddWithoutValidation("Authorization", "key =" + firebaseConfig.ServerKey_Passageiro);
+                request.Content = new StringContent(jsonMessage, Encoding.UTF8, "application/json");
+                HttpResponseMessage result;
+                using (var client = new HttpClient())
+                {
+                    result = await client.SendAsync(request);
+                }
+
+                enviou_psg = result.IsSuccessStatusCode;
+            }
+
+            return enviou_tx || enviou_psg;
         }
 
         public async Task<bool> SendPushNotification(GrupoUsuario grupo, string title, string body, object data)
