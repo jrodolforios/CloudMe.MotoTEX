@@ -230,7 +230,7 @@ namespace CloudMe.MotoTEX.Domain.Services
 
             var usuarios = await usuarioRepository.Search(x => destinatarios.IdsUsuarios.Contains(x.Id));
 
-            var grupos = await grupoUsuarioRepository.Search(x => destinatarios.IdsGruposUsuarios.Contains(x.Id), new[] { "Usuarios" });
+            var grupos = await grupoUsuarioRepository.Search(x => destinatarios.IdsGruposUsuarios.Contains(x.Id), new[] { "Usuarios", "Usuarios.Usuario" });
 
             var idsGruposEnviados = new List<Guid>();
 
@@ -287,7 +287,10 @@ namespace CloudMe.MotoTEX.Domain.Services
             var detalhes = detalharMensagem(msg);
 
             // notifica usuários
-            await proxyMensagens.EnviarParaUsuarios(usuarios, detalhes);
+            if (usuarios.Count() > 0)
+            {
+                await proxyMensagens.EnviarParaUsuarios(usuarios, detalhes);
+            }
 
             // notifica grupos
             foreach (var grupo in grupos)
