@@ -50,7 +50,7 @@ namespace CloudMe.MotoTEX.Domain.Notifications.Proxies
 
         public async Task AtivarTaxistas(IEnumerable<Taxista> taxistas, SolicitacaoCorridaSummary solicitacaoCorrida)
         {
-            var txsOnline = taxistas.Where(tx => DateTime.Now.AddSeconds(-20) <= tx.LocalizacaoAtual.Updated);
+            var txsOnline = taxistas.Where(tx => DateTime.Now.AddSeconds(-90) <= tx.LocalizacaoAtual.Updated);
             var txsOffline = taxistas.Except(txsOnline);
       
             if (txsOnline.Count() > 0)
