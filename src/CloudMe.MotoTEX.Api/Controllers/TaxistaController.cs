@@ -205,7 +205,12 @@ namespace CloudMe.MotoTEX.Api.Controllers
 
             foreach (var item in taxistas.Take(8))
             {
-                var localizacaoSummary = new LocalizacaoSummary() { Latitude = item.LocalizacaoAtual.Latitude, Longitude = item.LocalizacaoAtual.Longitude };
+                var localizacaoSummary = new LocalizacaoSummary() 
+                { 
+                    Latitude = item.LocalizacaoAtual.Latitude, 
+                    Longitude = item.LocalizacaoAtual.Longitude,
+                    Angulo = item.LocalizacaoAtual.Angulo
+                };
                 localizacoesSummaries.Add(localizacaoSummary);
             }
 
