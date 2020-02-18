@@ -96,6 +96,18 @@ namespace CloudMe.MotoTEX.Api.Controllers
         }
 
         /// <summary>
+        /// Verifica se um login está disponível.
+        /// <param name="login">Login a ser testado</param>
+        /// </summary>
+        [AllowAnonymous]
+        [HttpGet("get_data_hora")]
+        [ProducesResponseType(typeof(Response<DateTime>), (int)HttpStatusCode.OK)]
+        public async Task<Response<DateTime>> GetDataHora()
+        {
+            return await base.ResponseAsync(DateTime.Now, _UsuarioService);
+        }
+
+        /// <summary>
         /// Creates a new Usuario.
         /// </summary>
         /// <param name="UsuarioSummary">Usuario's summary</param>
