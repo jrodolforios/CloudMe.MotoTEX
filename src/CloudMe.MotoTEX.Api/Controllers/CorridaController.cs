@@ -165,5 +165,15 @@ namespace CloudMe.MotoTEX.Api.Controllers
         {
             return await base.ResponseAsync(await this._corridaService.RetomarCorrida(id), _corridaService);
         }
+
+        /// <summary>
+        /// Obtém as estatísticas das solicitações de corrida em um determinado intervalo de tempo.
+        /// </summary>
+        [HttpPost("obter_estatisticas")]
+        [ProducesResponseType(typeof(Response<EstatisticasCorridas>), (int)HttpStatusCode.OK)]
+        public async Task<Response<EstatisticasCorridas>> ObterEstatisticas(DateTime? inicio, DateTime? fim)
+        {
+            return await base.ResponseAsync(await _corridaService.ObterEstatisticas(inicio, fim), _corridaService);
+        }
     }
 }

@@ -16,5 +16,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Abstracts
         Task<int> PausarCorrida(Guid id);
         Task<bool> RetomarCorrida(Guid id);
         Task<List<CorridaSummary>> RecuperarAPartirDeData(DateTime data);
+        Task<EstatisticasCorridas> ObterEstatisticas(DateTime? inicio, DateTime? fim);
     }
 }

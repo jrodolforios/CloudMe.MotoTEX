@@ -214,5 +214,35 @@ namespace CloudMe.MotoTEX.Domain.Services
             var corridas = await _CorridaRepository.Search(x => x.Inicio >= data);
             return (await GetAllSummariesAsync(corridas)).ToList();
         }
+
+        public async Task<EstatisticasCorridas> ObterEstatisticas(DateTime? inicio, DateTime? fim)
+        {
+            inicio = inicio ?? DateTime.MinValue;
+            fim = fim ?? DateTime.MaxValue;
+
+            var estatisticas = new EstatisticasCorridas();
+
+            var corridas = await _CorridaRepository.Search(x => x.Inserted >= inicio && x.Inserted <= fim);
+
+            if (corridas.Count() > 0)
+            {
+                estatisticas.Total = corridas.Count();
+                estatisticas.Agendadas = corridas.Where(x => x.Status == StatusCorrida.Agendada).Count();
+                estatisticas.Solicitadas = corridas.Where(x => x.Status == StatusCorrida.Solicitada).Count();
+                estatisticas.EmCurso = corridas.Where(x => x.Status == StatusCorrida.EmCurso).Count();
+                estatisticas.EmEspera = corridas.Where(x => x.Status == StatusCorrida.EmEspera).Count();
+                estatisticas.CanceladasTaxista = corridas.Where(x => x.Status == StatusCorrida.Cancelada).Count();
+                estatisticas.CanceladasPassageiro = corridas.Where(x => x.Status == StatusCorrida.CanceladaPassageiro).Count();
+                estatisticas.Concluidas = corridas.Where(x => x.Status == StatusCorrida.Concluida).Count();
+                estatisticas.EmNegociacao = corridas.Where(x => x.Status == StatusCorrida.EmNegociacao).Count();
+
+                var numFinalizadas = estatisticas.CanceladasTaxista + estatisticas.CanceladasPassageiro + estatisticas.Concluidas;
+
+                estatisticas.MediaAvaliacaoTaxista = corridas.Sum(x => (float)x.AvaliacaoTaxista) / numFinalizadas;
+                estatisticas.MediaAvaliacaoPassageiro = corridas.Sum(x => (float)x.AvaliacaoPassageiro) / numFinalizadas;
+            }
+
+            return estatisticas;
+        }
     }
 }

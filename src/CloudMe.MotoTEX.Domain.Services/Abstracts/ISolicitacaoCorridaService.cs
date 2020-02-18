@@ -12,5 +12,6 @@ namespace CloudMe.MotoTEX.Domain.Services.Abstracts
         Task<bool> RegistrarAcaoTaxista(Guid id_solicitacao, Guid id_taxista, AcaoTaxistaSolicitacaoCorrida acao);
         Task<IList<SolicitacaoCorridaSummary>> RecuperarSolicitacoesEmEspera(Guid idTaxista);
         Task<IEnumerable<SolicitacaoCorrida>> RecuperarSolicitacoesAtivas();
+        Task<EstatisticasSolicitacoesCorrida> ObterEstatisticas(DateTime? inicio, DateTime? fim);
     }
 }

@@ -13,6 +13,7 @@ namespace CloudMe.MotoTEX.Domain.Enums
         EmEspera,
         Cancelada,
         Concluida,
-        EmNegociacao
+        EmNegociacao,
+        CanceladaPassageiro
     }
 }

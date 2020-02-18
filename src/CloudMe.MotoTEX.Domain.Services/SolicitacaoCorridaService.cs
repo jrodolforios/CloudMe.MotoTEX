@@ -240,5 +240,28 @@ namespace CloudMe.MotoTEX.Domain.Services
         {
             return await _SolicitacaoCorridaRepository.Search(x => x.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao);
         }
+
+        public async Task<EstatisticasSolicitacoesCorrida> ObterEstatisticas(DateTime? inicio, DateTime? fim)
+        {
+            inicio = inicio ?? DateTime.MinValue;
+            fim = fim ?? DateTime.MaxValue;
+
+            var estatisticas = new EstatisticasSolicitacoesCorrida();
+
+            var solicitacoes = await _SolicitacaoCorridaRepository.Search(x => x.Inserted >= inicio && x.Inserted <= fim);
+
+            if (solicitacoes.Count() > 0)
+            {
+                estatisticas.Total = solicitacoes.Count();
+                estatisticas.Agendadas = solicitacoes.Where(x => x.TipoAtendimento == TipoAtendimento.Agendado).Count();
+                estatisticas.Interurbanas = solicitacoes.Where(x => x.IsInterUrbano).Count();
+                estatisticas.ValorMedio = solicitacoes.Sum(x => x.ValorEstimado ?? 0) / estatisticas.Total;
+                estatisticas.EmAndamento = solicitacoes.Where(x => x.Situacao == SituacaoSolicitacaoCorrida.EmAvaliacao).Count();
+                estatisticas.Atendidas = solicitacoes.Where(x => x.Situacao == SituacaoSolicitacaoCorrida.Aceita).Count();
+                estatisticas.NaoAtendidas = solicitacoes.Where(x => x.Situacao == SituacaoSolicitacaoCorrida.NaoAtendida).Count();
+            }
+
+            return estatisticas;
+        }
     }
 }
