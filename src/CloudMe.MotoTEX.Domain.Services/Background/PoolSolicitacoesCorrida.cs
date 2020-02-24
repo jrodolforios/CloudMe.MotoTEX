@@ -41,7 +41,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
             ITaxistaService taxistaService;
             IFavoritoService favoritoService;
             ISolicitacaoCorridaService solicitacaoCorridaService;
-            IProxyNotificacoesSolicitacaoCorrida notificacoesSolicitacaoCorrida;
+            IProxySolicitacaoCorrida notificacoesSolicitacaoCorrida;
             IFaixaAtivacaoRepository faixaAtivacaoRepository;
 
             public MonitorSolicitacaoCorrida(ParametrosMonitoramento parametros)
@@ -59,7 +59,7 @@ namespace CloudMe.MotoTEX.Domain.Services.Background
                 taxistaService = serviceScope.ServiceProvider.GetRequiredService<ITaxistaService>();
                 favoritoService = serviceScope.ServiceProvider.GetRequiredService<IFavoritoService>();
                 solicitacaoCorridaService = serviceScope.ServiceProvider.GetRequiredService<ISolicitacaoCorridaService>();
-                notificacoesSolicitacaoCorrida = serviceScope.ServiceProvider.GetRequiredService<IProxyNotificacoesSolicitacaoCorrida>();
+                notificacoesSolicitacaoCorrida = serviceScope.ServiceProvider.GetRequiredService<IProxySolicitacaoCorrida>();
                 faixaAtivacaoRepository = serviceScope.ServiceProvider.GetRequiredService<IFaixaAtivacaoRepository>();
             }
 

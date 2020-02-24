@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CloudMe.MotoTEX.Domain.Model\CloudMe.MotoTEX.Domain.Model.csproj" />
+    <ProjectReference Include="..\CloudMe.MotoTEX.Infraestructure.EF\CloudMe.MotoTEX.Infraestructure.EF.csproj" />
     <ProjectReference Include="..\CloudMe.MotoTEX.Infraestructure.Entries\CloudMe.MotoTEX.Infraestructure.Entries.csproj" />
   </ItemGroup>
 

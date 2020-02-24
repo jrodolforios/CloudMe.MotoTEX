@@ -30,13 +30,12 @@ using EntityFrameworkCore.Triggers;
 using EntityFrameworkCore.Triggers.AspNetCore;
 using CloudMe.MotoTEX.Domain.Services.Background;
 using CloudMe.MotoTEX.Domain.Notifications.Hubs;
-using Microsoft.Extensions.Hosting;
-using CloudMe.MotoTEX.Domain.Notifications.Abstracts;
 using CloudMe.MotoTEX.Domain.Notifications.Abstract;
 using CloudMe.MotoTEX.Domain.Model;
 using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
 using CloudMe.MotoTEX.Domain.Notifications.Proxies;
 using CloudMe.MotoTEX.Domain.Model.Faturamento;
+using CloudMe.MotoTEX.Domain.Notifications.Compat;
 
 namespace CloudMe.MotoTEX.Configuration.Library.Helpers
 {
@@ -93,23 +92,47 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
 
             services.AddSingleton<IUserIdProvider, UserIdProvider>();
 
-            services.AddSingleton<IPoolLocalizacaoTaxista, PoolLocalizacaoTaxista>();
             services.AddHostedService<PoolLocalizacaoTaxista>();
-
             services.AddHostedService<PoolLocalizacaoPassageiro>();
-
             services.AddHostedService<PoolSolicitacoesCorrida>();
             services.AddHostedService<PoolCorridas>();
 
-            new MonitorGruposUsuarios();
+            services.AddSingleton<MonitorGruposUsuarios>();
+            //new MonitorGruposUsuarios();
 
-            services.AddTransient<IProxyHubMensagens, ProxyHubMensagens>();
-            services.AddTransient<IProxyNotificacoesSolicitacaoCorrida, ProxyNotificacoesSolicitacaoCorrida>();
-            services.AddTransient<IProxyNotificacoesLocalizacao, ProxyNotificacoesLocalizacao>();
+            services.AddTransient<IProxyMensagem, ProxyMensagem>();
+            services.AddTransient<IProxySolicitacaoCorrida, ProxySolicitacaoCorrida>();
+            services.AddTransient<IProxyLocalizacao, ProxyLocalizacao>();
 
             services.AddTransient<IFirebaseNotifications, FirebaseNotifications>();
 
             services.AddTriggers();
+
+            //services.AddSingleton<EntityNotifier<ICorridaService, Corrida, CorridaSummary, Guid>>(); // COMPAT
+            new Domain.Notifications.EntityNotifier<ICorVeiculoService, CorVeiculo, CorVeiculoSummary, Guid>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<ICorVeiculoService, CorVeiculo, CorVeiculoSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IEnderecoService, Endereco, EnderecoSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IFaixaDescontoService, FaixaDesconto, FaixaDescontoSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IFaixaDescontoTaxistaService, FaixaDescontoTaxista, FaixaDescontoTaxistaSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IFavoritoService, Favorito, FavoritoSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IFormaPagamentoService, FormaPagamento, FormaPagamentoSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IFormaPagamentoTaxistaService, FormaPagamentoTaxista, FormaPagamentoTaxistaSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IFotoService, Foto, FotoSummary, Guid>>();
+            services.AddSingleton<UsuarioNotifier>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IGrupoUsuarioService, GrupoUsuario, GrupoUsuarioSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<ILocalizacaoService, Localizacao, LocalizacaoSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IPassageiroService, Passageiro, PassageiroSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IPontoTaxiService, PontoTaxi, PontoTaxiSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IRotaService, Rota, RotaSummary, Guid>>();
+            //services.AddSingleton<Domain.Notifications.EntityNotifier<ISolicitacaoCorridaService, SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>>(); // COMPAT
+            services.AddSingleton<Domain.Notifications.EntityNotifier<ITarifaService, Tarifa, TarifaSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<ITaxistaService, Taxista, TaxistaSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IUsuarioGrupoUsuarioService, UsuarioGrupoUsuario, UsuarioGrupoUsuarioSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IVeiculoService, Veiculo, VeiculoSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IVeiculoTaxistaService, VeiculoTaxista, VeiculoTaxistaSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IContatoService, Contato, ContatoSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IFaturamentoService, Faturamento, FaturamentoSummary, Guid>>();
+            services.AddSingleton<Domain.Notifications.EntityNotifier<IFaturamentoTaxistaService, FaturamentoTaxista, FaturamentoTaxistaSummary, Guid>>();
 
             return services;
         }
@@ -171,54 +194,19 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
             });
         }
 
-        public static void ConfigureSignalR<TContext>(IApplicationBuilder app) where TContext: DbContext
+        public static void ConfigureSignalR(IApplicationBuilder app)
         {
             app.UseSignalR(routes =>
             {
-                routes.MapHub<EntityNotifier<ICorridaService, Corrida, CorridaSummary, Guid>>("/notifications/corrida");
-                routes.MapHub<EntityNotifier<ICorVeiculoService, CorVeiculo, CorVeiculoSummary, Guid>>("/notifications/cor_veiculo");
-                routes.MapHub<EntityNotifier<IEnderecoService, Endereco, EnderecoSummary, Guid>>("/notifications/endereco");
-                routes.MapHub<EntityNotifier<IFaixaDescontoService, FaixaDesconto, FaixaDescontoSummary, Guid>>("/notifications/faixa_desconto");
-                routes.MapHub<EntityNotifier<IFaixaDescontoTaxistaService, FaixaDescontoTaxista, FaixaDescontoTaxistaSummary, Guid>>("/notifications/faixa_desconto_taxista");
-                routes.MapHub<EntityNotifier<IFavoritoService, Favorito, FavoritoSummary, Guid>>("/notifications/favorito");
-                routes.MapHub<EntityNotifier<IFormaPagamentoService, FormaPagamento, FormaPagamentoSummary, Guid>>("/notifications/forma_pagamento");
-                routes.MapHub<EntityNotifier<IFormaPagamentoTaxistaService, FormaPagamentoTaxista, FormaPagamentoTaxistaSummary, Guid>>("/notifications/forma_pagamento_taxista");
-                routes.MapHub<EntityNotifier<IFotoService, Foto, FotoSummary, Guid>>("/notifications/foto");
-                routes.MapHub<UsuarioNotifier>("/notifications/usuario");
-                routes.MapHub<EntityNotifier<IGrupoUsuarioService, GrupoUsuario, GrupoUsuarioSummary, Guid>>("/notifications/grupo_usuario");
-                routes.MapHub<EntityNotifier<ILocalizacaoService, Localizacao, LocalizacaoSummary, Guid>>("/notifications/localizacao");
-                routes.MapHub<EntityNotifier<IPassageiroService, Passageiro, PassageiroSummary, Guid>>("/notifications/passageiro");
-                routes.MapHub<EntityNotifier<IPontoTaxiService, PontoTaxi, PontoTaxiSummary, Guid>>("/notifications/ponto_taxi");
-                routes.MapHub<EntityNotifier<IRotaService, Rota, RotaSummary, Guid>>("/notifications/rota");
-                routes.MapHub<EntityNotifier<ISolicitacaoCorridaService, SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>>("/notifications/solicitacao_corrida");
-                routes.MapHub<EntityNotifier<ITarifaService, Tarifa, TarifaSummary, Guid>>("/notifications/tarifa");
-                routes.MapHub<EntityNotifier<ITaxistaService, Taxista, TaxistaSummary, Guid>>("/notifications/taxista");
-                routes.MapHub<EntityNotifier<IUsuarioGrupoUsuarioService, UsuarioGrupoUsuario, UsuarioGrupoUsuarioSummary, Guid>>("/notifications/usuario_grupo_usuario");
-                routes.MapHub<EntityNotifier<IVeiculoService, Veiculo, VeiculoSummary, Guid>>("/notifications/veiculo");
-                routes.MapHub<EntityNotifier<IVeiculoTaxistaService, VeiculoTaxista, VeiculoTaxistaSummary, Guid>>("/notifications/veiculo_taxista");
-                routes.MapHub<EntityNotifier<IContatoService, Contato, ContatoSummary, Guid>>("/notifications/contato");
-                routes.MapHub<EntityNotifier<IFaturamentoService, Faturamento, FaturamentoSummary, Guid>>("/notifications/Faturamento");
-                routes.MapHub<EntityNotifier<IFaturamentoTaxistaService, FaturamentoTaxista, FaturamentoTaxistaSummary, Guid>>("/notifications/FaturamentoTaxista");
+                routes.MapHub<HubNotificacoes>("/notifications");
+                routes.MapHub<HubNotificaoesAdmin>("/notifications/admin");
 
+                // COMPAT
                 routes.MapHub<HubLocalizacaoTaxista>("/notifications/localizacao_taxista");
                 routes.MapHub<HubLocalizacaoPassageiro>("/notifications/localizacao_passageiro");
-
                 routes.MapHub<HubMensagens>("/notifications/mensagens");
-                routes.MapHub<HubNotificaoes>("/notifications");
-                routes.MapHub<HubNotificaoesAdmin>("/notifications/admin");
-            });
-
-            BuildEntryNotifiers<TContext>(app);
-        }
-
-        public static void BuildEntryNotifiers<TContext>(IApplicationBuilder app) where TContext : DbContext
-        {
-            app.UseTriggers(buider =>
-            {
-                buider.Triggers<Localizacao>().Inserted.Add(entry =>
-                {
-                    Console.Write("Updated: [{0}]", entry.Entity.Id);
-                });
+                routes.MapHub<Domain.Notifications.Compat.EntityNotifier<ICorridaService, Corrida, CorridaSummary, Guid>>("/notifications/corrida");
+                routes.MapHub<Domain.Notifications.Compat.EntityNotifier<ISolicitacaoCorridaService, SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>>("/notifications/solicitacao_corrida");
             });
         }
     }

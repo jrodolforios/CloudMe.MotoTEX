@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace CloudMe.MotoTEX.Domain.Notifications.Abstract
+namespace CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies
 {
-    public interface IProxyHubMensagens
+    public interface IProxyMensagem
     {
         Task EnviarParaUsuario(Usuario usuario, DetalhesMensagem mensagem);
         Task EnviarParaUsuarios(IEnumerable<Usuario> usuarios, DetalhesMensagem mensagem);

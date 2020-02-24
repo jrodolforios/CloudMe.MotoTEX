@@ -2,6 +2,7 @@
 using CloudMe.MotoTEX.Domain.Model.Mensagem;
 using CloudMe.MotoTEX.Domain.Notifications.Abstract;
 using CloudMe.MotoTEX.Infraestructure.Entries;
+using FirebaseNet.Messaging;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -34,6 +35,38 @@ namespace CloudMe.MotoTEX.Domain.Notifications
                 .Where(usr => !string.IsNullOrEmpty(usr.DeviceToken) && usr.tipo == Enums.TipoUsuario.Passageiro)
                 .Select(usr => usr.DeviceToken).ToArray();
 
+            var dataDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(JsonConvert.SerializeObject(data));
+            /*
+            var message = new Message()
+            {
+                Notification =
+                {
+                    Body = body,
+                    Title = title,
+                },
+                Data = dataDict
+            };
+
+            var enviou_tx = false;
+            if (registration_ids_tx.Count() > 0)
+            {
+                FCMClient tx_client = new FCMClient(firebaseConfig.ServerKey_Taxista);
+                message.RegistrationIds = registration_ids_tx;
+
+                var result = await tx_client.SendMessageAsync(message);
+                enviou_tx = true;
+            }
+
+            var enviou_psg = false;
+            if (registration_ids_psg.Count() > 0)
+            {
+                FCMClient psg_client = new FCMClient(firebaseConfig.ServerKey_Passageiro);
+                message.RegistrationIds = registration_ids_psg;
+
+                var result = await psg_client.SendMessageAsync(message);
+                enviou_psg = true;
+            }*/
+
             var pushNotification = new PushNotification
             {
                 notification = new Notification
@@ -41,7 +74,7 @@ namespace CloudMe.MotoTEX.Domain.Notifications
                     title = title,
                     text = body,
                 },
-                data = data,
+                data = dataDict,
                 registration_ids = null
             };
 

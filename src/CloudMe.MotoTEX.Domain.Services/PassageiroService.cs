@@ -25,7 +25,7 @@ namespace CloudMe.MotoTEX.Domain.Services
         private readonly ILocalizacaoService _LocalizacaoService;
         private readonly ICorridaRepository _corridaRepository;
         private readonly ISolicitacaoCorridaRepository _solicitacaoCorridaRepository;
-        private readonly IProxyNotificacoesLocalizacao _proxyNotificacoesLocalizacao;
+        private readonly IProxyLocalizacao _proxyNotificacoesLocalizacao;
 
         public PassageiroService(
             IPassageiroRepository PassageiroRepository,
@@ -33,7 +33,7 @@ namespace CloudMe.MotoTEX.Domain.Services
             ILocalizacaoService LocalizacaoService,
             ICorridaRepository corridaRepository,
             ISolicitacaoCorridaRepository solicitacaoCorridaRepository,
-            IProxyNotificacoesLocalizacao proxyNotificacoesLocalizacao)
+            IProxyLocalizacao proxyNotificacoesLocalizacao)
         {
             _PassageiroRepository = PassageiroRepository;
             _FotoService = FotoService;

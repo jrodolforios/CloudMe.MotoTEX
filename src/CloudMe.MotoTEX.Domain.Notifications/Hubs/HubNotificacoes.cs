@@ -8,9 +8,9 @@ using System.Text;
 namespace CloudMe.MotoTEX.Domain.Notifications.Hubs
 {
     [Authorize]
-    public class HubNotificaoes : UserMappedHub<HubNotificaoes>
+    public class HubNotificacoes : UserMappedHub<HubNotificacoes>
     {
-        public HubNotificaoes(IUsuarioRepository usuarioRepository, IHubContext<UserMappedHub<HubNotificaoes>> hubContext)
+        public HubNotificacoes(IUsuarioRepository usuarioRepository, IHubContext<UserMappedHub<HubNotificacoes>> hubContext)
             : base(usuarioRepository, hubContext)
         {
         }

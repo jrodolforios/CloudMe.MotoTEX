@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies
 {
-    public interface IProxyNotificacoesSolicitacaoCorrida
+    public interface IProxySolicitacaoCorrida
     {
         Task AtivarTaxista(Taxista taxista, SolicitacaoCorridaSummary solicitacaoCorrida);
         Task AtivarTaxistas(IEnumerable<Taxista> taxistas, SolicitacaoCorridaSummary solicitacaoCorrida);

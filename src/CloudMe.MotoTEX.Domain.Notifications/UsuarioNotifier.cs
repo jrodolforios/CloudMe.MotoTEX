@@ -1,4 +1,5 @@
-﻿using CloudMe.MotoTEX.Domain.Services.Abstracts;
+﻿using CloudMe.MotoTEX.Domain.Notifications.Hubs;
+using CloudMe.MotoTEX.Domain.Services.Abstracts;
 using CloudMe.MotoTEX.Infraestructure.Entries;
 using EntityFrameworkCore.Triggers;
 using Microsoft.AspNetCore.Authorization;
@@ -7,13 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudMe.MotoTEX.Domain.Notifications
 {
-    [Authorize]
-    public class UsuarioNotifier : BaseNotifier
+    public class UsuarioNotifier
     {
         IUsuarioService _usuarioService;
-        IHubContext<UsuarioNotifier> _hubContext = null;
+        IHubContext<HubNotificacoes> _hubContext = null;
 
-        public UsuarioNotifier(IUsuarioService entryService, IHubContext<UsuarioNotifier> hubContext)
+        public UsuarioNotifier(IUsuarioService entryService, IHubContext<HubNotificacoes> hubContext)
         {
             _usuarioService = entryService;
             _hubContext = hubContext;

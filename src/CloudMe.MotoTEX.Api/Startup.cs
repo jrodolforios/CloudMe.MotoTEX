@@ -152,8 +152,8 @@ namespace CloudMe.MotoTEX.Api
             });
 
             services.AddDbContexts<CloudMeMotoTEXContext>(Configuration);
-            services.AddMotoTEXServices()
-                    .AddMotoTEXRepositories();
+            services.AddMotoTEXRepositories();
+            services.AddMotoTEXServices();
 
             services.AddAuthorizationPolicies();
 
@@ -349,7 +349,7 @@ namespace CloudMe.MotoTEX.Api
             });
 
 
-            StartupHelpers.ConfigureSignalR<CloudMeMotoTEXContext>(app);
+            StartupHelpers.ConfigureSignalR(app);
 
             app.UseMvc();
         }

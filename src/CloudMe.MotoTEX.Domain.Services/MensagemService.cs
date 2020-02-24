@@ -15,6 +15,7 @@ using CloudMe.MotoTEX.Domain.Enums;
 using CloudMe.MotoTEX.Infraestructure.Abstracts.Transactions;
 using CloudMe.MotoTEX.Domain.Notifications.Abstract;
 using Notification = prmToolkit.NotificationPattern.Notification;
+using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
 
 namespace CloudMe.MotoTEX.Domain.Services
 {
@@ -24,7 +25,7 @@ namespace CloudMe.MotoTEX.Domain.Services
         private readonly IMensagemDestinatarioRepository mensagemDestinatarioRepository;
         private readonly IGrupoUsuarioRepository grupoUsuarioRepository;
         private readonly IUsuarioRepository usuarioRepository;
-        private readonly IProxyHubMensagens proxyMensagens;
+        private readonly IProxyMensagem proxyMensagem;
         private readonly IUnitOfWork unitOfWork;
 
         public MensagemService(
@@ -32,14 +33,14 @@ namespace CloudMe.MotoTEX.Domain.Services
             IMensagemDestinatarioRepository mensagemDestinatarioRepository,
             IGrupoUsuarioRepository grupoUsuarioService,
             IUsuarioRepository usuarioService,
-            IProxyHubMensagens proxyMensagens,
+            IProxyMensagem proxyMensagens,
             IUnitOfWork unitOfWork)
         {
             this.mensagemRepository = mensagemRepository;
             this.mensagemDestinatarioRepository = mensagemDestinatarioRepository;
             this.grupoUsuarioRepository = grupoUsuarioService;
             this.usuarioRepository = usuarioService;
-            this.proxyMensagens = proxyMensagens;
+            this.proxyMensagem = proxyMensagens;
             this.unitOfWork = unitOfWork;
         }
 
@@ -186,7 +187,7 @@ namespace CloudMe.MotoTEX.Domain.Services
                 await mensagemDestinatarioRepository.ModifyAsync(msgDst);
                 await unitOfWork.CommitAsync();
 
-                await proxyMensagens.MensagemAtualizada(CreateMsgDestSummary(msgDst));
+                await proxyMensagem.MensagemAtualizada(CreateMsgDestSummary(msgDst));
                 return true;
             }
 
@@ -289,13 +290,13 @@ namespace CloudMe.MotoTEX.Domain.Services
             // notifica usuários
             if (usuarios.Count() > 0)
             {
-                await proxyMensagens.EnviarParaUsuarios(usuarios, detalhes);
+                await proxyMensagem.EnviarParaUsuarios(usuarios, detalhes);
             }
 
             // notifica grupos
             foreach (var grupo in grupos)
             {
-                await proxyMensagens.EnviarParaGrupoUsuarios(grupo, detalhes);
+                await proxyMensagem.EnviarParaGrupoUsuarios(grupo, detalhes);
             }
 
             return usrSentCount;

@@ -1,29 +1,26 @@
 ﻿using prmToolkit.NotificationPattern;
 using CloudMe.MotoTEX.Domain.Services.Abstracts;
-using CloudMe.MotoTEX.Domain.Model.Localizacao;
 using CloudMe.MotoTEX.Infraestructure.Entries;
 using CloudMe.MotoTEX.Infraestructure.Abstracts.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CloudMe.MotoTEX.Domain.Model.Taxista;
 using CloudMe.MotoTEX.Domain.Enums;
-using CloudMe.MotoTEX.Domain.Notifications.Abstracts;
+using CloudMe.MotoTEX.Domain.Notifications.Abstract.Proxies;
 
 namespace CloudMe.MotoTEX.Domain.Services
 {
     public class EmergenciaService : ServiceBase<Emergencia, EmergenciaSummary, Guid>, IEmergenciaService
     {
         private readonly IEmergenciaRepository _EmergenciaRepository;
-        private readonly IPoolLocalizacaoTaxista _PoolLocalizacaoTaxista;
+        private readonly IProxyEmergencia _ProxyEmergencia;
 
         public EmergenciaService(
             IEmergenciaRepository EmergenciaRepository,
-            IPoolLocalizacaoTaxista PoolLocalizacaoTaxista)
+            IProxyEmergencia ProxyEmergencia)
         {
             _EmergenciaRepository = EmergenciaRepository;
-            _PoolLocalizacaoTaxista = PoolLocalizacaoTaxista;
+            _ProxyEmergencia = ProxyEmergencia;
         }
 
         public override string GetTag()
@@ -105,7 +102,7 @@ namespace CloudMe.MotoTEX.Domain.Services
                 return false;
             }
 
-            await _PoolLocalizacaoTaxista.EnviarPanico(emergenciaSummary);
+            await _ProxyEmergencia.EnviarPanico(emergenciaSummary);
 
             return true;
         }

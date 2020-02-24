@@ -1,4 +1,5 @@
-﻿using CloudMe.MotoTEX.Domain.Services.Abstracts;
+﻿using CloudMe.MotoTEX.Domain.Notifications.Hubs;
+using CloudMe.MotoTEX.Domain.Services.Abstracts;
 using CloudMe.MotoTEX.Infraestructure.Entries;
 using EntityFrameworkCore.Triggers;
 using Microsoft.AspNetCore.Authorization;
@@ -7,62 +8,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudMe.MotoTEX.Domain.Notifications
 {
-    [Authorize]
-    public class EntityNotifier<TEntryService, TEntry, TEntrySummary, TEntryKey> : BaseNotifier
+    public class EntityNotifier<TEntryService, TEntry, TEntrySummary, TEntryKey>
         where TEntry: EntryBase<TEntryKey>
         where TEntryService : IServiceBase<TEntry, TEntrySummary, TEntryKey>
     {
-        TEntryService _entryService;
-        IHubContext<EntityNotifier<TEntryService, TEntry, TEntrySummary, TEntryKey>> _hubContext = null;
         private static bool eventsRegistered = false;
 
-        public EntityNotifier(TEntryService entryService, IHubContext<EntityNotifier<TEntryService, TEntry, TEntrySummary, TEntryKey>> hubContext)
+        static EntityNotifier()
         {
-            _entryService = entryService;
-            _hubContext = hubContext;
-
             if (!eventsRegistered)
             {
-                /*EntryBase<TEntryKey>.OnInsert += entry =>
+                Triggers<TEntry>.GlobalInserted.Add<(TEntryService, IHubContext<HubNotificacoes>)>(async insertingEntry =>
                 {
-                    if (entry.GetType() == typeof(TEntry))
-                    {
-                        ItemAdded(entry as TEntry);
-                    }
-                };
+                    var summary = await insertingEntry.Service.Item1.GetSummaryAsync(insertingEntry.Entity);
+                    await insertingEntry.Service.Item2.Clients.All.SendAsync("inserted", insertingEntry.Service.Item1.GetTag(), summary);
+                });
 
-                EntryBase<TEntryKey>.OnUpdate += entry =>
+                Triggers<TEntry>.GlobalUpdated.Add<(TEntryService, IHubContext<HubNotificacoes>)>(async updatingEntry =>
                 {
-                    if (entry.GetType() == typeof(TEntry))
-                    {
-                        ItemUpdated(entry as TEntry);
-                    }
-                };
+                    var summary = await updatingEntry.Service.Item1.GetSummaryAsync(updatingEntry.Entity);
+                    await updatingEntry.Service.Item2.Clients.All.SendAsync("updated", updatingEntry.Service.Item1.GetTag(), summary);
+                });
 
-                EntryBase<TEntryKey>.OnDelete += entry =>
+                Triggers<TEntry>.GlobalDeleting.Add<(TEntryService, IHubContext<HubNotificacoes>)>(async deletingEntry =>
                 {
-                    if (entry.GetType() == typeof(TEntry))
-                    {
-                        ItemDeleted(entry as TEntry);
-                    }
-                };*/
-
-                Triggers<TEntry>.Inserted += async insertingEntry =>
-                {
-                    var summary = await _entryService.GetSummaryAsync(insertingEntry.Entity);
-                    await _hubContext.Clients.All.SendAsync("inserted", _entryService.GetTag(), summary);
-                };
-
-                Triggers<TEntry>.Updated += async updatingEntry =>
-                {
-                    var summary = await _entryService.GetSummaryAsync(updatingEntry.Entity);
-                    await _hubContext.Clients.All.SendAsync("updated", _entryService.GetTag(), summary);
-                };
-
-                Triggers<TEntry>.Deleting += async deletingEntry =>
-                {
-                    await _hubContext.Clients.All.SendAsync("deleted", _entryService.GetTag(), deletingEntry.Entity.Id);
-                };
+                    await deletingEntry.Service.Item2.Clients.All.SendAsync("deleted", deletingEntry.Service.Item1.GetTag(), deletingEntry.Entity.Id);
+                });
 
                 eventsRegistered = true;
             }

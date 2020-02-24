@@ -21,12 +21,12 @@ namespace CloudMe.MotoTEX.Domain.Services
 
         private readonly ISolicitacaoCorridaRepository _SolicitacaoCorridaRepository;
         private readonly ITaxistaRepository _TaxistaRepository;
-        private readonly IProxyNotificacoesSolicitacaoCorrida _ProxyNotificacoesSolicitacaoCorrida;
+        private readonly IProxySolicitacaoCorrida _ProxyNotificacoesSolicitacaoCorrida;
 
         public SolicitacaoCorridaService(
             ISolicitacaoCorridaRepository SolicitacaoCorridaRepository,
             ITaxistaRepository taxistaRepository,
-            IProxyNotificacoesSolicitacaoCorrida proxyNotificacoesSolicitacaoCorrida)
+            IProxySolicitacaoCorrida proxyNotificacoesSolicitacaoCorrida)
         {
             _SolicitacaoCorridaRepository = SolicitacaoCorridaRepository;
             _TaxistaRepository = taxistaRepository;

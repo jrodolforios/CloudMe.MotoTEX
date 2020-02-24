@@ -12,13 +12,13 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace CloudMe.MotoTEX.Domain.Notifications.Proxies
 {
-    public class ProxyNotificacoesSolicitacaoCorrida : IProxyNotificacoesSolicitacaoCorrida
+    public class ProxySolicitacaoCorrida : IProxySolicitacaoCorrida
     {
-        IHubContext<HubNotificaoes> hubContext;
+        IHubContext<HubNotificacoes> hubContext;
         IHubContext<HubNotificaoesAdmin> hubContextAdmin;
         IFirebaseNotifications firebaseNotifications;
 
-        public ProxyNotificacoesSolicitacaoCorrida(IHubContext<HubNotificaoes> hubContext, IHubContext<HubNotificaoesAdmin> hubContextAdmin, IFirebaseNotifications firebaseNotifications)
+        public ProxySolicitacaoCorrida(IHubContext<HubNotificacoes> hubContext, IHubContext<HubNotificaoesAdmin> hubContextAdmin, IFirebaseNotifications firebaseNotifications)
         {
             this.hubContext = hubContext;
             this.hubContextAdmin = hubContextAdmin;
