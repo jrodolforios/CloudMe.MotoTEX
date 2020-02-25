@@ -10,30 +10,24 @@ namespace CloudMe.MotoTEX.Domain.Notifications
 {
     public class UsuarioNotifier
     {
-        IUsuarioService _usuarioService;
-        IHubContext<HubNotificacoes> _hubContext = null;
-
-        public UsuarioNotifier(IUsuarioService entryService, IHubContext<HubNotificacoes> hubContext)
+        static UsuarioNotifier()
         {
-            _usuarioService = entryService;
-            _hubContext = hubContext;
-
-            Triggers<Usuario>.Inserted += async entry =>
+            Triggers<Usuario>.GlobalInserted.Add<(IUsuarioService, IHubContext<HubNotificacoes>)>(async insertingEntry =>
             {
-                var summary = await _usuarioService.GetSummaryAsync(entry.Entity);
-                await _hubContext.Clients.All.SendAsync("inserted", _usuarioService.GetTag(), summary);
-            };
+                var summary = await insertingEntry.Service.Item1.GetSummaryAsync(insertingEntry.Entity);
+                await insertingEntry.Service.Item2.Clients.All.SendAsync("inserted", insertingEntry.Service.Item1.GetTag(), summary);
+            });
 
-            Triggers<Usuario>.Updated += async entry =>
+            Triggers<Usuario>.GlobalUpdated.Add<(IUsuarioService, IHubContext<HubNotificacoes>)>(async updatingEntry =>
             {
-                var summary = await _usuarioService.GetSummaryAsync(entry.Entity);
-                await _hubContext.Clients.All.SendAsync("updated", _usuarioService.GetTag(), summary);
-            };
+                var summary = await updatingEntry.Service.Item1.GetSummaryAsync(updatingEntry.Entity);
+                await updatingEntry.Service.Item2.Clients.All.SendAsync("updated", updatingEntry.Service.Item1.GetTag(), summary);
+            });
 
-            Triggers<Usuario>.Deleted += async entry =>
+            Triggers<Usuario>.GlobalDeleted.Add<(IUsuarioService, IHubContext<HubNotificacoes>)>(async deletedEntry =>
             {
-                await _hubContext.Clients.All.SendAsync("deleted", _usuarioService.GetTag(), entry.Entity.Id);
-            };
+                await deletedEntry.Service.Item2.Clients.All.SendAsync("deleted", deletedEntry.Service.Item1.GetTag(), deletedEntry.Entity.Id);
+            });
         }
     }
 }

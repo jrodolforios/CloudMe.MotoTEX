@@ -97,12 +97,13 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
             services.AddHostedService<PoolSolicitacoesCorrida>();
             services.AddHostedService<PoolCorridas>();
 
-            services.AddSingleton<MonitorGruposUsuarios>();
-            //new MonitorGruposUsuarios();
+            //services.AddSingleton<MonitorGruposUsuarios>();
+            new MonitorGruposUsuarios();
 
             services.AddTransient<IProxyMensagem, ProxyMensagem>();
             services.AddTransient<IProxySolicitacaoCorrida, ProxySolicitacaoCorrida>();
             services.AddTransient<IProxyLocalizacao, ProxyLocalizacao>();
+            services.AddTransient<IProxyEmergencia, ProxyEmergencia>();
 
             services.AddTransient<IFirebaseNotifications, FirebaseNotifications>();
 
@@ -110,29 +111,29 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
 
             //services.AddSingleton<EntityNotifier<ICorridaService, Corrida, CorridaSummary, Guid>>(); // COMPAT
             new Domain.Notifications.EntityNotifier<ICorVeiculoService, CorVeiculo, CorVeiculoSummary, Guid>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<ICorVeiculoService, CorVeiculo, CorVeiculoSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IEnderecoService, Endereco, EnderecoSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IFaixaDescontoService, FaixaDesconto, FaixaDescontoSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IFaixaDescontoTaxistaService, FaixaDescontoTaxista, FaixaDescontoTaxistaSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IFavoritoService, Favorito, FavoritoSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IFormaPagamentoService, FormaPagamento, FormaPagamentoSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IFormaPagamentoTaxistaService, FormaPagamentoTaxista, FormaPagamentoTaxistaSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IFotoService, Foto, FotoSummary, Guid>>();
-            services.AddSingleton<UsuarioNotifier>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IGrupoUsuarioService, GrupoUsuario, GrupoUsuarioSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<ILocalizacaoService, Localizacao, LocalizacaoSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IPassageiroService, Passageiro, PassageiroSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IPontoTaxiService, PontoTaxi, PontoTaxiSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IRotaService, Rota, RotaSummary, Guid>>();
-            //services.AddSingleton<Domain.Notifications.EntityNotifier<ISolicitacaoCorridaService, SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>>(); // COMPAT
-            services.AddSingleton<Domain.Notifications.EntityNotifier<ITarifaService, Tarifa, TarifaSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<ITaxistaService, Taxista, TaxistaSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IUsuarioGrupoUsuarioService, UsuarioGrupoUsuario, UsuarioGrupoUsuarioSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IVeiculoService, Veiculo, VeiculoSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IVeiculoTaxistaService, VeiculoTaxista, VeiculoTaxistaSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IContatoService, Contato, ContatoSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IFaturamentoService, Faturamento, FaturamentoSummary, Guid>>();
-            services.AddSingleton<Domain.Notifications.EntityNotifier<IFaturamentoTaxistaService, FaturamentoTaxista, FaturamentoTaxistaSummary, Guid>>();
+            new Domain.Notifications.EntityNotifier<ICorVeiculoService, CorVeiculo, CorVeiculoSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IEnderecoService, Endereco, EnderecoSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IFaixaDescontoService, FaixaDesconto, FaixaDescontoSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IFaixaDescontoTaxistaService, FaixaDescontoTaxista, FaixaDescontoTaxistaSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IFavoritoService, Favorito, FavoritoSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IFormaPagamentoService, FormaPagamento, FormaPagamentoSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IFormaPagamentoTaxistaService, FormaPagamentoTaxista, FormaPagamentoTaxistaSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IFotoService, Foto, FotoSummary, Guid>();
+            new UsuarioNotifier();
+            new Domain.Notifications.EntityNotifier<IGrupoUsuarioService, GrupoUsuario, GrupoUsuarioSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<ILocalizacaoService, Localizacao, LocalizacaoSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IPassageiroService, Passageiro, PassageiroSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IPontoTaxiService, PontoTaxi, PontoTaxiSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IRotaService, Rota, RotaSummary, Guid>();
+            //new Domain.Notifications.EntityNotifier<ISolicitacaoCorridaService, SolicitacaoCorrida, SolicitacaoCorridaSummary, Guid>(); // COMPAT
+            new Domain.Notifications.EntityNotifier<ITarifaService, Tarifa, TarifaSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<ITaxistaService, Taxista, TaxistaSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IUsuarioGrupoUsuarioService, UsuarioGrupoUsuario, UsuarioGrupoUsuarioSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IVeiculoService, Veiculo, VeiculoSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IVeiculoTaxistaService, VeiculoTaxista, VeiculoTaxistaSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IContatoService, Contato, ContatoSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IFaturamentoService, Faturamento, FaturamentoSummary, Guid>();
+            new Domain.Notifications.EntityNotifier<IFaturamentoTaxistaService, FaturamentoTaxista, FaturamentoTaxistaSummary, Guid>();
 
             return services;
         }
