@@ -27,7 +27,7 @@ namespace CloudMe.MotoTEX.Domain.Notifications.Proxies
 
         public async Task AtivarTaxista(Taxista taxista, SolicitacaoCorridaSummary solicitacaoCorrida)
         {
-            var online = DateTime.Now.AddSeconds(-20) <= taxista.LocalizacaoAtual.Updated;
+            bool online = taxista.Online();
             if (online)
             {
                 await hubContext.Clients.User(taxista.IdUsuario.ToString()).SendAsync("sol_corr_ativar_tx", solicitacaoCorrida);
@@ -41,7 +41,7 @@ namespace CloudMe.MotoTEX.Domain.Notifications.Proxies
                     solicitacaoCorrida);
             }
 
-            await hubContextAdmin.Clients.All.SendAsync("sol_corr_ativacao_tx", new
+            await hubContextAdmin.Clients.All.SendAsync(online ? "sol_corr_ativ_tx_hub" : "sol_corr_ativ_tx_push", new
             {
                 taxistas = (new[] { taxista.Id }).AsEnumerable(),
                 sol_corr = solicitacaoCorrida
@@ -50,13 +50,18 @@ namespace CloudMe.MotoTEX.Domain.Notifications.Proxies
 
         public async Task AtivarTaxistas(IEnumerable<Taxista> taxistas, SolicitacaoCorridaSummary solicitacaoCorrida)
         {
-            var txsOnline = taxistas.Where(tx => DateTime.Now.AddSeconds(-90) <= tx.LocalizacaoAtual.Updated);
+            var txsOnline = taxistas.Where(tx => tx.Online());
             var txsOffline = taxistas.Except(txsOnline);
       
             if (txsOnline.Count() > 0)
             {
                 // taxistas online recebem a solicitação por signalr
                 await hubContext.Clients.Users(txsOnline.Select(x => x.IdUsuario.ToString()).ToList()).SendAsync("sol_corr_ativar_tx", solicitacaoCorrida);
+                await hubContextAdmin.Clients.All.SendAsync("sol_corr_ativ_tx_hub", new
+                {
+                    taxistas = txsOnline.Select(x => x.Id),
+                    sol_corr = solicitacaoCorrida
+                });
             }
 
             if (txsOffline.Count() > 0)
@@ -67,13 +72,14 @@ namespace CloudMe.MotoTEX.Domain.Notifications.Proxies
                     "Passageiro próximo solicitando Corrida",
                     "Um passageiro está solicitando uma corrida, fique ativo para receber solicitações de corrida!",
                     solicitacaoCorrida);
+
+                await hubContextAdmin.Clients.All.SendAsync("sol_corr_ativ_tx_push", new
+                {
+                    taxistas = txsOffline.Select(x => x.Id),
+                    sol_corr = solicitacaoCorrida
+                });
             }
 
-            await hubContextAdmin.Clients.All.SendAsync("sol_corr_ativacao_tx", new
-            {
-                taxistas = taxistas.Select(x => x.Id),
-                sol_corr = solicitacaoCorrida
-            });
         }
 
         public async Task InformarAcaoTaxista(Taxista taxista, SolicitacaoCorrida solicitacao, AcaoTaxistaSolicitacaoCorrida acao)

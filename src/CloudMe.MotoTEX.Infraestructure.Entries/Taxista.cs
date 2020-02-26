@@ -34,5 +34,15 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
         public virtual IEnumerable<Favorito> Favoritos { get; set; }
         public virtual IEnumerable<Contato> Contatos { get; set; }
         public virtual IEnumerable<FaturamentoTaxista> FaturamentoTaxista { get; set; }
+
+        public static bool Online(Taxista taxista, double tolerancia = 5)
+        {
+            return taxista.LocalizacaoAtual != null ? DateTime.Now.AddSeconds(-tolerancia) <= taxista.LocalizacaoAtual.Updated : false;
+        }
+
+        public bool Online(double tolerancia = 5)
+        {
+            return Online(this, tolerancia);
+        }
     }
 }

@@ -35,7 +35,7 @@ namespace CloudMe.MotoTEX.Domain.Notifications
                 .Where(usr => !string.IsNullOrEmpty(usr.DeviceToken) && usr.tipo == Enums.TipoUsuario.Passageiro)
                 .Select(usr => usr.DeviceToken).ToArray();
 
-            var dataDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(JsonConvert.SerializeObject(data));
+            //var dataDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(JsonConvert.SerializeObject(data));
             /*
             var message = new Message()
             {
@@ -74,7 +74,8 @@ namespace CloudMe.MotoTEX.Domain.Notifications
                     title = title,
                     text = body,
                 },
-                data = dataDict,
+                //data = dataDict,
+                data = data,
                 registration_ids = null
             };
 
