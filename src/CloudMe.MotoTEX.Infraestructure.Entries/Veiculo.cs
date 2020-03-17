@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CloudMe.MotoTEX.Infraestructure.Entries.Piloto;
+using System;
 using System.Collections.Generic;
 
 namespace CloudMe.MotoTEX.Infraestructure.Entries
@@ -23,5 +24,7 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
 
         public virtual IEnumerable<Corrida> Corridas { get; set; }
         public virtual IEnumerable<VeiculoTaxista> Taxistas { get; set; }
+
+        public virtual RegistroVeiculo RegistroVigente { get; set; }
     }
 }

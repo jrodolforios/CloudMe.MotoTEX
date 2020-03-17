@@ -339,3 +339,4 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /src/CloudMe.MotoTEX.Domain.Notifications/Hubs/HubLocalizacaoTaxista.cs
+/src/CloudMe.MotoTEX.Api/.config

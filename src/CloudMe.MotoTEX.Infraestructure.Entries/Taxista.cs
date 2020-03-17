@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CloudMe.MotoTEX.Infraestructure.Entries.Piloto;
+using System;
 using System.Collections.Generic;
 
 namespace CloudMe.MotoTEX.Infraestructure.Entries
@@ -34,6 +35,8 @@ namespace CloudMe.MotoTEX.Infraestructure.Entries
         public virtual IEnumerable<Favorito> Favoritos { get; set; }
         public virtual IEnumerable<Contato> Contatos { get; set; }
         public virtual IEnumerable<FaturamentoTaxista> FaturamentoTaxista { get; set; }
+
+        public virtual Habilitacao Habilitacao { get; set; }
 
         public static bool Online(Taxista taxista, double tolerancia = 5)
         {

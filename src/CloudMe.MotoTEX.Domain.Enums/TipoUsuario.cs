@@ -9,6 +9,7 @@ namespace CloudMe.MotoTEX.Domain.Enums
         Indefinido = 0,
         Administrador,
         Taxista,
-        Passageiro
+        Passageiro,
+        Piloto
     }
 }

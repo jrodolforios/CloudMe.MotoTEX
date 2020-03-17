@@ -7,6 +7,8 @@ using System;
 using CloudMe.MotoTEX.Infraestructure.Entries;
 using EntityFrameworkCore.Triggers;
 using Microsoft.Extensions.DependencyInjection;
+using CloudMe.MotoTEX.Infraestructure.Entries.Localidade;
+using CloudMe.MotoTEX.Infraestructure.Entries.Piloto;
 
 namespace CloudMe.MotoTEX.Infraestructure.EF.Contexts
 {
@@ -43,6 +45,10 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Contexts
         public DbSet<FaixaAtivacao> FaixasAtivacao { get; set; }
         public DbSet<Faturamento> Faturamento { get; set; }
         public DbSet<FaturamentoTaxista> FaturamentoTaxista { get; set; }
+        public DbSet<UF> UFs { get; set; }
+        public DbSet<Cidade> Cidades { get; set; }
+        public DbSet<Habilitacao> Habilitacoes { get; set; }
+        public DbSet<RegistroVeiculo> RegistrosVeiculos { get; set; }
 
 
         public CloudMeMotoTEXContext(
@@ -88,6 +94,10 @@ namespace CloudMe.MotoTEX.Infraestructure.EF.Contexts
             builder.ApplyConfiguration(new MapFaixaAtivacao());
             builder.ApplyConfiguration(new MapFaturamento());
             builder.ApplyConfiguration(new MapFaturamentoTaxista());
+            builder.ApplyConfiguration(new MapUF());
+            builder.ApplyConfiguration(new MapCidade());
+            builder.ApplyConfiguration(new MapHabilitacao());
+            builder.ApplyConfiguration(new MapRegistroVeiculo());
             base.OnModelCreating(builder);
         }
 

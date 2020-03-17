@@ -86,6 +86,10 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
             services.AddTransient<IFaturamentoService, FaturamentoService>();
             services.AddTransient<IFaturamentoTaxistaService, FaturamentoTaxistaService>();
             services.AddTransient<IFaixaAtivacaoService, FaixaAtivacaoService>();
+            services.AddTransient<IUFService, UFService>();
+            services.AddTransient<ICidadeService, CidadeService>();
+            services.AddTransient<IHabilitacaoService, HabilitacaoService>();
+            services.AddTransient<IRegistroVeiculoService, RegistroVeiculoService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped(p => p.GetService<IHttpContextAccessor>()?.HttpContext);
@@ -168,6 +172,10 @@ namespace CloudMe.MotoTEX.Configuration.Library.Helpers
             services.AddTransient<IFaturamentoRepository, FaturamentoRepository>();
             services.AddTransient<IFaturamentoTaxistaRepository, FaturamentoTaxistaRepository>();
             services.AddTransient<IFaixaAtivacaoRepository, FaixaAtivacaoRepository>();
+            services.AddTransient<IUFRepository, UFRepository>();
+            services.AddTransient<ICidadeRepository, CidadeRepository>();
+            services.AddTransient<IHabilitacaoRepository, HabilitacaoRepository>();
+            services.AddTransient<IRegistroVeiculoRepository, RegistroVeiculoRepository>();
 
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
